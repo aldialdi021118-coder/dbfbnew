@@ -299,13 +299,13 @@
 <script>
     // --- 1. CONFIG & INIT ---
     const firebaseConfig = {
-      apiKey: "AIzaSyCrzevRXiiyPQkK8aYkMXpn3c0ggQDW4vs",
-      authDomain: "databasefb-9a5c5.firebaseapp.com",
-      projectId: "databasefb-9a5c5",
-      storageBucket: "databasefb-9a5c5.firebasestorage.app",
-      messagingSenderId: "642136858434",
-      appId: "1:642136858434:web:c555f88e809c75da28f2db",
-      measurementId: "G-C0WRL4EV11"
+      apiKey: "AIzaSyBgh_S8My3F8_QxO6f5Almk6CvQA_hvMhg",
+      authDomain: "db1master.firebaseapp.com",
+      projectId: "db1master",
+      storageBucket: "db1master.firebasestorage.app",
+      messagingSenderId: "464066196993",
+      appId: "1:464066196993:web:103c7f8ba00488253fb200",
+      databaseURL: "https://db1master-default-rtdb.firebaseio.com"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -400,6 +400,23 @@
     }
 
     // --- 5. FIREBASE LISTENERS (READ) ---
+    // ============================================================
+    // SYNC DB1 → DB2: Setiap perubahan data DB1 otomatis disimpan
+    // ke DB2 di bawah path "db1mirror/<key>" sebagai backup/sinkron.
+    // Throttle 3 detik per key agar tidak spam write ke DB2.
+    // ============================================================
+    const _syncThrottle = {};
+    function syncToDb2(key, data) {
+        if (!window.db2Ready) return;
+        if (data === null || data === undefined) return;
+        const now = Date.now();
+        if (_syncThrottle[key] && now - _syncThrottle[key] < 3000) return;
+        _syncThrottle[key] = now;
+        db2.ref('db1mirror/' + key).set(data)
+            .then(() => console.log('✅ Sync DB1→DB2 [' + key + '] berhasil.'))
+            .catch(e => console.warn('⚠️ Sync DB1→DB2 [' + key + '] gagal:', e.message));
+    }
+
     function startFirebaseListeners() {
         const refs = [
             { key: 'dbUtama1', var: 'dbUtama1' }, { key: 'dbSecondary1', var: 'dbSecondary1' },
@@ -430,6 +447,8 @@
                 }
                 window[dbObj.var] = normalized;
                 refreshAllTabs(dbObj.key);
+                // ✅ Sync ke DB2
+                syncToDb2(dbObj.key, data);
             });
         });
 
@@ -446,6 +465,8 @@
                 const p = window.currentOpenModalParams;
                 openRangeModal(p.city, p.val, p.acc, p.status, p.db);
             }
+            // ✅ Sync ke DB2
+            syncToDb2('history', data);
         });
 
         db.ref('joinTimers').on('value', (snapshot) => {
@@ -453,6 +474,8 @@
             if(document.getElementById('tab-5').classList.contains('active')) {
                 renderScheduleTab();
             }
+            // ✅ Sync ke DB2
+            syncToDb2('joinTimers', snapshot.val());
         });
 
         db.ref('cardOrder').on('value', (snapshot) => {
@@ -466,6 +489,8 @@
             if(document.getElementById('tab-6').classList.contains('active')) {
                 renderPostingScheduleTab();
             }
+            // ✅ Sync ke DB2
+            syncToDb2('postingSchedule', snapshot.val());
         });
     }
 
@@ -517,7 +542,7 @@
     // Membaca data kota & jumlah grup yang dikirim content.js ke Firebase-nya sendiri
     // Menggunakan SSE (Server-Sent Events) dari Firebase REST API — tanpa perlu SDK
     function startFewfeedScanListener() {
-        const DB_URL   = localStorage.getItem("fewfeed_firebase_url")   || "https://databasefb-965a8-default-rtdb.firebaseio.com";
+        const DB_URL   = localStorage.getItem("fewfeed_firebase_url")   || "https://db1master-default-rtdb.firebaseio.com";
         const AUTH_TOK = localStorage.getItem("fewfeed_firebase_token") || "";
         const authParam = AUTH_TOK ? "?auth=" + AUTH_TOK : "";
         const sseUrl = DB_URL + "/fewfeed_scan.json" + authParam;
