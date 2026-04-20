@@ -141,6 +141,42 @@
         .drag-ghost { position: fixed; pointer-events: none; z-index: 9999; opacity: 0.92; background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(24,119,242,0.25); border: 2px solid rgba(24,119,242,0.4); padding: 10px 14px; font-weight: 700; font-size: 13px; color: var(--text-primary); min-width: 180px; max-width: 280px; display: flex; align-items: center; gap: 8px; }
         .drag-ghost-icon { font-size: 16px; }
         .drag-sort-hint { text-align: center; font-size: 10px; color: #aaa; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+        /* --- POSTING SCHEDULE TAB (tab-6) --- */
+        .sched-toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .btn-gen-sched { flex: 1; background: var(--fb-blue); color: white; border: none; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; min-width: 120px; }
+        .btn-gen-sched:active { transform: scale(0.97); }
+        .btn-gen-sched:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-reset-sched { background: #fee2e2; color: var(--danger-color); border: none; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-reset-sched:active { transform: scale(0.97); }
+
+        .sched-summary-bar { background: white; border-radius: 10px; padding: 12px 15px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .sched-total { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .sched-total span { color: var(--fb-blue); font-size: 18px; }
+        .sched-date { font-size: 11px; color: var(--text-secondary); }
+
+        .sched-session { background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 14px; }
+        .sched-session-header { padding: 12px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f0f2f5; }
+        .sched-session-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+        .siang-icon { background: #FFF8E1; }
+        .malam-icon { background: #EDE7F6; }
+        .sched-session-title { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+        .sched-session-sub { font-size: 11px; color: var(--text-secondary); }
+        .sched-session-count { margin-left: auto; background: #e7f3ff; color: var(--fb-blue); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+
+        .sched-item { padding: 11px 15px; border-bottom: 1px solid #f7f7f7; display: flex; align-items: center; gap: 12px; }
+        .sched-item:last-child { border-bottom: none; }
+        .sched-item-num { width: 22px; height: 22px; border-radius: 50%; background: #f0f2f5; color: var(--text-secondary); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sched-item-body { flex: 1; }
+        .sched-acc-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .sched-city-info { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+        .sched-item-count { background: #e7f3ff; color: var(--fb-blue); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+
+        .sched-ai-status { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.7; }
+        .sched-ai-status i { font-size: 30px; color: var(--fb-blue); margin-bottom: 8px; display: block; }
+        .sched-loading { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 30px 10px; }
+        .sched-spinner { width: 36px; height: 36px; border: 4px solid #e4e6eb; border-top-color: var(--fb-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -194,6 +230,25 @@
             <div class="empty-state" style="padding-bottom:10px; font-size:11px;">Akun DISBAN dikumpulkan disini.<br>Klik tombol dibawah untuk memulai timer 50 jam.</div>
             <div id="list-schedule" style="display: flex; flex-direction: column; gap: 10px;"></div>
         </section>
+
+        <section id="tab-6" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title">📅 Jadwal Posting Harian</span></div>
+            <div class="sched-toolbar">
+                <button class="btn-gen-sched" id="btnGenSched" onclick="generatePostingSchedule()">
+                    <i class="fas fa-magic"></i> Generate Jadwal
+                </button>
+                <button class="btn-reset-sched" onclick="resetPostingSchedule()">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+            <div id="posting-schedule-container">
+                <div class="sched-ai-status">
+                    <i class="fas fa-calendar-alt"></i>
+                    Belum ada jadwal.<br>Klik <b>Generate Jadwal</b> untuk membuat jadwal posting otomatis hari ini.<br><br>
+                    <span style="font-size:11px; color:#aaa;">Akun DISBAN akan otomatis dilewati.<br>Minimal 300 posting/hari dengan sesi siang & malam.</span>
+                </div>
+            </div>
+        </section>
     </div>
 
     <div class="modal-overlay" id="rangeModal" onclick="closeModal(event, 'rangeModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title" id="modalTitle">Kota</div><div class="modal-subtitle" id="modalSubtitle">Detail</div></div><div class="modal-body"><div class="range-grid" id="modalGrid"></div></div><button class="btn-close" onclick="closeModal(null, 'rangeModal', true)">Tutup</button></div></div>
@@ -228,7 +283,15 @@
         <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
         <div class="nav-item" onclick="switchTab(4)" style="color: var(--danger-color);"><i class="fas fa-ban"></i></div>
         <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
+        <div class="nav-item" onclick="switchTab(6)"><i class="fas fa-calendar-check"></i></div>
     </nav>
+
+    <!-- ✅ Loading overlay: tampil saat DB2 belum siap, hilang otomatis -->
+    <div id="db2-loading" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(240,242,245,0.97); z-index:9999; justify-content:center; align-items:center; flex-direction:column; gap:14px; backdrop-filter:blur(4px);">
+        <div style="font-size:32px; color:#1877F2;"><i class="fas fa-sync fa-spin"></i></div>
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; color:#1877F2; font-size:15px;">Memuat data terbaru...</div>
+        <div style="font-size:11px; color:#999;">Menyinkronkan dari server</div>
+    </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -248,6 +311,22 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // ============================================================
+    // DB2: Firebase khusus state user (status, browser, cardOrder)
+    // DB1 = read-only dari luar | DB2 = state terbaru dari user
+    // ============================================================
+    const firebaseConfig2 = {
+        apiKey: "AIzaSyDfqfpQPwtEg15gilGfvnmkC1u5IGvuTlo",
+        authDomain: "dbfbnew-570f2.firebaseapp.com",
+        databaseURL: "https://dbfbnew-570f2-default-rtdb.firebaseio.com",
+        projectId: "dbfbnew-570f2",
+        storageBucket: "dbfbnew-570f2.firebasestorage.app",
+        messagingSenderId: "1078690181589",
+        appId: "1:1078690181589:web:4dcb533f163b343ef5cd5c"
+    };
+    const app2 = firebase.initializeApp(firebaseConfig2, 'db2');
+    const db2 = firebase.database(app2);
+
     // --- 2. DATA LAMA (HARDCODE) ---
     const initialData = {
         dbUtama1: [], dbSecondary1: [], dbUtama5: []
@@ -258,9 +337,35 @@
     window.dbUtama5 = [];
     window.dbHistory = []; 
     window.joinTimers = {};
-    window.fewfeedScanData = {}; // Data scan real-time dari Firebase content.js
-    window.homeCardOrder = [];   // Urutan kartu Home
-    window.fanpageCardOrder = []; // Urutan kartu Fanpage
+    window.fewfeedScanData = {};
+    window.homeCardOrder = [];
+    window.fanpageCardOrder = [];
+    window.postingScheduleData = null;
+    // ✅ DB2: override per akun { SAFE_NAME: { status, browser } }
+    window.accountOverrides = {};
+    window.db2Ready = false; // flag: DB2 sudah dimuat sebelum render pertama
+
+    // ============================================================
+    // HELPERS: safeKey, effective status & browser dari DB2
+    // ============================================================
+    function getSafeKey(name) {
+        return (name || '').replace(/[.#$\[\]/]/g, '_');
+    }
+
+    function getOverride(acc) {
+        if (!acc || !acc.name) return {};
+        return (window.accountOverrides[acc.name] || window.accountOverrides[getSafeKey(acc.name)] || {});
+    }
+
+    function getEffectiveStatus(acc) {
+        const ov = getOverride(acc);
+        return ov.status || acc.status || 'gacor';
+    }
+
+    function getEffectiveBrowser(acc) {
+        const ov = getOverride(acc);
+        return ov.browser || acc.browser || null;
+    }
 
     // --- 4. BROWSER ICON MAP ---
     const browserMap = {
@@ -271,9 +376,10 @@
     };
 
     function getBrowserType(acc) {
-        // Prioritas: field browser yang tersimpan di acc
-        if (acc && acc.browser) return acc.browser;
-        // Fallback: cek browserMap lama
+        // ✅ Prioritas 1: override dari DB2
+        const b2 = getEffectiveBrowser(acc);
+        if (b2) return b2;
+        // Prioritas 2: browserMap hardcode lama
         const n = (acc && acc.name) ? acc.name.toUpperCase() : '';
         if (browserMap.chrome.includes(n))   return 'chrome';
         if (browserMap.brave.includes(n))    return 'brave';
@@ -304,7 +410,25 @@
             const dbRef = db.ref(dbObj.key);
             dbRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                window[dbObj.var] = data || [];
+                let normalized;
+                if (!data) {
+                    normalized = [];
+                } else if (Array.isArray(data)) {
+                    normalized = data;
+                } else if (typeof data === 'object') {
+                    const keys = Object.keys(data).map(Number).filter(n => !isNaN(n));
+                    if (keys.length === 0) { normalized = []; }
+                    else {
+                        const maxKey = Math.max(...keys);
+                        normalized = [];
+                        for (let i = 0; i <= maxKey; i++) {
+                            normalized.push(data[i] !== undefined ? data[i] : null);
+                        }
+                    }
+                } else {
+                    normalized = [];
+                }
+                window[dbObj.var] = normalized;
                 refreshAllTabs(dbObj.key);
             });
         });
@@ -332,13 +456,62 @@
         });
 
         db.ref('cardOrder').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            window.homeCardOrder = data.home || [];
-            window.fanpageCardOrder = data.fanpage || [];
+            // ⚠️ cardOrder dari DB1 diabaikan — sekarang dikelola DB2
+            // Baris ini dibiarkan agar tidak error jika DB1 masih punya data lama
+        });
+
+        // Listener jadwal posting harian
+        db.ref('postingSchedule').on('value', (snapshot) => {
+            window.postingScheduleData = snapshot.val() || null;
+            if(document.getElementById('tab-6').classList.contains('active')) {
+                renderPostingScheduleTab();
+            }
         });
     }
 
-    startFirebaseListeners();
+    // ============================================================
+    // INIT SEQUENCE: Load DB2 dulu → render aman → baru DB1
+    // Tujuan: tidak ada flash data lama saat pertama buka web
+    // ============================================================
+    function applyDb2Snapshot(snap) {
+        const d = snap || {};
+        window.accountOverrides  = d.accountOverrides  || {};
+        window.homeCardOrder     = (d.cardOrder && d.cardOrder.home)    || [];
+        window.fanpageCardOrder  = (d.cardOrder && d.cardOrder.fanpage) || [];
+    }
+
+    // Tampilkan loading overlay
+    document.getElementById('db2-loading').style.display = 'flex';
+
+    db2.ref('/').once('value')
+        .then(snapshot => {
+            applyDb2Snapshot(snapshot.val());
+            window.db2Ready = true;
+            document.getElementById('db2-loading').style.display = 'none';
+
+            // DB1 baru diaktifkan SETELAH DB2 siap → tidak ada flash
+            startFirebaseListeners();
+            startFewfeedScanListener();
+
+            // ✅ Real-time listener DB2 untuk sinkron perubahan state
+            db2.ref('accountOverrides').on('value', snap2 => {
+                window.accountOverrides = snap2.val() || {};
+                if (window.db2Ready) refreshAllTabs('overrides');
+            });
+            db2.ref('cardOrder').on('value', snap2 => {
+                const d2 = snap2.val() || {};
+                window.homeCardOrder    = d2.home    || [];
+                window.fanpageCardOrder = d2.fanpage || [];
+                // Posisi dipakai saat render berikutnya (tidak perlu full refresh)
+            });
+        })
+        .catch(err => {
+            console.warn('DB2 gagal dimuat, lanjut tanpa override:', err);
+            window.db2Ready = true;
+            document.getElementById('db2-loading').style.display = 'none';
+            startFirebaseListeners();
+            startFewfeedScanListener();
+        });
 
     // --- 5b. LISTENER REAL-TIME FIREBASE CONTENT.JS (fewfeed_scan) ---
     // Membaca data kota & jumlah grup yang dikirim content.js ke Firebase-nya sendiri
@@ -386,7 +559,7 @@
 
         console.log('✅ FewFeed Scan Listener aktif →', sseUrl);
     }
-    startFewfeedScanListener();
+    // startFewfeedScanListener() dipanggil di dalam DB2 init sequence (di atas)
 
     // --- 5c. AUTO-REGISTER AKUN BARU DARI SCAN KE HOME ---
     // Jika ada akun di fewfeed_scan yang belum terdaftar di manapun,
@@ -440,6 +613,7 @@
         window.refreshFanpageTab(); 
         window.refreshDisbanTab(); 
         if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
+        if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
     }
     
     function showMigrationButton(containerId, dbKey) {
@@ -450,7 +624,18 @@
     // --- 6. FIREBASE UPDATE (WRITE) ---
     window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
         if(showLoading) { alert("Sedang mengupload... Jangan tutup halaman."); }
-        db.ref(dbKey).set(dataArray)
+        
+        // Deep clone supaya tidak ada reference conflict dengan Firebase listener
+        const cloned = JSON.parse(JSON.stringify(dataArray || []));
+        
+        // Update window variable LANGSUNG dengan data terbaru
+        window[dbKey] = cloned;
+        
+        // Refresh UI segera tanpa tunggu server
+        refreshAllTabs(dbKey);
+
+        // Kirim ke Firebase server
+        db.ref(dbKey).set(cloned)
             .then(() => {
                 if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase.");
             })
@@ -472,6 +657,8 @@
 
         const fragment = document.createDocumentFragment();
         allDisban.forEach((akun) => {
+            // akun.status sudah berisi effStatus dari collectAllDisban
+            const effStatus = akun.status;
             const card = document.createElement('div');
             card.className = 'account-card status-disban';
             
@@ -485,7 +672,7 @@
                 items = akun.items || [];
             }
             let listHTML = items.map(item => `
-                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${akun.originalDb}')">
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${akun.originalDb}')">
                     <span class="city">${item.city}</span><span class="val">${item.val}</span>
                 </div>
             `).join('');
@@ -533,8 +720,9 @@
         const collect = (arr, dbRefName, label) => {
             if(!arr) return;
             arr.forEach((acc, idx) => {
-                if(acc.status === 'disban') {
-                    allDisban.push({ ...acc, originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
+                // ✅ Cek status efektif dari DB2 override
+                if(getEffectiveStatus(acc) === 'disban') {
+                    allDisban.push({ ...acc, status: getEffectiveStatus(acc), originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
             });
         };
@@ -602,13 +790,15 @@
             const index = akun.originalIdx;
             const dbRefName = akun.originalDb;
 
+            // ✅ Selalu ambil status & browser terbaru dari DB2
+            const effStatus = getEffectiveStatus(akun);
             const card = document.createElement('div');
-            card.className = `account-card ${akun.status === 'disban' ? 'status-disban' : ''}`;
+            card.className = `account-card ${effStatus === 'disban' ? 'status-disban' : ''}`;
             card.dataset.accname = akun.name;
 
             let statusLabel = '', statusClass = '';
-            if(akun.status === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
-            else if(akun.status === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
+            else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -625,7 +815,7 @@
             }
 
             let listHTML = items.map(item => `
-                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${dbRefName}')">
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
                     <span class="city">${item.city}</span><span class="val">${item.val}</span>
                 </div>
             `).join('');
@@ -699,7 +889,8 @@
         else window.fanpageCardOrder = order;
         const update = {};
         update[tabKey] = order;
-        db.ref('cardOrder').update(update);
+        // ✅ Simpan posisi kartu ke DB2 saja
+        db2.ref('cardOrder').update(update);
     }
 
     function initDragDrop(container, tabKey) {
@@ -837,10 +1028,16 @@
         const idx = window._moveBrowserIdx;
         const dbKey = window._moveBrowserDb;
         if (idx === null || !dbKey) return;
-        let targetDb = window[dbKey];
+        const targetDb = window[dbKey];
         if (!targetDb || !targetDb[idx]) return;
-        targetDb[idx].browser = browserType;
-        saveToFirebase(dbKey, targetDb);
+        const accName = targetDb[idx].name;
+        const safeKey = getSafeKey(accName);
+        // ✅ Simpan browser ke DB2 — tidak menyentuh DB1 sama sekali
+        if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
+        window.accountOverrides[safeKey].browser = browserType;
+        db2.ref('accountOverrides/' + safeKey + '/browser').set(browserType)
+            .catch(e => alert("Gagal simpan browser: " + e.message));
+        refreshAllTabs('browser');
         closeModal(null, 'moveBrowserModal', true);
     }
 
@@ -891,13 +1088,15 @@
         const fragment = document.createDocumentFragment();
 
         data.forEach((akun, index) => {
+            // ✅ Selalu ambil status & browser terbaru dari DB2
+            const effStatus = getEffectiveStatus(akun);
             const card = document.createElement('div');
-            card.className = `account-card ${akun.status === 'disban' ? 'status-disban' : ''}`;
+            card.className = `account-card ${effStatus === 'disban' ? 'status-disban' : ''}`;
             card.dataset.accname = akun.name;
             
             let statusLabel = '', statusClass = '';
-            if(akun.status === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
-            else if(akun.status === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
+            else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
@@ -916,7 +1115,7 @@
             }
 
             let listHTML = items.map(item => `
-                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${dbRefName}')">
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
                     <span class="city">${item.city}</span><span class="val">${item.val}</span>
                 </div>
             `).join('');
@@ -999,31 +1198,85 @@
     // --- NEW: DELETE CITY FUNCTION ---
     window.deleteCity = function(cityIndex) {
         if(!confirm('Yakin ingin menghapus kota ini?')) return;
-        
-        let targetDb = window[window.currentEditDb];
-        if(!targetDb) return;
-        
-        // Remove item from array
+        // Deep clone
+        let targetDb = JSON.parse(JSON.stringify(window[window.currentEditDb] || []));
+        if(!targetDb || !targetDb[window.currentEditAccountIndex]) return;
         targetDb[window.currentEditAccountIndex].items.splice(cityIndex, 1);
-        
-        // Save to Firebase
         saveToFirebase(window.currentEditDb, targetDb);
-        
-        // Refresh modal to show changes
+        // Refresh modal
         openEditValueModal(window.currentEditAccountIndex, window.currentEditDb);
     }
 
-    window.submitValueChanges = function() { 
-        let targetDb = window[window.currentEditDb]; if(!targetDb) return; 
-        let items = targetDb[window.currentEditAccountIndex].items || []; 
-        items.forEach((item, idx) => { const el = document.getElementById(`edit_val_${idx}`); if(el) { const newVal = parseInt(el.value); if(newVal > 0) item.val = newVal; } }); 
-        saveToFirebase(window.currentEditDb, targetDb); closeModal(null, 'editValueModal', true); 
+    window.submitValueChanges = function() {
+        // Deep clone
+        let targetDb = JSON.parse(JSON.stringify(window[window.currentEditDb] || []));
+        if(!targetDb || !targetDb[window.currentEditAccountIndex]) return;
+        let items = targetDb[window.currentEditAccountIndex].items || [];
+        items.forEach((item, idx) => {
+            const el = document.getElementById(`edit_val_${idx}`);
+            if(el) {
+                const newVal = parseInt(el.value);
+                if(newVal > 0) item.val = newVal;
+            }
+        });
+        targetDb[window.currentEditAccountIndex].items = items;
+        saveToFirebase(window.currentEditDb, targetDb);
+        closeModal(null, 'editValueModal', true);
     }
 
-    window.openStatusModal = function(index, dbRefName) { window.currentEditAccountIndex = index; window.currentEditDb = dbRefName; document.getElementById('statusModal').classList.add('show'); }
-    window.submitStatusChange = function() { if(window.currentEditAccountIndex === -1) return; let targetDb = window[window.currentEditDb]; if(targetDb) { targetDb[window.currentEditAccountIndex].status = document.getElementById('newStatusInput').value; saveToFirebase(window.currentEditDb, targetDb); } closeModal(null, 'statusModal', true); }
-    window.openAddCityModal = function(index, dbRefName) { window.currentEditAccountIndex = index; window.currentEditDb = dbRefName; document.getElementById('newCityName').value = ''; document.getElementById('newCityVal').value = ''; document.getElementById('addCityModal').classList.add('show'); }
-    window.submitNewCity = function() { if(window.currentEditAccountIndex === -1) return; const name = document.getElementById('newCityName').value; const val = parseInt(document.getElementById('newCityVal').value); if(name && val > 0) { let targetDb = window[window.currentEditDb]; if(targetDb) { if(!targetDb[window.currentEditAccountIndex].items) targetDb[window.currentEditAccountIndex].items = []; targetDb[window.currentEditAccountIndex].items.push({ city: name, val: val }); saveToFirebase(window.currentEditDb, targetDb); } closeModal(null, 'addCityModal', true); } else alert('Mohon isi nama kota dan jumlah.'); }
+    window.openStatusModal = function(index, dbRefName) {
+        window.currentEditAccountIndex = index;
+        window.currentEditDb = dbRefName;
+        // ✅ Tampilkan status efektif dari DB2 (bukan dari DB1)
+        const targetDb = window[dbRefName];
+        if (targetDb && targetDb[index]) {
+            document.getElementById('newStatusInput').value = getEffectiveStatus(targetDb[index]);
+        }
+        document.getElementById('statusModal').classList.add('show');
+    }
+
+    window.submitStatusChange = function() {
+        if(window.currentEditAccountIndex === -1) return;
+        const targetDb = window[window.currentEditDb];
+        if(targetDb && targetDb[window.currentEditAccountIndex]) {
+            const accName = targetDb[window.currentEditAccountIndex].name;
+            const newStatus = document.getElementById('newStatusInput').value;
+            const safeKey = getSafeKey(accName);
+            // ✅ Simpan HANYA ke DB2 — tidak menyentuh DB1 sama sekali
+            if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
+            window.accountOverrides[safeKey].status = newStatus;
+            db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
+                .catch(e => alert("Gagal simpan status: " + e.message));
+            refreshAllTabs('status');
+        }
+        closeModal(null, 'statusModal', true);
+    }
+
+    window.openAddCityModal = function(index, dbRefName) {
+        window.currentEditAccountIndex = index;
+        window.currentEditDb = dbRefName;
+        document.getElementById('newCityName').value = '';
+        document.getElementById('newCityVal').value = '';
+        document.getElementById('addCityModal').classList.add('show');
+    }
+
+    window.submitNewCity = function() {
+        if(window.currentEditAccountIndex === -1) return;
+        const name = document.getElementById('newCityName').value;
+        const val = parseInt(document.getElementById('newCityVal').value);
+        if(name && val > 0) {
+            // Deep clone
+            let targetDb = JSON.parse(JSON.stringify(window[window.currentEditDb] || []));
+            if(targetDb && targetDb[window.currentEditAccountIndex]) {
+                if(!targetDb[window.currentEditAccountIndex].items) targetDb[window.currentEditAccountIndex].items = [];
+                targetDb[window.currentEditAccountIndex].items.push({ city: name, val: val });
+                saveToFirebase(window.currentEditDb, targetDb);
+            }
+            closeModal(null, 'addCityModal', true);
+        } else {
+            alert('Mohon isi nama kota dan jumlah.');
+        }
+    }
 
     // --- 10. HISTORY & DELETE LOGIC ---
     window.getHistory = function(accName, city, rangeIndex) { 
@@ -1222,7 +1475,7 @@
             window.pendingAction = null; 
         } else if (window.pendingActionType === 'delete_account' && window.pendingAction) {
             const { index, dbRefName } = window.pendingAction;
-            let targetDb = window[dbRefName];
+            let targetDb = JSON.parse(JSON.stringify(window[dbRefName] || []));
             if (targetDb) { targetDb.splice(index, 1); saveToFirebase(dbRefName, targetDb); }
             closeModal(null, 'confirmModal', true);
             window.pendingAction = null;
@@ -1326,7 +1579,207 @@
         });
     }, 1000);
 
-    window.switchTab = function(n) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); document.querySelectorAll('.nav-item')[n-1].classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); if(n === 1) renderHomeTab(); if(n === 2) window.refreshFanpageTab(); if(n === 3) renderHistoryTab(); if(n === 4) refreshDisbanTab(); if(n === 5) renderScheduleTab(); }
+    // ============================================================
+    // --- TAB 6: JADWAL POSTING HARIAN (AI GENERATED) ---
+    // ============================================================
+
+    window.renderPostingScheduleTab = function() {
+        const container = document.getElementById('posting-schedule-container');
+        if (!container) return;
+
+        const sched = window.postingScheduleData;
+        if (!sched || !sched.siang || !sched.malam) {
+            container.innerHTML = `
+                <div class="sched-ai-status">
+                    <i class="fas fa-calendar-alt"></i>
+                    Belum ada jadwal.<br>Klik <b>Generate Jadwal</b> untuk membuat jadwal posting otomatis hari ini.<br><br>
+                    <span style="font-size:11px; color:#aaa;">Akun DISBAN akan otomatis dilewati.<br>Minimal 300 posting/hari dengan sesi siang & malam.</span>
+                </div>`;
+            return;
+        }
+
+        const totalPosting = (sched.totalSiang || 0) + (sched.totalMalam || 0);
+        const tgl = sched.tanggal ? new Date(sched.tanggal).toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '-';
+
+        function buildItems(list) {
+            return list.map((item, i) => `
+                <div class="sched-item">
+                    <div class="sched-item-num">${i+1}</div>
+                    <div class="sched-item-body">
+                        <div class="sched-acc-name">${item.akun}</div>
+                        <div class="sched-city-info">📍 ${item.kota} &nbsp;•&nbsp; Range ${item.rangeLabel}</div>
+                    </div>
+                    <div class="sched-item-count">+${item.jumlah}</div>
+                </div>`).join('');
+        }
+
+        container.innerHTML = `
+            <div class="sched-summary-bar">
+                <div>
+                    <div class="sched-total">Total: <span>${totalPosting}</span> posting</div>
+                    <div class="sched-date">${tgl}</div>
+                </div>
+                <div style="font-size:11px; background:${totalPosting>=300?'#e6f9ec':'#fff3cd'}; color:${totalPosting>=300?'#36a420':'#b98900'}; padding:4px 10px; border-radius:20px; font-weight:700;">
+                    ${totalPosting >= 300 ? '✓ Target Tercapai' : '⚠ Kurang dari 300'}
+                </div>
+            </div>
+
+            <div class="sched-session">
+                <div class="sched-session-header">
+                    <div class="sched-session-icon siang-icon">☀️</div>
+                    <div>
+                        <div class="sched-session-title">Sesi Siang</div>
+                        <div class="sched-session-sub">07:00 – 13:00</div>
+                    </div>
+                    <div class="sched-session-count">${sched.totalSiang || 0} grup</div>
+                </div>
+                ${buildItems(sched.siang)}
+            </div>
+
+            <div class="sched-session">
+                <div class="sched-session-header">
+                    <div class="sched-session-icon malam-icon">🌙</div>
+                    <div>
+                        <div class="sched-session-title">Sesi Malam</div>
+                        <div class="sched-session-sub">18:00 – 23:00</div>
+                    </div>
+                    <div class="sched-session-count">${sched.totalMalam || 0} grup</div>
+                </div>
+                ${buildItems(sched.malam)}
+            </div>`;
+    };
+
+    window.generatePostingSchedule = async function() {
+        const btn = document.getElementById('btnGenSched');
+        const container = document.getElementById('posting-schedule-container');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+        container.innerHTML = `
+            <div class="sched-loading">
+                <div class="sched-spinner"></div>
+                <div style="font-size:13px; color:var(--text-secondary);">Membuat jadwal otomatis...</div>
+            </div>`;
+
+        try {
+            // Kumpulkan semua akun aktif (non-disban)
+            const allAccs = collectAllAccounts().filter(a => a && a.status !== 'disban');
+
+            // Siapkan pool semua range task yang tersedia
+            const pool = [];
+            allAccs.forEach(akun => {
+                const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+                const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
+                let cities;
+                if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
+                    cities = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
+                } else {
+                    cities = akun.items || [];
+                }
+
+                cities.forEach(cityObj => {
+                    const totalGrup = cityObj.val || 0;
+                    if (totalGrup === 0) return;
+                    const jumlahRange = Math.ceil(totalGrup / 20);
+                    for (let r = 1; r <= jumlahRange; r++) {
+                        const min = (r - 1) * 20 + 1;
+                        const max = (r === jumlahRange) ? totalGrup : r * 20;
+                        const jumlah = max - min + 1;
+                        pool.push({
+                            akun: akun.name,
+                            kota: cityObj.city,
+                            rangeLabel: `${r} (${min}-${max})`,
+                            jumlah: jumlah,
+                            priority: getEffectiveStatus(akun) === 'gacor' ? 2 : 1
+                        });
+                    }
+                });
+            });
+
+            if (pool.length === 0) {
+                container.innerHTML = `<div class="sched-ai-status"><i class="fas fa-exclamation-circle" style="color:#fa3e3e;"></i>Tidak ada akun aktif dengan data kota.<br><span style="font-size:11px;color:#aaa;">Tambahkan kota & jumlah grup ke akun terlebih dahulu.</span></div>`;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic"></i> Generate Jadwal';
+                return;
+            }
+
+            // Shuffle pool dengan distribusi merata per akun
+            // Urutkan berselang-seling antar akun supaya tidak menumpuk 1 akun
+            const byAcc = {};
+            pool.forEach(t => {
+                if (!byAcc[t.akun]) byAcc[t.akun] = [];
+                byAcc[t.akun].push(t);
+            });
+            const accKeys = Object.keys(byAcc);
+            // Acak urutan akun
+            accKeys.sort(() => Math.random() - 0.5);
+            const interleaved = [];
+            let hasMore = true;
+            let i = 0;
+            while (hasMore) {
+                hasMore = false;
+                accKeys.forEach(k => {
+                    if (byAcc[k][i]) { interleaved.push(byAcc[k][i]); hasMore = true; }
+                });
+                i++;
+            }
+
+            // Ambil task sampai total >= 300 atau habis semua
+            const TARGET = 300;
+            let selected = [];
+            let total = 0;
+            for (const task of interleaved) {
+                selected.push(task);
+                total += task.jumlah;
+                if (total >= TARGET && selected.length >= 6) break; // minimal 6 task (3 siang, 3 malam)
+            }
+
+            // Kalau masih kurang 300 tapi pool habis, pakai semua
+            if (total < TARGET) selected = interleaved;
+
+            // Split siang/malam: distribusi merata berselang-seling
+            const siang = [], malam = [];
+            let totalSiang = 0, totalMalam = 0;
+            selected.forEach((task, idx) => {
+                if (idx % 2 === 0) { siang.push(task); totalSiang += task.jumlah; }
+                else { malam.push(task); totalMalam += task.jumlah; }
+            });
+
+            // Pastikan masing-masing sesi dapat minimal 1 task
+            if (siang.length === 0 && malam.length > 0) {
+                siang.push(malam.shift());
+                totalSiang = siang.reduce((s, t) => s + t.jumlah, 0);
+                totalMalam = malam.reduce((s, t) => s + t.jumlah, 0);
+            }
+
+            const result = { siang, malam, totalSiang, totalMalam, tanggal: Date.now() };
+
+            // Simpan ke Firebase
+            await db.ref('postingSchedule').set(result);
+            window.postingScheduleData = result;
+            renderPostingScheduleTab();
+
+        } catch(err) {
+            container.innerHTML = `
+                <div class="sched-ai-status">
+                    <i class="fas fa-exclamation-circle" style="color:#fa3e3e;"></i>
+                    Gagal generate jadwal.<br>
+                    <span style="font-size:11px;color:#aaa;">${err.message}</span>
+                </div>`;
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Generate Jadwal';
+    };
+
+    window.resetPostingSchedule = function() {
+        if (!confirm('Reset jadwal posting hari ini?')) return;
+        db.ref('postingSchedule').remove();
+        window.postingScheduleData = null;
+        renderPostingScheduleTab();
+    };
+
+    window.switchTab = function(n) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); document.querySelectorAll('.nav-item')[n-1].classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); if(n === 1) renderHomeTab(); if(n === 2) window.refreshFanpageTab(); if(n === 3) renderHistoryTab(); if(n === 4) refreshDisbanTab(); if(n === 5) renderScheduleTab(); if(n === 6) renderPostingScheduleTab(); }
 </script>
 </body>
 </html>
