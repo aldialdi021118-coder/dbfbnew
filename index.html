@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FB Database Manager V5.1 (Delete City)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS UTAMA --- */
+        :root { --fb-blue: #1877F2; --fb-bg: #F0F2F5; --text-primary: #050505; --text-secondary: #65676B; --nav-height: 60px; --status-gacor: #36a420; --status-warn: #f7b928; --status-disban: #fa3e3e; --danger-color: #fa3e3e; --ease-ios: cubic-bezier(0.25, 1, 0.5, 1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 20px); overflow-x: hidden; scroll-behavior: smooth; background: url('https://t3.ftcdn.net/jpg/03/94/94/92/360_F_394949282_FOyFFN53l0juz58dXuKjzl1CQ3Ruuq90.jpg') no-repeat center center fixed; background-size: cover; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(240, 242, 245, 0.85); z-index: -1; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        .app-container { max-width: 550px; margin: 0 auto; padding: 15px; display: flex; flex-direction: column; transition: margin-right 0.4s var(--ease-ios), width 0.4s var(--ease-ios); }
+        .app-header { text-align: center; margin: 15px 0 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-shrink: 0; }
+        .app-header h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--fb-blue); font-size: 20px; letter-spacing: -0.5px; margin: 0; }
+        .app-logo { font-size: 24px; color: var(--fb-blue); }
+        .sub-nav-container { display: flex; background: #e4e6eb; border-radius: 10px; padding: 4px; margin: 0 0 15px 0; position: relative; }
+        .sub-nav-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; position: relative; z-index: 1; }
+        .sub-nav-btn.active { background: white; color: var(--fb-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content { display: none; width: 100%; } .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .grid-container { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; }
+        .account-card { background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s var(--ease-ios); display: flex; flex-direction: column; }
+        .account-card.status-disban .account-header { background: #fff5f5; filter: grayscale(0.6); }
+        .account-card.active { box-shadow: 0 10px 30px rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.3); z-index: 100; }
+        .account-header { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: white; border-bottom: 1px solid transparent; flex-shrink: 0; user-select: none; }
+        .account-card.active .account-header { border-bottom: 1px solid #f0f2f5; }
+        .browser-icon-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: #f0f2f5; }
+        .browser-icon-circle i.fa-chrome { color: #4285F4; font-size: 18px; } .browser-icon-circle i.fa-edge { color: #0078D7; font-size: 18px; } .browser-icon-circle i.fa-shield-halved { color: #FF5722; font-size: 16px; } .browser-icon-circle i.fa-circle-dot { color: #607D8B; font-size: 16px; } .browser-icon-circle i.fa-globe { color: #65676B; font-size: 16px; }
+        .acc-info { flex: 1; } .acc-name { font-weight: 700; font-size: 14px; color: var(--text-primary); text-transform: uppercase; }
+        .status-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; width: fit-content; margin-top: 2px; display: inline-flex; align-items: center; gap: 3px; }
+        .badge-gacor { background: #e7f3ff; color: #1877F2; } .badge-gacor::before { content:'●'; color:#36a420; }
+        .badge-warn { background: #fff8e1; color: #b98900; } .badge-warn::before { content:'●'; color:#f7b928; }
+        .badge-disban { background: #fee2e2; color: #fa3e3e; } .badge-disban::before { content:'●'; color:#fa3e3e; }
+        .arrow-icon { color: var(--text-secondary); font-size: 12px; transition: 0.3s; } .account-card.active .arrow-icon { transform: rotate(180deg); }
+        .account-data-container { max-height: 0; overflow: hidden; background: #ffffff; transition: max-height 0.4s var(--ease-ios); }
+        .data-grid { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .data-item { background: #F0F2F5; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .data-item:hover { background: #e4e6eb; } .data-item:active { transform: scale(0.98); }
+        .city { font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; } .val { font-weight: 700; color: var(--text-primary); }
+        .card-actions { padding: 10px; border-top: 1px solid #f0f2f5; display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-card-action { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 80px; }
+        
+        /* STYLE TOMBOL */
+        .btn-status { background: #FFF8E1; color: #b98900; } 
+        .btn-add { background: #E7F3FF; color: #1877F2; } 
+        .btn-edit { background: #F0F2F5; color: var(--text-secondary); }
+        .btn-delete { background: #fee2e2; color: var(--danger-color); }
+
+        .history-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
+        .history-header-actions h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+        .btn-clear-history { background: #fee2e2; color: var(--danger-color); border: none; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; } .btn-clear-history:active { transform: scale(0.95); }
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .history-date-group { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .history-date-header { padding: 12px 15px; background: white; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; color: var(--text-primary); cursor: pointer; border-bottom: 1px solid transparent; transition: 0.2s; }
+        .history-date-group.open .history-date-header { border-bottom: 1px solid #f0f2f5; background: #fafafa; color: var(--fb-blue); }
+        .history-date-chevron { font-size: 12px; color: var(--text-secondary); transition: transform 0.3s; } .history-date-group.open .history-date-chevron { transform: rotate(180deg); }
+        .history-items-container { display: none; padding: 5px 0; } .history-date-group.open .history-items-container { display: block; animation: fadeIn 0.3s; }
+        .history-item { padding: 10px 15px; border-bottom: 1px solid #f0f2f5; display: flex; align-items: center; gap: 12px; } .history-item:last-child { border-bottom: none; }
+        .history-icon { width: 32px; height: 32px; background: #e7f3ff; color: var(--fb-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .history-content { flex: 1; } .history-title { font-size: 13px; font-weight: 600; color: var(--text-primary); } .history-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; } .history-time { font-size: 11px; color: #1877F2; font-weight: 600; }
+        .history-count { background: #e7f3ff; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #1877F2; font-weight: 700; margin-left: 5px; }
+        .badge-total-history { background: #36a420; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 10px; }
+
+        .form-group { margin-bottom: 12px; text-align: left; } .form-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; }
+        .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; } .form-select { background: white; }
+        .edit-list-container { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; } 
+        .edit-item-row { display: flex; gap: 8px; align-items: center; } 
+        .edit-item-name { flex: 1; font-size: 12px; color: var(--text-secondary); } 
+        .edit-item-val { width: 70px; padding: 6px; font-size: 12px; text-align: center; }
+        
+        /* NEW: BUTTON DELETE CITY */
+        .btn-delete-city { background: #fee2e2; color: #fa3e3e; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+        .btn-delete-city:active { transform: scale(0.9); }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: #ffffff; border-top: 1px solid #e4e6eb; display: flex; flex-direction: row; justify-content: space-around; align-items: center; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #bcc0c4; position: relative; cursor: pointer; transition: color 0.2s; } .nav-item.active { color: var(--fb-blue); }
+        .nav-item.active::after { content: ''; position: absolute; top: 0; width: 50%; height: 3px; background: var(--fb-blue); border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+        .section-header-wrap { text-align: center; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; } .section-title { font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-create-acc { background: var(--fb-blue); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 5px; cursor: pointer; } .btn-create-acc i { font-size: 10px; }
+        .empty-state { text-align: center; padding: 30px 10px; color: #999; font-size: 13px; line-height: 1.6; }
+        .btn-migration { background: #36a420; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } .btn-migration:active { transform: scale(0.95); }
+        
+        .disban-info { font-size: 10px; color: #999; margin-top: 5px; display: block; }
+
+        .timer-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
+        .timer-card.ready { border: 1px solid #36a420; }
+        .timer-card.active-timer { border: 1px solid #f7b928; }
+        .timer-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .timer-acc-name { font-weight: 700; color: var(--text-primary); font-size: 14px; }
+        .timer-status-text { font-size: 10px; color: #999; }
+        .timer-display { font-size: 20px; font-family: 'Courier New', monospace; font-weight: 700; color: #f7b928; text-align: center; padding: 10px; background: #fff8e1; border-radius: 8px; margin: 5px 0; }
+        .timer-display.finished { color: white; background: #36a420; font-size: 14px; font-family: 'Inter', sans-serif; }
+        .btn-start-join { width: 100%; background: var(--fb-blue); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+        .btn-start-join:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .desktop-trigger { display: none; }
+        @media (min-width: 900px) { .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; } body { padding-bottom: 0; overflow: hidden; } .app-container { max-width: 100%; height: 100vh; padding: 15px; margin-right: 0; } .app-header { margin: 0 0 15px 0; padding: 8px 20px; } .tab-content.active { flex: 1; display: flex; flex-direction: column; min-height: 0; } .grid-container { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: 100%; gap: 8px; overflow: hidden; } .account-card { height: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .account-header { padding: 8px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: column; text-align: center; gap: 5px; } .fb-icon-circle { width: 20px; height: 20px; font-size: 10px; margin-bottom: 0; } .acc-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;} .arrow-icon { display: none; } .account-data-container { max-height: none !important; flex: 1; overflow-y: auto; background: #fff; } .data-grid { grid-template-columns: 1fr; padding: 5px; gap: 4px; } .card-actions { flex-direction: column; gap: 4px; padding: 5px; } .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; } .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; } .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); } .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); } .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); } .nav-item.active::after { display: none; } body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); } body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); } .modal-overlay.show { display: flex; animation: fadeIn 0.2s; } .modal-content { background: white; width: 85%; max-width: 350px; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: zoomIn 0.2s; } .modal-header { padding: 15px; border-bottom: 1px solid #f0f2f5; text-align: center; } .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); } .modal-subtitle { font-size: 12px; color: var(--text-secondary); } .modal-body { padding: 15px; max-height: 50vh; overflow-y: auto; }
+        .range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .range-btn { background: #F0F2F5; padding: 12px; border-radius: 8px; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; transition: 0.2s; } .range-btn.done { background: #e7f3ff; border: 1px solid #1877F2; } .range-btn.done .range-label { color: #1877F2; }
+        .btn-all-range { grid-column: span 2; background: #E7F3FF; border: 1px solid transparent; margin-bottom: 5px; } .btn-all-range .range-label { color: #1877F2; font-size: 13px; } .btn-all-range.done { background: #1877F2; border-color: #1877F2; } .btn-all-range.done .range-label, .btn-all-range.done .range-desc { color: white !important; }
+        .range-label { font-size: 12px; font-weight: 600; color: var(--text-primary); } .range-desc { font-size: 10px; color: var(--text-secondary); }
+        .history-info { font-size: 9px; color: #1877F2; font-weight: 700; margin-top: 4px; padding: 2px 4px; background: rgba(255, 255, 255, 0.6); border-radius: 4px; width: 100%; text-align: center; line-height: 1.2; } .btn-all-range.done .history-info { color: #e7f3ff; background: rgba(0, 0, 0, 0.15); }
+        .btn-close, .btn-submit { width: 100%; padding: 12px; border: none; font-weight: 600; cursor: pointer; } .btn-close { background: white; color: var(--fb-blue); border-top: 1px solid #f0f2f5; } .btn-submit { background: var(--fb-blue); color: white; border-radius: 6px; margin-top: 10px; }
+        .confirm-actions { display: flex; gap: 10px; margin-top: 15px; } .btn-action { flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; } .btn-yes { background: var(--fb-blue); color: white; } .btn-yes.danger { background: var(--danger-color); color: white; } .btn-no { background: #F0F2F5; color: var(--text-primary); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes zoomIn { from { transform: scale(0.9); } to { transform: scale(1); } }
+
+        /* --- BROWSER HOME SUB-TABS --- */
+        #tab-1 .sub-nav-container { gap: 3px; }
+        #tab-1 .sub-nav-btn { font-size: 11px; font-weight: 700; padding: 7px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; }
+        #tab-1 .sub-nav-btn i { font-size: 14px; }
+        #btn-home-all  { font-size: 10px; }
+        #btn-home-chrome.active  i { color: #4285F4; }
+        #btn-home-brave.active   i { color: #FF5722; }
+        #btn-home-edge.active    i { color: #0078D7; }
+        #btn-home-chromium.active i { color: #607D8B; }
+
+        /* --- BROWSER FANPAGE SUB-TABS --- */
+        #tab-2 .sub-nav-container { gap: 3px; }
+        #tab-2 .sub-nav-btn { font-size: 11px; font-weight: 700; padding: 7px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; }
+        #tab-2 .sub-nav-btn i { font-size: 14px; }
+        #btn-fp-all { font-size: 10px; }
+        #btn-fp-chrome.active  i { color: #4285F4; }
+        #btn-fp-brave.active   i { color: #FF5722; }
+        #btn-fp-edge.active    i { color: #0078D7; }
+        #btn-fp-chromium.active i { color: #607D8B; }
+
+        /* --- MOVE BROWSER BTN --- */
+        .btn-move-browser { width: 100%; padding: 7px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; background: #f0f2f5; color: #555; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
+        .btn-move-browser:active { transform: scale(0.97); background: #e4e6eb; }
+        .move-btn-wrap { padding: 0 10px 10px; }
+
+        /* --- DRAG & DROP --- */
+        .drag-handle { cursor: grab; padding: 4px 6px 4px 2px; color: #bcc0c4; font-size: 14px; flex-shrink: 0; touch-action: none; transition: color 0.2s; }
+        .drag-handle:active { cursor: grabbing; }
+        .drag-handle:hover { color: var(--fb-blue); }
+        .account-card.card-dragging { opacity: 0.4; transform: scale(0.98); box-shadow: none !important; border: 2px dashed var(--fb-blue) !important; }
+        .account-card.drag-over { border-top: 3px solid var(--fb-blue) !important; transform: translateY(2px); }
+        .drag-ghost { position: fixed; pointer-events: none; z-index: 9999; opacity: 0.92; background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(24,119,242,0.25); border: 2px solid rgba(24,119,242,0.4); padding: 10px 14px; font-weight: 700; font-size: 13px; color: var(--text-primary); min-width: 180px; max-width: 280px; display: flex; align-items: center; gap: 8px; }
+        .drag-ghost-icon { font-size: 16px; }
+        .drag-sort-hint { text-align: center; font-size: 10px; color: #aaa; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop-trigger"></div>
+
+    <div class="app-container">
+        <div class="app-header">
+            <i class="fab fa-facebook app-logo"></i>
+            <h2>Database Grup</h2>
+        </div>
+
+        <section id="tab-1" class="tab-content active">
+            <div class="section-header-wrap"><span class="section-title">Home – Semua Akun</span></div>
+            <div class="sub-nav-container" style="gap:2px;">
+                <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all">Semua</div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('chrome')" id="btn-home-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('brave')" id="btn-home-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('edge')" id="btn-home-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('chromium')" id="btn-home-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
+            </div>
+            <div id="list-1" class="grid-container"></div>
+            <div class="drag-sort-hint" id="home-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun</div>
+        </section>
+
+        <section id="tab-2" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title">Database Fanpage</span><button class="btn-create-acc" onclick="openAddAccountModal('db5')"><i class="fas fa-plus"></i> Akun Baru</button></div>
+            <div class="sub-nav-container" style="gap:2px;">
+                <div class="sub-nav-btn active" onclick="switchFanpageTab('all')" id="btn-fp-all">Semua</div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('chrome')" id="btn-fp-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('brave')" id="btn-fp-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('edge')" id="btn-fp-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('chromium')" id="btn-fp-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
+            </div>
+            <div id="list-2" class="grid-container"></div>
+            <div class="drag-sort-hint" id="fanpage-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun</div>
+        </section>
+        
+        <section id="tab-3" class="tab-content">
+            <div class="history-header-actions"><h3>Riwayat Posting</h3><button class="btn-clear-history" onclick="askClearHistory()"><i class="fas fa-trash-alt"></i> Hapus Semua</button></div>
+            <div id="history-container" class="history-list"></div><div style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;" id="no-history-msg">Belum ada riwayat postingan.</div>
+        </section>
+        
+        <section id="tab-4" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title" style="color: var(--danger-color);">ZONA DISBAN (SAMPAH)</span></div>
+            <div id="list-disban" class="grid-container"></div>
+        </section>
+
+        <section id="tab-5" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title">Jadwal Masuk Grup (50 Jam)</span></div>
+            <div class="empty-state" style="padding-bottom:10px; font-size:11px;">Akun DISBAN dikumpulkan disini.<br>Klik tombol dibawah untuk memulai timer 50 jam.</div>
+            <div id="list-schedule" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </section>
+    </div>
+
+    <div class="modal-overlay" id="rangeModal" onclick="closeModal(event, 'rangeModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title" id="modalTitle">Kota</div><div class="modal-subtitle" id="modalSubtitle">Detail</div></div><div class="modal-body"><div class="range-grid" id="modalGrid"></div></div><button class="btn-close" onclick="closeModal(null, 'rangeModal', true)">Tutup</button></div></div>
+    <div class="modal-overlay" id="addAccountModal" onclick="closeModal(event, 'addAccountModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Akun Baru</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Akun</label><input type="text" id="newAccName" class="form-input" placeholder="Nama Akun"></div><div class="form-group"><label class="form-label">Status Awal</label><select id="newAccStatus" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option></select></div><button class="btn-submit" onclick="submitNewAccount()">Buat Akun</button></div></div></div>
+    
+    <div class="modal-overlay" id="editValueModal" onclick="closeModal(event, 'editValueModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Edit Kota & Jumlah</div></div><div class="modal-body"><div id="editValueList" class="edit-list-container"></div><button class="btn-submit" onclick="submitValueChanges()">Simpan Perubahan</button></div></div></div>
+    
+    <div class="modal-overlay" id="confirmModal"><div class="modal-content" style="max-width: 280px;"><div class="modal-header" style="border:none; padding-bottom:0;"><div class="modal-title" style="font-size:16px;" id="confirmTitle">Konfirmasi</div></div><div class="modal-body" style="text-align: center; padding-top:5px;"><p style="color:#65676B; font-size:13px;" id="confirmDesc">Tandai postingan selesai?</p><div class="confirm-actions"><button class="btn-action btn-no" onclick="closeModal(null, 'confirmModal', true)">Batal</button><button class="btn-action btn-yes" id="btnConfirmYes">Ya</button></div></div></div></div>
+    
+    <div class="modal-overlay" id="statusModal" onclick="closeModal(event, 'statusModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Ubah Status Akun</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Pilih Status Baru</label><select id="newStatusInput" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option></select></div><button class="btn-submit" onclick="submitStatusChange()">Simpan Perubahan</button></div></div></div>
+    <div class="modal-overlay" id="addCityModal" onclick="closeModal(event, 'addCityModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Kota</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Kota</label><input type="text" id="newCityName" class="form-input" placeholder="Contoh: Surabaya"></div><div class="form-group"><label class="form-label">Jumlah Grup</label><input type="number" id="newCityVal" class="form-input" placeholder="0"></div><button class="btn-submit" onclick="submitNewCity()">Tambah</button></div></div></div>
+
+    <!-- Modal Pindah Browser -->
+    <div class="modal-overlay" id="moveBrowserModal" onclick="closeModal(event,'moveBrowserModal')">
+        <div class="modal-content" style="max-width:300px;">
+            <div class="modal-header"><div class="modal-title">Pindah ke Sub-Tab</div><div class="modal-subtitle" id="moveBrowserAccName"></div></div>
+            <div class="modal-body">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button class="btn-action btn-yes" style="background:#4285F4;" onclick="submitMoveBrowser('chrome')"><i class="fab fa-chrome"></i> Chrome</button>
+                    <button class="btn-action btn-yes" style="background:#FF5722;" onclick="submitMoveBrowser('brave')"><i class="fas fa-shield-halved"></i> Brave</button>
+                    <button class="btn-action btn-yes" style="background:#0078D7;" onclick="submitMoveBrowser('edge')"><i class="fab fa-edge"></i> Edge</button>
+                    <button class="btn-action btn-yes" style="background:#555;" onclick="submitMoveBrowser('chromium')"><i class="fas fa-circle-dot"></i> Chromium</button>
+                </div>
+            </div>
+            <button class="btn-close" onclick="closeModal(null,'moveBrowserModal',true)">Batal</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
+        <div class="nav-item" onclick="switchTab(2)"><i class="fas fa-flag"></i></div>
+        <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
+        <div class="nav-item" onclick="switchTab(4)" style="color: var(--danger-color);"><i class="fas fa-ban"></i></div>
+        <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
+    </nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    // --- 1. CONFIG & INIT ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCrzevRXiiyPQkK8aYkMXpn3c0ggQDW4vs",
+      authDomain: "databasefb-9a5c5.firebaseapp.com",
+      projectId: "databasefb-9a5c5",
+      storageBucket: "databasefb-9a5c5.firebasestorage.app",
+      messagingSenderId: "642136858434",
+      appId: "1:642136858434:web:c555f88e809c75da28f2db",
+      measurementId: "G-C0WRL4EV11"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- 2. DATA LAMA (HARDCODE) ---
+    const initialData = {
+        dbUtama1: [], dbSecondary1: [], dbUtama5: []
+    };
+
+    // --- 3. GLOBAL VARIABLES ---
+    window.dbUtama1 = []; window.dbSecondary1 = [];
+    window.dbUtama5 = [];
+    window.dbHistory = []; 
+    window.joinTimers = {};
+    window.fewfeedScanData = {}; // Data scan real-time dari Firebase content.js
+    window.homeCardOrder = [];   // Urutan kartu Home
+    window.fanpageCardOrder = []; // Urutan kartu Fanpage
+
+    // --- 4. BROWSER ICON MAP ---
+    const browserMap = {
+        'chrome':   ['REBECCA', 'NIA', 'ELON', 'ASAFA', 'SILVI', 'ELAINA', 'NAURA', 'RALIA', 'ALDI'], 
+        'brave':    ['ADELIA', 'ADRIANA', 'ALENA', 'MELI', 'TEDY', 'SARAH', 'SUKI', 'ALEX'],
+        'chromium': ['IVY', 'AZKA', 'ERIKA', 'LAVIANA', 'NOEVRA', 'IZNA', 'MEYSA', 'PARAMITA', 'NASYA', 'FEBRIANA FANPAGE', 'AFKA'],
+        'edge':     ['VERA SISILA', 'JANE', 'VERA']
+    };
+
+    function getBrowserType(acc) {
+        // Prioritas: field browser yang tersimpan di acc
+        if (acc && acc.browser) return acc.browser;
+        // Fallback: cek browserMap lama
+        const n = (acc && acc.name) ? acc.name.toUpperCase() : '';
+        if (browserMap.chrome.includes(n))   return 'chrome';
+        if (browserMap.brave.includes(n))    return 'brave';
+        if (browserMap.chromium.includes(n)) return 'chromium';
+        if (browserMap.edge.includes(n))     return 'edge';
+        return 'other';
+    }
+
+    function getBrowserIcon(accOrName) {
+        const type = typeof accOrName === 'string'
+            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.edge.includes(n)) return 'edge'; return 'other'; })()
+            : getBrowserType(accOrName);
+        if (type === 'chrome')   return '<i class="fab fa-chrome" style="color:#4285F4;font-size:18px;"></i>';
+        if (type === 'brave')    return '<i class="fas fa-shield-halved" style="color:#FF5722;font-size:16px;"></i>';
+        if (type === 'chromium') return '<i class="fas fa-circle-dot" style="color:#607D8B;font-size:16px;"></i>';
+        if (type === 'edge')     return '<i class="fab fa-edge" style="color:#0078D7;font-size:18px;"></i>';
+        return '<i class="fas fa-globe" style="color:#65676B;font-size:16px;"></i>';
+    }
+
+    // --- 5. FIREBASE LISTENERS (READ) ---
+    function startFirebaseListeners() {
+        const refs = [
+            { key: 'dbUtama1', var: 'dbUtama1' }, { key: 'dbSecondary1', var: 'dbSecondary1' },
+            { key: 'dbUtama5', var: 'dbUtama5' }
+        ];
+
+        refs.forEach(dbObj => {
+            const dbRef = db.ref(dbObj.key);
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                window[dbObj.var] = data || [];
+                refreshAllTabs(dbObj.key);
+            });
+        });
+
+        db.ref('history').on('value', (snapshot) => {
+            const data = snapshot.val();
+            window.dbHistory = data ? Object.entries(data).map(([key, val]) => ({...val, fbKey: key})) : [];
+            window.dbHistory.sort((a, b) => b.timestamp - a.timestamp);
+
+            if(document.getElementById('tab-3').classList.contains('active')) {
+                renderHistoryTab();
+            }
+
+            if(window.currentOpenModalParams) {
+                const p = window.currentOpenModalParams;
+                openRangeModal(p.city, p.val, p.acc, p.status, p.db);
+            }
+        });
+
+        db.ref('joinTimers').on('value', (snapshot) => {
+            window.joinTimers = snapshot.val() || {};
+            if(document.getElementById('tab-5').classList.contains('active')) {
+                renderScheduleTab();
+            }
+        });
+
+        db.ref('cardOrder').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            window.homeCardOrder = data.home || [];
+            window.fanpageCardOrder = data.fanpage || [];
+        });
+    }
+
+    startFirebaseListeners();
+
+    // --- 5b. LISTENER REAL-TIME FIREBASE CONTENT.JS (fewfeed_scan) ---
+    // Membaca data kota & jumlah grup yang dikirim content.js ke Firebase-nya sendiri
+    // Menggunakan SSE (Server-Sent Events) dari Firebase REST API — tanpa perlu SDK
+    function startFewfeedScanListener() {
+        const DB_URL   = localStorage.getItem("fewfeed_firebase_url")   || "https://databasefb-965a8-default-rtdb.firebaseio.com";
+        const AUTH_TOK = localStorage.getItem("fewfeed_firebase_token") || "";
+        const authParam = AUTH_TOK ? "?auth=" + AUTH_TOK : "";
+        const sseUrl = DB_URL + "/fewfeed_scan.json" + authParam;
+
+        const es = new EventSource(sseUrl);
+
+        es.addEventListener('put', function(e) {
+            try {
+                const msg = JSON.parse(e.data);
+                if (!msg) return;
+                if (msg.path === '/' || msg.path === '') {
+                    window.fewfeedScanData = msg.data || {};
+                } else if (msg.data !== null) {
+                    const key = msg.path.replace(/^\//, '');
+                    if (key) window.fewfeedScanData[key] = msg.data;
+                } else {
+                    const key = msg.path.replace(/^\//, '');
+                    if (key) delete window.fewfeedScanData[key];
+                }
+                autoRegisterNewScanAccounts();
+                refreshAllTabs('fewfeed_scan');
+            } catch(err) { console.error('FewFeed SSE parse error:', err); }
+        });
+
+        es.addEventListener('patch', function(e) {
+            try {
+                const msg = JSON.parse(e.data);
+                if (msg && msg.data) {
+                    Object.assign(window.fewfeedScanData, msg.data);
+                    autoRegisterNewScanAccounts();
+                    refreshAllTabs('fewfeed_scan');
+                }
+            } catch(err) {}
+        });
+
+        es.onerror = function() {
+            console.warn('⚠️ FewFeed Scan: SSE terputus, mencoba sambung ulang...');
+        };
+
+        console.log('✅ FewFeed Scan Listener aktif →', sseUrl);
+    }
+    startFewfeedScanListener();
+
+    // --- 5c. AUTO-REGISTER AKUN BARU DARI SCAN KE HOME ---
+    // Jika ada akun di fewfeed_scan yang belum terdaftar di manapun,
+    // otomatis masukkan ke dbUtama1 (Home) atau dbSecondary1 (jika subAkun terisi)
+    function autoRegisterNewScanAccounts() {
+        if (!window.fewfeedScanData) return;
+
+        // Kumpulkan semua nama akun yang sudah terdaftar (semua db)
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        const existingNames = new Set();
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (acc && acc.name) existingNames.add(acc.name.toUpperCase().trim());
+            });
+        });
+
+        let saveUtama1    = false;
+        let saveSecondary1 = false;
+
+        Object.values(window.fewfeedScanData).forEach(scanEntry => {
+            if (!scanEntry || !scanEntry.namaAkun) return;
+            const name = scanEntry.namaAkun.toUpperCase().trim();
+            if (existingNames.has(name)) return; // Sudah terdaftar, skip
+
+            // Akun baru dari scan — daftarkan otomatis
+            const newAcc = { name: name, status: 'gacor', items: [] };
+
+            if (scanEntry.subAkun) {
+                // Jika subAkun terisi → masuk ke Secondary Db1
+                window.dbSecondary1 = window.dbSecondary1 || [];
+                window.dbSecondary1.push(newAcc);
+                saveSecondary1 = true;
+                console.log('✅ Auto-register akun secondary baru dari scan:', name);
+            } else {
+                // Default → masuk ke Utama Db1 (Home)
+                window.dbUtama1 = window.dbUtama1 || [];
+                window.dbUtama1.push(newAcc);
+                saveUtama1 = true;
+                console.log('✅ Auto-register akun utama baru dari scan:', name);
+            }
+
+            existingNames.add(name); // Cegah duplikat dalam satu batch
+        });
+
+        if (saveUtama1)    saveToFirebase('dbUtama1',    window.dbUtama1);
+        if (saveSecondary1) saveToFirebase('dbSecondary1', window.dbSecondary1);
+    }
+
+    function refreshAllTabs(updatedKey) {
+        renderHomeTab();
+        window.refreshFanpageTab(); 
+        window.refreshDisbanTab(); 
+        if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
+    }
+    
+    function showMigrationButton(containerId, dbKey) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `<div class="empty-state">Data Kosong. Silahkan Tambah Akun Baru.</div>`;
+    }
+
+    // --- 6. FIREBASE UPDATE (WRITE) ---
+    window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
+        if(showLoading) { alert("Sedang mengupload... Jangan tutup halaman."); }
+        db.ref(dbKey).set(dataArray)
+            .then(() => {
+                if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase.");
+            })
+            .catch((error) => {
+                alert("GAGAL simpan ke Firebase: " + error.message);
+            });
+    }
+
+    // --- 7. RENDER DISBAN TAB (Tab 7) ---
+    window.refreshDisbanTab = function() {
+        const container = document.getElementById('list-disban');
+        container.innerHTML = '';
+        let allDisban = collectAllDisban();
+
+        if(allDisban.length === 0) {
+            container.innerHTML = '<div class="empty-state">Aman! Tidak ada akun yang kena ban.</div>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        allDisban.forEach((akun) => {
+            const card = document.createElement('div');
+            card.className = 'account-card status-disban';
+            
+            // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
+            const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
+            let items;
+            if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
+                items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
+            } else {
+                items = akun.items || [];
+            }
+            let listHTML = items.map(item => `
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${akun.originalDb}')">
+                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
+                </div>
+            `).join('');
+
+            const browserIcon = getBrowserIcon(akun);
+
+            card.innerHTML = `
+                <div class="account-header">
+                    <div class="browser-icon-circle">${browserIcon}</div>
+                    <div class="acc-info">
+                        <div class="acc-name">${akun.name}</div>
+                        <span class="disban-info">Asal: ${akun.sourceLabel}</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </div>
+                <div class="account-data-container">
+                    <div class="data-grid">${listHTML}</div>
+                    <div class="card-actions">
+                        <button class="btn-card-action btn-status" onclick="openStatusModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-edit"></i> Ubah Status</button>
+                        <button class="btn-card-action btn-edit" onclick="openEditValueModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-pen"></i> Edit Angka</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                </div>
+            `;
+            const header = card.querySelector('.account-header');
+            const content = card.querySelector('.account-data-container');
+            header.addEventListener('click', () => {
+                if (window.innerWidth >= 900) return; 
+                const isActive = card.classList.contains('active');
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.account-card.active').forEach(c => {
+                         if(c !== card) { c.classList.remove('active'); c.querySelector('.account-data-container').style.maxHeight = null; }
+                    });
+                    if (!isActive) { card.classList.add('active'); setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }, 10); } 
+                    else { card.classList.remove('active'); content.style.maxHeight = null; }
+                });
+            });
+            fragment.appendChild(card);
+        });
+        container.appendChild(fragment);
+    }
+    
+    function collectAllDisban() {
+        let allDisban = [];
+        const collect = (arr, dbRefName, label) => {
+            if(!arr) return;
+            arr.forEach((acc, idx) => {
+                if(acc.status === 'disban') {
+                    allDisban.push({ ...acc, originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
+                }
+            });
+        };
+        collect(window.dbUtama1, 'dbUtama1', 'Db 1 Utama');
+        collect(window.dbSecondary1, 'dbSecondary1', 'Db 1 Secondary');
+        collect(window.dbUtama5, 'dbUtama5', 'Db Fanpage');
+        return allDisban;
+    }
+
+    // --- 8. LOGIC UI ---
+    window.currentHomeSubTab = 'all';
+    window.currentFanpageSubTab = 'all';
+
+    // --- HOME TAB: kumpulkan semua akun dari semua DB ---
+    function collectAllAccounts() {
+        const allDbDefs = [
+            { key: 'dbUtama1', label: 'Db1 Utama' },
+            { key: 'dbSecondary1', label: 'Db1 Secondary' },
+            { key: 'dbUtama5', label: 'Db Fanpage' },
+        ];
+        let result = [];
+        allDbDefs.forEach(def => {
+            (window[def.key] || []).forEach((acc, idx) => {
+                if (acc) result.push({ ...acc, originalIdx: idx, originalDb: def.key, sourceLabel: def.label });
+            });
+        });
+        return result;
+    }
+
+    window.switchHomeTab = function(type) {
+        window.currentHomeSubTab = type;
+        ['all','chrome','brave','edge','chromium'].forEach(t => {
+            const el = document.getElementById('btn-home-' + t);
+            if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
+        });
+        renderHomeTab();
+    }
+
+    window.renderHomeTab = function() {
+        const container = document.getElementById('list-1');
+        if (!container) return;
+        container.innerHTML = '';
+        let allAccs = collectAllAccounts();
+        
+        const filter = window.currentHomeSubTab;
+        if (filter !== 'all') {
+            allAccs = allAccs.filter(acc => getBrowserType(acc) === filter);
+        }
+
+        if (allAccs.length === 0) {
+            container.innerHTML = `<div class="empty-state">Tidak ada akun di tab ini.</div>`;
+            document.getElementById('home-drag-hint').style.display = 'none';
+            return;
+        }
+
+        // Terapkan urutan yang tersimpan
+        if (window.homeCardOrder && window.homeCardOrder.length > 0) {
+            allAccs = applyCardOrder(allAccs, window.homeCardOrder);
+        }
+
+        document.getElementById('home-drag-hint').style.display = 'flex';
+
+        const fragment = document.createDocumentFragment();
+        allAccs.forEach((akun) => {
+            const index = akun.originalIdx;
+            const dbRefName = akun.originalDb;
+
+            const card = document.createElement('div');
+            card.className = `account-card ${akun.status === 'disban' ? 'status-disban' : ''}`;
+            card.dataset.accname = akun.name;
+
+            let statusLabel = '', statusClass = '';
+            if(akun.status === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
+            else if(akun.status === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
+
+            const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
+            let items, scanBadge = '';
+            if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
+                items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
+                const scanTime = scanEntry.lastScan
+                    ? new Date(scanEntry.lastScan).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                    : '';
+                scanBadge = `<span style="font-size:9px;color:#36a420;font-weight:600;margin-left:4px;">⚡ Scan ${scanTime}</span>`;
+            } else {
+                items = akun.items || [];
+            }
+
+            let listHTML = items.map(item => `
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${dbRefName}')">
+                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
+                </div>
+            `).join('');
+
+            const browserIcon = getBrowserIcon(akun);
+
+            card.innerHTML = `
+                <div class="account-header">
+                    <span class="drag-handle" title="Geser untuk memindahkan"><i class="fas fa-grip-vertical"></i></span>
+                    <div class="browser-icon-circle">${browserIcon}</div>
+                    <div class="acc-info">
+                        <div class="acc-name">${akun.name}</div>
+                        <div class="status-badge ${statusClass}">${statusLabel}</div>
+                        ${scanBadge}
+                        <span style="font-size:9px;color:#999;display:block;margin-top:1px;">${akun.sourceLabel}</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </div>
+                <div class="account-data-container">
+                    <div class="data-grid">${listHTML}</div>
+                    <div class="card-actions">
+                        <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Status</button>
+                        <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit</button>
+                        <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Kota</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                    <div class="move-btn-wrap">
+                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${akun.name}')">
+                            <i class="fas fa-arrows-rotate"></i> Pindah Browser
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const header = card.querySelector('.account-header');
+            const content = card.querySelector('.account-data-container');
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('.drag-handle')) return;
+                if (window.innerWidth >= 900) return; 
+                const isActive = card.classList.contains('active');
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.account-card.active').forEach(c => {
+                        if(c !== card) { c.classList.remove('active'); c.querySelector('.account-data-container').style.maxHeight = null; }
+                    });
+                    if (!isActive) { card.classList.add('active'); setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }, 10); } 
+                    else { card.classList.remove('active'); content.style.maxHeight = null; }
+                });
+            });
+            fragment.appendChild(card);
+        });
+        container.appendChild(fragment);
+        initDragDrop(container, 'home');
+    }
+
+    // --- DRAG & DROP HELPER ---
+    function applyCardOrder(accounts, orderArr) {
+        if (!orderArr || orderArr.length === 0) return accounts;
+        const ordered = [];
+        const remaining = [...accounts];
+        orderArr.forEach(name => {
+            const idx = remaining.findIndex(a => a.name === name);
+            if (idx !== -1) { ordered.push(remaining[idx]); remaining.splice(idx, 1); }
+        });
+        return [...ordered, ...remaining];
+    }
+
+    function saveCardOrder(containerEl, tabKey) {
+        const cards = containerEl.querySelectorAll('.account-card[data-accname]');
+        const order = Array.from(cards).map(c => c.dataset.accname);
+        if (tabKey === 'home') window.homeCardOrder = order;
+        else window.fanpageCardOrder = order;
+        const update = {};
+        update[tabKey] = order;
+        db.ref('cardOrder').update(update);
+    }
+
+    function initDragDrop(container, tabKey) {
+        let dragSrc = null;
+        let ghost = null;
+        let touchOffsetX = 0, touchOffsetY = 0;
+
+        const cards = container.querySelectorAll('.account-card');
+
+        cards.forEach(card => {
+            const handle = card.querySelector('.drag-handle');
+            if (!handle) return;
+
+            // ===== DESKTOP: HTML5 Drag API =====
+            handle.addEventListener('mousedown', () => { card.draggable = true; });
+            card.addEventListener('dragend', () => { card.draggable = false; });
+
+            card.addEventListener('dragstart', (e) => {
+                dragSrc = card;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', card.dataset.accname);
+                requestAnimationFrame(() => card.classList.add('card-dragging'));
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('card-dragging');
+                container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
+                dragSrc = null;
+                saveCardOrder(container, tabKey);
+            });
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragSrc && dragSrc !== card) {
+                    container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
+                    card.classList.add('drag-over');
+                }
+            });
+
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (dragSrc && dragSrc !== card) {
+                    const allCards = [...container.querySelectorAll('.account-card')];
+                    const srcIdx = allCards.indexOf(dragSrc);
+                    const tgtIdx = allCards.indexOf(card);
+                    if (srcIdx < tgtIdx) container.insertBefore(dragSrc, card.nextSibling);
+                    else container.insertBefore(dragSrc, card);
+                    card.classList.remove('drag-over');
+                }
+            });
+
+            // ===== MOBILE: Touch Events =====
+            handle.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const rect = card.getBoundingClientRect();
+                touchOffsetX = touch.clientX - rect.left;
+                touchOffsetY = touch.clientY - rect.top;
+
+                dragSrc = card;
+                card.classList.add('card-dragging');
+
+                // Buat ghost element
+                ghost = document.createElement('div');
+                ghost.className = 'drag-ghost';
+                const accName = card.dataset.accname || '';
+                const iconEl = card.querySelector('.browser-icon-circle');
+                ghost.innerHTML = `<span class="drag-ghost-icon">${iconEl ? iconEl.innerHTML : '📋'}</span><span>${accName}</span>`;
+                document.body.appendChild(ghost);
+                ghost.style.left = (touch.clientX - touchOffsetX) + 'px';
+                ghost.style.top = (touch.clientY - touchOffsetY) + 'px';
+            }, { passive: true });
+
+            handle.addEventListener('touchmove', (e) => {
+                if (!dragSrc) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+
+                if (ghost) {
+                    ghost.style.left = (touch.clientX - 20) + 'px';
+                    ghost.style.top = (touch.clientY - 20) + 'px';
+                }
+
+                // Cari kartu target di posisi jari
+                ghost.style.display = 'none';
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                ghost.style.display = '';
+                const targetCard = el ? el.closest('.account-card') : null;
+
+                container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
+                if (targetCard && targetCard !== dragSrc) targetCard.classList.add('drag-over');
+            }, { passive: false });
+
+            handle.addEventListener('touchend', (e) => {
+                if (!dragSrc) return;
+                const touch = e.changedTouches[0];
+
+                if (ghost) { ghost.remove(); ghost = null; }
+                dragSrc.classList.remove('card-dragging');
+
+                ghost && ghost.style && (ghost.style.display = 'none');
+                const hiddenGhost = document.querySelector('.drag-ghost');
+                if (hiddenGhost) hiddenGhost.remove();
+
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                const targetCard = el ? el.closest('.account-card') : null;
+
+                if (targetCard && targetCard !== dragSrc) {
+                    const allCards = [...container.querySelectorAll('.account-card')];
+                    const srcIdx = allCards.indexOf(dragSrc);
+                    const tgtIdx = allCards.indexOf(targetCard);
+                    if (srcIdx < tgtIdx) container.insertBefore(dragSrc, targetCard.nextSibling);
+                    else container.insertBefore(dragSrc, targetCard);
+                }
+
+                container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
+                saveCardOrder(container, tabKey);
+                dragSrc = null;
+            }, { passive: true });
+        });
+    }
+
+    // --- MOVE BROWSER MODAL ---
+    window._moveBrowserIdx = null;
+    window._moveBrowserDb = null;
+
+    window.openMoveBrowserModal = function(index, dbRefName, accName) {
+        window._moveBrowserIdx = index;
+        window._moveBrowserDb = dbRefName;
+        document.getElementById('moveBrowserAccName').innerText = accName;
+        document.getElementById('moveBrowserModal').classList.add('show');
+    }
+
+    window.submitMoveBrowser = function(browserType) {
+        const idx = window._moveBrowserIdx;
+        const dbKey = window._moveBrowserDb;
+        if (idx === null || !dbKey) return;
+        let targetDb = window[dbKey];
+        if (!targetDb || !targetDb[idx]) return;
+        targetDb[idx].browser = browserType;
+        saveToFirebase(dbKey, targetDb);
+        closeModal(null, 'moveBrowserModal', true);
+    }
+
+    window.currentEditAccountIndex = -1;
+    window.currentEditDb = null;
+    window.currentAddAccountTarget = null;
+
+    window.switchFanpageTab = function(type) {
+        window.currentFanpageSubTab = type;
+        ['all','chrome','brave','edge','chromium'].forEach(t => {
+            const el = document.getElementById('btn-fp-' + t);
+            if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
+        });
+        window.refreshFanpageTab();
+    }
+
+    window.refreshFanpageTab = function() { 
+        const container = document.getElementById('list-2');
+        if (!container) return;
+        container.innerHTML = '';
+        let data = window.dbUtama5 || [];
+        const filter = window.currentFanpageSubTab;
+        if (filter !== 'all') {
+            data = data.filter(acc => getBrowserType(acc) === filter);
+        }
+        if (data.length === 0) {
+            container.innerHTML = `<div class="empty-state">Tidak ada akun di tab ini.</div>`;
+            return;
+        }
+        renderApp(data, 'list-2', 'dbUtama5');
+    }
+
+    window.renderApp = function(data, containerId, dbRefName) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        // Terapkan urutan yang tersimpan untuk Fanpage
+        if (containerId === 'list-2' && window.fanpageCardOrder && window.fanpageCardOrder.length > 0) {
+            data = applyCardOrder(data, window.fanpageCardOrder);
+        }
+
+        const hintId = containerId === 'list-2' ? 'fanpage-drag-hint' : null;
+        if (hintId) {
+            const hint = document.getElementById(hintId);
+            if (hint) hint.style.display = data.length > 0 ? 'flex' : 'none';
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        data.forEach((akun, index) => {
+            const card = document.createElement('div');
+            card.className = `account-card ${akun.status === 'disban' ? 'status-disban' : ''}`;
+            card.dataset.accname = akun.name;
+            
+            let statusLabel = '', statusClass = '';
+            if(akun.status === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
+            else if(akun.status === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
+
+            // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
+            const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
+            let items, isFromScan = false, scanBadge = '';
+            if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
+                items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
+                isFromScan = true;
+                const scanTime = scanEntry.lastScan
+                    ? new Date(scanEntry.lastScan).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                    : '';
+                scanBadge = `<span style="font-size:9px;color:#36a420;font-weight:600;margin-left:4px;" title="Data dari FewFeed Scan">⚡ Scan ${scanTime}</span>`;
+            } else {
+                items = akun.items || [];
+            }
+
+            let listHTML = items.map(item => `
+                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${akun.status}', '${dbRefName}')">
+                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
+                </div>
+            `).join('');
+
+            const browserIcon = getBrowserIcon(akun);
+
+            card.innerHTML = `
+                <div class="account-header">
+                    <span class="drag-handle" title="Geser untuk memindahkan"><i class="fas fa-grip-vertical"></i></span>
+                    <div class="browser-icon-circle">${browserIcon}</div>
+                    <div class="acc-info"><div class="acc-name">${akun.name}</div><div class="status-badge ${statusClass}">${statusLabel}</div>${scanBadge}</div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </div>
+                <div class="account-data-container">
+                    <div class="data-grid">${listHTML}</div>
+                    <div class="card-actions">
+                        <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Ubah Status</button>
+                        <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit Angka</button>
+                        <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Tambah Kota</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                </div>
+            `;
+            const header = card.querySelector('.account-header');
+            const content = card.querySelector('.account-data-container');
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('.drag-handle')) return;
+                if (window.innerWidth >= 900) return; 
+                const isActive = card.classList.contains('active');
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.account-card.active').forEach(c => {
+                        if(c !== card) { c.classList.remove('active'); c.querySelector('.account-data-container').style.maxHeight = null; }
+                    });
+                    if (!isActive) { card.classList.add('active'); setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }, 10); } 
+                    else { card.classList.remove('active'); content.style.maxHeight = null; }
+                });
+            });
+            fragment.appendChild(card);
+        });
+        container.appendChild(fragment);
+
+        if (containerId === 'list-2') initDragDrop(container, 'fanpage');
+    }
+
+    // --- 9. MODALS & CRUD ---
+    window.openAddAccountModal = function(targetDb) { window.currentAddAccountTarget = targetDb; document.getElementById('newAccName').value = ''; document.getElementById('newAccStatus').value = 'gacor'; document.getElementById('addAccountModal').classList.add('show'); }
+
+    window.submitNewAccount = function() {
+        const name = document.getElementById('newAccName').value; const status = document.getElementById('newAccStatus').value;
+        if(!name) { alert("Nama akun harus diisi!"); return; }
+        const newAccount = { name: name.toUpperCase(), status: status, items: [] };
+        let targetArr = null; let dbKey = '';
+        if(window.currentAddAccountTarget === 'db1') { targetArr = window.dbUtama1 || []; dbKey = 'dbUtama1'; }
+        else if(window.currentAddAccountTarget === 'db5') { targetArr = window.dbUtama5 || []; dbKey = 'dbUtama5'; }
+
+        if(dbKey) { targetArr.push(newAccount); saveToFirebase(dbKey, targetArr); }
+        closeModal(null, 'addAccountModal', true);
+    }
+
+    // --- UPDATED EDIT VALUE MODAL (WITH DELETE CITY) ---
+    window.openEditValueModal = function(index, dbRefName) { 
+        window.currentEditAccountIndex = index; window.currentEditDb = dbRefName; 
+        const container = document.getElementById('editValueList'); container.innerHTML = ''; 
+        let targetDb = window[dbRefName]; if(!targetDb) return; 
+        let items = targetDb[index].items || []; 
+        if(items.length === 0) container.innerHTML = '<div style="text-align:center; font-size:12px; color:#999;">Belum ada kota untuk diedit.</div>'; 
+        else items.forEach((item, idx) => { 
+            const row = document.createElement('div'); row.className = 'edit-item-row'; 
+            // ADDED DELETE BUTTON
+            row.innerHTML = `
+                <span class="edit-item-name">${item.city}</span>
+                <input type="number" class="form-input edit-item-val" id="edit_val_${idx}" value="${item.val}">
+                <button class="btn-delete-city" onclick="deleteCity(${idx})"><i class="fas fa-times"></i></button>
+            `; 
+            container.appendChild(row); 
+        }); 
+        document.getElementById('editValueModal').classList.add('show'); 
+    }
+
+    // --- NEW: DELETE CITY FUNCTION ---
+    window.deleteCity = function(cityIndex) {
+        if(!confirm('Yakin ingin menghapus kota ini?')) return;
+        
+        let targetDb = window[window.currentEditDb];
+        if(!targetDb) return;
+        
+        // Remove item from array
+        targetDb[window.currentEditAccountIndex].items.splice(cityIndex, 1);
+        
+        // Save to Firebase
+        saveToFirebase(window.currentEditDb, targetDb);
+        
+        // Refresh modal to show changes
+        openEditValueModal(window.currentEditAccountIndex, window.currentEditDb);
+    }
+
+    window.submitValueChanges = function() { 
+        let targetDb = window[window.currentEditDb]; if(!targetDb) return; 
+        let items = targetDb[window.currentEditAccountIndex].items || []; 
+        items.forEach((item, idx) => { const el = document.getElementById(`edit_val_${idx}`); if(el) { const newVal = parseInt(el.value); if(newVal > 0) item.val = newVal; } }); 
+        saveToFirebase(window.currentEditDb, targetDb); closeModal(null, 'editValueModal', true); 
+    }
+
+    window.openStatusModal = function(index, dbRefName) { window.currentEditAccountIndex = index; window.currentEditDb = dbRefName; document.getElementById('statusModal').classList.add('show'); }
+    window.submitStatusChange = function() { if(window.currentEditAccountIndex === -1) return; let targetDb = window[window.currentEditDb]; if(targetDb) { targetDb[window.currentEditAccountIndex].status = document.getElementById('newStatusInput').value; saveToFirebase(window.currentEditDb, targetDb); } closeModal(null, 'statusModal', true); }
+    window.openAddCityModal = function(index, dbRefName) { window.currentEditAccountIndex = index; window.currentEditDb = dbRefName; document.getElementById('newCityName').value = ''; document.getElementById('newCityVal').value = ''; document.getElementById('addCityModal').classList.add('show'); }
+    window.submitNewCity = function() { if(window.currentEditAccountIndex === -1) return; const name = document.getElementById('newCityName').value; const val = parseInt(document.getElementById('newCityVal').value); if(name && val > 0) { let targetDb = window[window.currentEditDb]; if(targetDb) { if(!targetDb[window.currentEditAccountIndex].items) targetDb[window.currentEditAccountIndex].items = []; targetDb[window.currentEditAccountIndex].items.push({ city: name, val: val }); saveToFirebase(window.currentEditDb, targetDb); } closeModal(null, 'addCityModal', true); } else alert('Mohon isi nama kota dan jumlah.'); }
+
+    // --- 10. HISTORY & DELETE LOGIC ---
+    window.getHistory = function(accName, city, rangeIndex) { 
+        const idToCheck = `${accName}|${city}|${rangeIndex}`;
+        const found = window.dbHistory.find(item => item.id === idToCheck);
+        return found ? `${found.date} ${found.time}` : null; 
+    }
+
+    window.saveHistory = function(accName, city, rangeIndex, actualCount) { 
+        const now = new Date(); 
+        const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`; 
+        const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; 
+        
+        const newEntry = {
+            id: `${accName}|${city}|${rangeIndex}`, 
+            acc: accName, 
+            city: city, 
+            count: actualCount, 
+            range: rangeIndex, 
+            date: dateStr, 
+            time: timeStr,
+            timestamp: firebase.database.ServerValue.TIMESTAMP 
+        };
+
+        db.ref('history').push(newEntry)
+            .then(() => { if(window.currentOpenModalParams) { const p = window.currentOpenModalParams; openRangeModal(p.city, p.val, p.acc, p.status, p.db); } })
+            .catch(e => alert("Gagal simpan history: " + e.message));
+    }
+    
+    window.removeSpecificHistory = function(acc, city, rangeIndex) {
+        const idToCheck = `${acc}|${city}|${rangeIndex}`;
+        const found = window.dbHistory.find(item => item.id === idToCheck);
+        
+        if (found && found.fbKey) {
+            db.ref('history/' + found.fbKey).remove()
+                .then(() => console.log("Status berhasil direset"))
+                .catch(e => alert("Error: " + e.message));
+        }
+    }
+
+    window.toggleHistoryDate = function(headerEl) { headerEl.parentElement.classList.toggle('open'); }
+    
+    window.renderHistoryTab = function() { 
+        const container = document.getElementById('history-container'); 
+        const emptyMsg = document.getElementById('no-history-msg'); 
+        const logs = window.dbHistory; 
+
+        container.innerHTML = ''; 
+        if (logs.length === 0) { emptyMsg.style.display = 'block'; return; } 
+        emptyMsg.style.display = 'none'; 
+        
+        const grouped = {}; 
+        logs.forEach(log => { if (!grouped[log.date]) grouped[log.date] = []; grouped[log.date].push(log); }); 
+        
+        Object.keys(grouped).forEach((dateStr, index) => { 
+            const items = grouped[dateStr];
+            let dailyTotal = items.reduce((sum, item) => sum + (parseInt(item.count) || 0), 0);
+
+            const itemsHTML = items.map(item => `
+                <div class="history-item">
+                    <div class="history-icon"><i class="fas fa-check"></i></div>
+                    <div class="history-content">
+                        <div class="history-title">${item.acc} - ${item.city}</div>
+                        <div class="history-meta">${item.range === 'all' ? 'POSTING SEMUA' : 'Range ' + item.range}<span class="history-count">${item.count} Sukses</span></div>
+                    </div>
+                    <div class="history-time">${item.time}</div>
+                </div>`).join(''); 
+                
+            const groupDiv = document.createElement('div'); 
+            groupDiv.className = 'history-date-group'; 
+            if(index === 0) groupDiv.classList.add('open'); 
+            
+            groupDiv.innerHTML = `
+                <div class="history-date-header" onclick="toggleHistoryDate(this)">
+                    <div><span>${dateStr}</span><span class="badge-total-history">${dailyTotal} Grup</span></div>
+                    <i class="fas fa-chevron-down history-date-chevron"></i>
+                </div>
+                <div class="history-items-container">${itemsHTML}</div>
+            `; 
+            container.appendChild(groupDiv); 
+        }); 
+    }
+
+    window.askClearHistory = function() { window.pendingActionType = 'clear_history'; document.getElementById('confirmTitle').innerText = "Hapus Semua Riwayat?"; document.getElementById('confirmDesc').innerText = "Tindakan ini akan menghapus riwayat untuk SEMUA ORANG."; document.getElementById('confirmModal').classList.add('show'); }
+    
+    window.clearAllHistoryData = function() { 
+        db.ref('history').remove().then(() => { closeModal(null, 'confirmModal', true); }).catch(e => alert("Gagal hapus: " + e.message));
+    }
+
+    window.askDeleteAccount = function(index, dbRefName) {
+        window.pendingAction = { index, dbRefName };
+        window.pendingActionType = 'delete_account';
+        document.getElementById('confirmTitle').innerText = "Hapus Akun?";
+        document.getElementById('confirmDesc').innerText = "Yakin ingin menghapus akun ini secara permanen?";
+        const btnYes = document.getElementById('btnConfirmYes'); btnYes.innerText = "Ya, Hapus"; btnYes.className = "btn-action btn-yes danger";
+        document.getElementById('confirmModal').classList.add('show');
+    }
+
+    // --- RANGE MODAL ---
+    window.currentOpenModalParams = null; 
+
+    window.openRangeModal = function(cityName, cityVal, accountName, status, dbRefName) { 
+        window.currentOpenModalParams = { city: cityName, val: cityVal, acc: accountName, status: status, db: dbRefName };
+        let rangeLimit = 20; 
+        const rangesCount = Math.ceil(cityVal / rangeLimit); 
+        
+        document.getElementById('modalTitle').innerText = cityName; 
+        document.getElementById('modalSubtitle').innerText = `${accountName} • ${cityVal} Grup (Range ${rangeLimit})`; 
+        const modalGrid = document.getElementById('modalGrid'); 
+        modalGrid.innerHTML = ''; 
+        
+        const historyAll = getHistory(accountName, cityName, 'all'); 
+        const isAllDone = historyAll !== null; 
+        
+        const btnAll = document.createElement('div'); 
+        btnAll.className = isAllDone ? 'range-btn btn-all-range done' : 'range-btn btn-all-range'; 
+        btnAll.innerHTML = `<span class="range-label">POSTING SEMUA</span><span class="range-desc">1 - ${cityVal} (Total ${cityVal})</span>${isAllDone ? `<div class="history-info">${historyAll}</div>` : ''}`; 
+        btnAll.onclick = () => askConfirmation(accountName, cityName, 'all', cityVal, status); 
+        modalGrid.appendChild(btnAll); 
+        
+        for(let i = 1; i <= rangesCount; i++) { 
+            let min = (i-1)*rangeLimit + 1; 
+            let max = (i === rangesCount) ? cityVal : i*rangeLimit; 
+            let rangeCount = max - min + 1; 
+            const history = getHistory(accountName, cityName, i); 
+            const isDone = history !== null; 
+            
+            const btn = document.createElement('div'); 
+            btn.className = isDone ? 'range-btn done' : 'range-btn'; 
+            btn.innerHTML = `<span class="range-label">Range ${i}</span><span class="range-desc">${min} - ${max}</span>${isDone ? `<div class="history-info">${history}</div>` : ''}`; 
+            btn.onclick = () => askConfirmation(accountName, cityName, i, rangeCount, status); 
+            modalGrid.appendChild(btn); 
+        } 
+        document.getElementById('rangeModal').classList.add('show'); 
+    }
+
+    // --- LOGIC 48 JAM (WARN) ---
+    window.checkCooldown48Hours = function(accName) {
+        const posts = window.dbHistory.filter(x => x.acc === accName);
+        if(posts.length === 0) return true; 
+        const lastPost = posts[0]; 
+        const now = Date.now();
+        const diff = now - lastPost.timestamp;
+        const hours48 = 48 * 60 * 60 * 1000;
+        return diff >= hours48;
+    }
+
+    window.pendingAction = null; 
+    window.pendingActionType = null; 
+    
+    window.askConfirmation = function(acc, city, rangeIdx, countVal, status) { 
+        const existingDate = getHistory(acc, city, rangeIdx);
+        
+        if (existingDate) {
+            window.pendingAction = { acc, city, rangeIdx }; 
+            window.pendingActionType = 'delete_specific_history'; 
+            document.getElementById('confirmTitle').innerText = "Sudah Selesai";
+            document.getElementById('confirmDesc').innerHTML = `Diposting pada: <b>${existingDate}</b><br>Hapus status ini untuk mengulang?`;
+            const btnYes = document.getElementById('btnConfirmYes');
+            btnYes.innerText = "Hapus Status"; btnYes.className = "btn-action btn-yes danger"; 
+            document.getElementById('confirmModal').classList.add('show');
+            return;
+        }
+
+        if (status === 'warn') {
+            const isSafe = window.checkCooldown48Hours(acc);
+            if (!isSafe) {
+                window.pendingAction = { acc, city, rangeIdx, countVal }; 
+                window.pendingActionType = 'mark_done';
+                document.getElementById('confirmTitle').innerText = "PERINGATAN 48 JAM";
+                document.getElementById('confirmDesc').innerHTML = `Belum 48 jam dari postingan terakhir!<br><br><b>Apakah Anda yakin ingin tetap memposting?</b>`;
+                const btnYes = document.getElementById('btnConfirmYes');
+                btnYes.innerText = "Ya, Tetap Posting";
+                btnYes.className = "btn-action btn-yes danger"; 
+                document.getElementById('confirmModal').classList.add('show');
+                return;
+            }
+        }
+
+        window.pendingAction = { acc, city, rangeIdx, countVal }; 
+        window.pendingActionType = 'mark_done'; 
+        document.getElementById('confirmTitle').innerText = "Konfirmasi"; 
+        document.getElementById('confirmDesc').innerText = "Tandai postingan selesai?"; 
+        const btnYes = document.getElementById('btnConfirmYes');
+        btnYes.innerText = "Ya, Selesai"; btnYes.className = "btn-action btn-yes";
+        document.getElementById('confirmModal').classList.add('show'); 
+    } 
+    
+    document.getElementById('btnConfirmYes').addEventListener('click', () => { 
+        if (window.pendingActionType === 'clear_history') {
+            clearAllHistoryData(); 
+        } else if (window.pendingActionType === 'mark_done' && window.pendingAction) { 
+            const { acc, city, rangeIdx, countVal } = window.pendingAction; 
+            saveHistory(acc, city, rangeIdx, countVal); 
+            closeModal(null, 'confirmModal', true); 
+            window.pendingAction = null; 
+        } else if (window.pendingActionType === 'delete_account' && window.pendingAction) {
+            const { index, dbRefName } = window.pendingAction;
+            let targetDb = window[dbRefName];
+            if (targetDb) { targetDb.splice(index, 1); saveToFirebase(dbRefName, targetDb); }
+            closeModal(null, 'confirmModal', true);
+            window.pendingAction = null;
+        } else if (window.pendingActionType === 'delete_specific_history' && window.pendingAction) {
+            const { acc, city, rangeIdx } = window.pendingAction;
+            removeSpecificHistory(acc, city, rangeIdx);
+            closeModal(null, 'confirmModal', true);
+            window.pendingAction = null;
+        }
+    });
+    
+    window.closeModal = function(e, modalId, force = false) { 
+        if (force || e.target.classList.contains('modal-overlay')) {
+            document.getElementById(modalId).classList.remove('show'); 
+            if(modalId === 'rangeModal') window.currentOpenModalParams = null;
+        }
+    }
+
+    // --- SCHEDULE TAB ---
+    window.renderScheduleTab = function() {
+        const container = document.getElementById('list-schedule');
+        const allDisban = collectAllDisban();
+        container.innerHTML = '';
+        
+        if (allDisban.length === 0) {
+            container.innerHTML = '<div class="empty-state">Tidak ada akun Disban untuk jadwal.</div>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        allDisban.forEach(acc => {
+            const accName = acc.name;
+            const startTime = window.joinTimers[accName] || 0;
+            
+            const card = document.createElement('div');
+            card.className = 'timer-card';
+            card.id = `timer-card-${accName}`;
+            
+            card.innerHTML = `
+                <div class="timer-header">
+                    <div class="timer-acc-name">${accName}</div>
+                    <div class="timer-status-text" id="status-${accName}">Menunggu</div>
+                </div>
+                <div class="timer-display" id="display-${accName}">-- : -- : --</div>
+                <button class="btn-start-join" id="btn-timer-${accName}" onclick="startJoinTimer('${accName}')">Mulai Masuk Grup</button>
+            `;
+            fragment.appendChild(card);
+            
+            if(startTime > 0) {
+                updateTimerUI(accName, startTime);
+            }
+        });
+        container.appendChild(fragment);
+    }
+
+    window.startJoinTimer = function(accName) {
+        if(!confirm(`Mulai timer 50 jam untuk ${accName}?`)) return;
+        const startTime = Date.now();
+        db.ref('joinTimers/' + accName).set(startTime);
+    }
+
+    function updateTimerUI(accName, startTime) {
+        const hours50 = 50 * 60 * 60 * 1000;
+        const now = Date.now();
+        const diff = now - startTime;
+        const remaining = hours50 - diff;
+        
+        const card = document.getElementById(`timer-card-${accName}`);
+        const display = document.getElementById(`display-${accName}`);
+        const status = document.getElementById(`status-${accName}`);
+        const btn = document.getElementById(`btn-timer-${accName}`);
+
+        if(!card) return;
+
+        if (remaining <= 0) {
+            display.innerText = "SIAP MASUK GRUP";
+            display.classList.add('finished');
+            status.innerText = "Waktu Habis";
+            card.classList.add('ready');
+            card.classList.remove('active-timer');
+            btn.innerText = "Reset Timer";
+            btn.onclick = () => { db.ref('joinTimers/' + accName).remove(); };
+        } else {
+            card.classList.add('active-timer');
+            card.classList.remove('ready');
+            status.innerText = "Sedang Berjalan";
+            btn.disabled = true;
+            btn.innerText = "Timer Berjalan...";
+            
+            const h = Math.floor(remaining / (1000 * 60 * 60));
+            const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((remaining % (1000 * 60)) / 1000);
+            display.innerText = `${h}h ${m}m ${s}s`;
+        }
+    }
+
+    setInterval(() => {
+        if(!document.getElementById('tab-5').classList.contains('active')) return;
+        Object.keys(window.joinTimers).forEach(accName => {
+            updateTimerUI(accName, window.joinTimers[accName]);
+        });
+    }, 1000);
+
+    window.switchTab = function(n) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); document.querySelectorAll('.nav-item')[n-1].classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); if(n === 1) renderHomeTab(); if(n === 2) window.refreshFanpageTab(); if(n === 3) renderHistoryTab(); if(n === 4) refreshDisbanTab(); if(n === 5) renderScheduleTab(); }
+</script>
+</body>
+</html>
