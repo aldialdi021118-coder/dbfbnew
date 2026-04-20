@@ -778,6 +778,13 @@
             return;
         }
 
+        // ✅ Akun baru yang belum ada di homeCardOrder → append ke paling bawah dan simpan ke DB2
+        const newAccNames = allAccs.map(a => a.name).filter(n => !window.homeCardOrder.includes(n));
+        if (newAccNames.length > 0) {
+            window.homeCardOrder = [...window.homeCardOrder, ...newAccNames];
+            db2.ref('cardOrder').update({ home: window.homeCardOrder });
+        }
+
         // Terapkan urutan yang tersimpan
         if (window.homeCardOrder && window.homeCardOrder.length > 0) {
             allAccs = applyCardOrder(allAccs, window.homeCardOrder);
@@ -1074,9 +1081,16 @@
         const container = document.getElementById(containerId);
         container.innerHTML = '';
 
-        // Terapkan urutan yang tersimpan untuk Fanpage
-        if (containerId === 'list-2' && window.fanpageCardOrder && window.fanpageCardOrder.length > 0) {
-            data = applyCardOrder(data, window.fanpageCardOrder);
+        // ✅ Akun baru yang belum ada di fanpageCardOrder → append ke paling bawah dan simpan ke DB2
+        if (containerId === 'list-2') {
+            const newFpNames = data.map(a => a.name).filter(n => !window.fanpageCardOrder.includes(n));
+            if (newFpNames.length > 0) {
+                window.fanpageCardOrder = [...window.fanpageCardOrder, ...newFpNames];
+                db2.ref('cardOrder').update({ fanpage: window.fanpageCardOrder });
+            }
+            if (window.fanpageCardOrder && window.fanpageCardOrder.length > 0) {
+                data = applyCardOrder(data, window.fanpageCardOrder);
+            }
         }
 
         const hintId = containerId === 'list-2' ? 'fanpage-drag-hint' : null;
