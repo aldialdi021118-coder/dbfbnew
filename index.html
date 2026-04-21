@@ -100,7 +100,7 @@
         .disban-card-name { font-size: 13px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .disban-card-source { font-size: 10px; color: #999; margin-top: 1px; }
         .disban-timer-wrap { text-align: right; flex-shrink: 0; }
-        .disban-timer-countdown { font-size: 11px; font-weight: 700; color: #f7b928; font-family: 'Courier New', monospace; }
+        .disban-timer-countdown { font-size: 10px; font-weight: 700; color: #f7b928; font-family: 'Courier New', monospace; letter-spacing: 0.3px; }
         .disban-timer-countdown.expired { color: #fa3e3e; }
         .disban-timer-phase { font-size: 9px; color: #bbb; margin-top: 1px; }
         .btn-disban-actions { display: flex; gap: 5px; margin-top: 8px; }
@@ -111,16 +111,27 @@
         .recovery-bar-fill { background: #36a420; height: 100%; border-radius: 6px; transition: width 0.4s; }
         .recovery-label { font-size: 9px; color: #36a420; font-weight: 700; margin-top: 2px; }
 
-        .timer-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
-        .timer-card.ready { border: 1px solid #36a420; }
-        .timer-card.active-timer { border: 1px solid #f7b928; }
-        .timer-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .timer-acc-name { font-weight: 700; color: var(--text-primary); font-size: 14px; }
-        .timer-status-text { font-size: 10px; color: #999; }
-        .timer-display { font-size: 20px; font-family: 'Courier New', monospace; font-weight: 700; color: #f7b928; text-align: center; padding: 10px; background: #fff8e1; border-radius: 8px; margin: 5px 0; }
-        .timer-display.finished { color: white; background: #36a420; font-size: 14px; font-family: 'Inter', sans-serif; }
-        .btn-start-join { width: 100%; background: var(--fb-blue); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
-        .btn-start-join:disabled { background: #ccc; cursor: not-allowed; }
+        /* === TIMER CARD REDESIGN === */
+        .timer-card { background: white; border-radius: 16px; padding: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 12px; display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); transition: all 0.3s; }
+        .timer-card.ready { border-color: #36a420; box-shadow: 0 4px 16px rgba(54,164,32,0.15); }
+        .timer-card.active-timer { border-color: #f7b928; box-shadow: 0 4px 16px rgba(247,185,40,0.15); }
+        .timer-card-header { padding: 12px 15px 10px; display: flex; align-items: center; gap: 10px; background: #fafafa; border-bottom: 1px solid #f0f2f5; }
+        .timer-card-icon { width: 36px; height: 36px; border-radius: 10px; background: #fff8e1; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+        .timer-card.ready .timer-card-icon { background: #e7f9e7; }
+        .timer-acc-name { font-weight: 700; color: var(--text-primary); font-size: 13px; letter-spacing: 0.3px; flex: 1; }
+        .timer-acc-source { font-size: 10px; color: #aaa; margin-top: 1px; }
+        .timer-phase-badge { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; background: #fff8e1; color: #b98900; flex-shrink: 0; }
+        .timer-card.ready .timer-phase-badge { background: #e7f9e7; color: #36a420; }
+        .timer-units-row { display: flex; gap: 6px; padding: 12px 14px; justify-content: center; align-items: center; }
+        .timer-unit { display: flex; flex-direction: column; align-items: center; background: #f7f8fc; border-radius: 10px; padding: 8px 10px; min-width: 52px; border: 1px solid #eef0f5; flex: 1; }
+        .timer-unit-val { font-size: 22px; font-weight: 800; color: #f7b928; font-family: 'Courier New', monospace; line-height: 1; }
+        .timer-card.ready .timer-unit-val { color: #36a420; }
+        .timer-unit-label { font-size: 9px; color: #aaa; font-weight: 600; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px; }
+        .timer-sep { font-size: 18px; font-weight: 800; color: #ddd; margin-bottom: 12px; }
+        .timer-finished-banner { padding: 14px; text-align: center; background: linear-gradient(135deg, #36a420, #2d8a1a); color: white; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .timer-progress-bar { height: 4px; background: #f0f2f5; }
+        .timer-progress-fill { height: 100%; border-radius: 0 0 16px 16px; background: linear-gradient(90deg, #f7b928, #fa8c16); transition: width 1s linear; }
+        .timer-card.ready .timer-progress-fill { background: linear-gradient(90deg, #36a420, #52c41a); }
         
         .desktop-trigger { display: none; }
         @media (min-width: 900px) { .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; } body { padding-bottom: 0; overflow: hidden; } .app-container { max-width: 100%; height: 100vh; padding: 15px; margin-right: 0; } .app-header { margin: 0 0 15px 0; padding: 8px 20px; } .tab-content.active { flex: 1; display: flex; flex-direction: column; min-height: 0; } .grid-container { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: 100%; gap: 8px; overflow: hidden; } .account-card { height: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .account-header { padding: 8px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: column; text-align: center; gap: 5px; } .fb-icon-circle { width: 20px; height: 20px; font-size: 10px; margin-bottom: 0; } .acc-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;} .arrow-icon { display: none; } .account-data-container { max-height: none !important; flex: 1; overflow-y: auto; background: #fff; } .data-grid { grid-template-columns: 1fr; padding: 5px; gap: 4px; } .card-actions { flex-direction: column; gap: 4px; padding: 5px; } .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; } .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; } .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); } .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); } .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); } .nav-item.active::after { display: none; } body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); } body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); } }
@@ -294,7 +305,7 @@
 
         <section id="tab-5" class="tab-content">
             <div class="section-header-wrap"><span class="section-title">Jadwal Masuk Grup (50 Jam)</span></div>
-            <div class="empty-state" style="padding-bottom:10px; font-size:11px;">Akun DISBAN dikumpulkan disini.<br>Klik tombol dibawah untuk memulai timer 50 jam.</div>
+            <div class="empty-state" style="padding-bottom:10px; font-size:11px;">Timer 50 jam otomatis dimulai dari tanggal akun di-Disban.<br>Akun siap masuk grup setelah waktu habis.</div>
             <div id="list-schedule" style="display: flex; flex-direction: column; gap: 10px;"></div>
         </section>
 
@@ -407,6 +418,7 @@
     window.disbanTimers = {};
     window.accountRecovery = {};
     window.fewfeedScanData = {};
+    window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
     // ✅ PERBAIKAN: Baca localStorage dulu (sinkron, instan) sebelum Firebase async load
     // Ini mencegah race condition di mana renderHomeTab dipanggil sebelum DB2 sempat terbaca
     window.homeCardOrder    = JSON.parse(localStorage.getItem('cardOrder_home')    || '[]');
@@ -618,11 +630,15 @@
             });
             db2.ref('cardOrder').on('value', snap2 => {
                 const d2 = snap2.val() || {};
-                if (d2.home && d2.home.length > 0) {
+                const now = Date.now();
+                const saved = window._cardOrderSavedAt || {};
+                // ✅ Jika baru saja disimpan lokal (< 5 detik), abaikan update dari DB2
+                // Ini mencegah DB2 mengirim balik nilai lama dan overwrite drag terbaru
+                if (d2.home && d2.home.length > 0 && (!saved.home || now - saved.home > 5000)) {
                     window.homeCardOrder = d2.home;
                     localStorage.setItem('cardOrder_home', JSON.stringify(d2.home));
                 }
-                if (d2.fanpage && d2.fanpage.length > 0) {
+                if (d2.fanpage && d2.fanpage.length > 0 && (!saved.fanpage || now - saved.fanpage > 5000)) {
                     window.fanpageCardOrder = d2.fanpage;
                     localStorage.setItem('cardOrder_fanpage', JSON.stringify(d2.fanpage));
                 }
@@ -732,12 +748,27 @@
         if (saveSecondary1) saveToFirebase('dbSecondary1', window.dbSecondary1);
     }
 
+    let _refreshTimer = null;
     function refreshAllTabs(updatedKey) {
-        renderHomeTab();
-        window.refreshFanpageTab(); 
-        window.refreshDisbanTab(); 
-        if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
-        if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
+        if (_refreshTimer) clearTimeout(_refreshTimer);
+        _refreshTimer = setTimeout(() => {
+            if (window.isDragging) {
+                // Jika masih drag, tunda lagi sampai drag selesai
+                _refreshTimer = setTimeout(() => {
+                    renderHomeTab();
+                    window.refreshFanpageTab();
+                    window.refreshDisbanTab();
+                    if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
+                    if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
+                }, 500);
+                return;
+            }
+            renderHomeTab();
+            window.refreshFanpageTab(); 
+            window.refreshDisbanTab(); 
+            if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
+            if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
+        }, 250); // debounce 250ms
     }
     
     function showMigrationButton(containerId, dbKey) {
@@ -832,11 +863,22 @@
                 if (isExpired) {
                     countdownStr = `<div class="disban-timer-countdown expired">⚠ Waktu Habis</div>`;
                 } else {
-                    const d = Math.floor(remaining / 86400000);
-                    const h = Math.floor((remaining % 86400000) / 3600000);
-                    const m = Math.floor((remaining % 3600000) / 60000);
-                    const display = d > 0 ? `${d}h ${h}j` : `${h}j ${m}m`;
-                    countdownStr = `<div class="disban-timer-countdown">⏳ ${display}</div>`;
+                    const totalSec = Math.floor(remaining / 1000);
+                    const det = totalSec % 60;
+                    const totalMin = Math.floor(totalSec / 60);
+                    const menit = totalMin % 60;
+                    const totalJam = Math.floor(totalMin / 60);
+                    const jam = totalJam % 24;
+                    const totalHari = Math.floor(totalJam / 24);
+                    const bulan = Math.floor(totalHari / 30);
+                    const hari = totalHari % 30;
+                    let parts = [];
+                    if (bulan > 0) parts.push(`${bulan}bl`);
+                    if (hari > 0 || bulan > 0) parts.push(`${hari}h`);
+                    parts.push(`${jam}j`);
+                    parts.push(`${String(menit).padStart(2,'0')}m`);
+                    parts.push(`${String(det).padStart(2,'0')}d`);
+                    countdownStr = `<div class="disban-timer-countdown">⏳ ${parts.join(' ')}</div>`;
                 }
                 const phaseDays = [3, 7, 14][timer.phase - 1] || 14;
                 timerHTML = `${countdownStr}<div class="disban-timer-phase">Fase ${timer.phase} (${phaseDays} hari)</div>`;
@@ -956,12 +998,12 @@
         });
     }
 
-    // Auto-refresh countdown timer setiap menit saat tab-4 aktif
+    // Auto-refresh countdown timer setiap detik saat tab-4 aktif
     setInterval(() => {
         if (document.getElementById('tab-4').classList.contains('active')) {
             window.refreshDisbanTab();
         }
-    }, 60000);
+    }, 1000);
 
     // --- 8. LOGIC UI ---
     window.currentHomeSubTab = 'all';
@@ -995,6 +1037,7 @@
     window.renderHomeTab = function() {
         const container = document.getElementById('list-1');
         if (!container) return;
+        if (window.isDragging) return; // ✅ Jangan re-render saat drag aktif
         container.innerHTML = '';
         let allAccs = collectAllAccounts();
         
@@ -1134,6 +1177,9 @@
         else window.fanpageCardOrder = order;
         // ✅ Simpan ke localStorage DULU (sinkron, langsung aktif saat refresh)
         localStorage.setItem('cardOrder_' + tabKey, JSON.stringify(order));
+        // ✅ Catat timestamp terakhir save lokal — cegah DB2 overwrite dengan data stale
+        window._cardOrderSavedAt = window._cardOrderSavedAt || {};
+        window._cardOrderSavedAt[tabKey] = Date.now();
         // Lalu simpan ke Firebase DB2 (async, backup cross-device)
         const update = {};
         update[tabKey] = order;
@@ -1157,6 +1203,7 @@
 
             card.addEventListener('dragstart', (e) => {
                 dragSrc = card;
+                window.isDragging = true; // ✅ Mulai drag
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', card.dataset.accname);
                 requestAnimationFrame(() => card.classList.add('card-dragging'));
@@ -1165,8 +1212,9 @@
             card.addEventListener('dragend', () => {
                 card.classList.remove('card-dragging');
                 container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
-                dragSrc = null;
                 saveCardOrder(container, tabKey);
+                dragSrc = null;
+                window.isDragging = false; // ✅ Selesai drag — render boleh jalan lagi
             });
 
             card.addEventListener('dragover', (e) => {
@@ -1198,6 +1246,7 @@
                 touchOffsetY = touch.clientY - rect.top;
 
                 dragSrc = card;
+                window.isDragging = true; // ✅ Mulai drag touch
                 card.classList.add('card-dragging');
 
                 // Buat ghost element
@@ -1254,8 +1303,9 @@
                 }
 
                 container.querySelectorAll('.account-card').forEach(c => c.classList.remove('drag-over'));
-                saveCardOrder(container, tabKey);
+                saveCardOrder(container, tabKey); // ✅ Simpan dulu sebelum flag direset
                 dragSrc = null;
+                window.isDragging = false; // ✅ Selesai drag touch — render boleh jalan lagi
             }, { passive: true });
         });
     }
@@ -1319,6 +1369,7 @@
 
     window.renderApp = function(data, containerId, dbRefName) {
         const container = document.getElementById(containerId);
+        if (window.isDragging) return; // ✅ Jangan re-render saat drag aktif
         container.innerHTML = '';
 
         // ✅ SELALU baca dari localStorage sebagai sumber kebenaran utama untuk fanpage
@@ -1802,31 +1853,58 @@
         const fragment = document.createDocumentFragment();
         allDisban.forEach(acc => {
             const accName = acc.name;
-            const startTime = window.joinTimers[accName] || 0;
-            
+            const key = getSafeKey(accName);
+            const disbanTimer = window.disbanTimers && window.disbanTimers[key];
+
+            // Auto-start joinTimer dari waktu disban jika belum ada
+            if (!window.joinTimers[accName] && disbanTimer && disbanTimer.startTime) {
+                window.joinTimers[accName] = disbanTimer.startTime;
+                db.ref('joinTimers/' + accName).set(disbanTimer.startTime);
+            }
+            const startTime = window.joinTimers[accName] || Date.now();
+            if (!window.joinTimers[accName]) {
+                window.joinTimers[accName] = startTime;
+                db.ref('joinTimers/' + accName).set(startTime);
+            }
+
+            const disbanDate = startTime ? new Date(startTime).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '-';
+
             const card = document.createElement('div');
-            card.className = 'timer-card';
+            card.className = 'timer-card active-timer';
             card.id = `timer-card-${accName}`;
-            
             card.innerHTML = `
-                <div class="timer-header">
-                    <div class="timer-acc-name">${accName}</div>
-                    <div class="timer-status-text" id="status-${accName}">Menunggu</div>
+                <div class="timer-card-header">
+                    <div class="timer-card-icon">🚫</div>
+                    <div style="flex:1">
+                        <div class="timer-acc-name">${accName}</div>
+                        <div class="timer-acc-source">Disban sejak: ${disbanDate}</div>
+                    </div>
+                    <div class="timer-phase-badge" id="badge-${accName}">⏳ Hitung...</div>
                 </div>
-                <div class="timer-display" id="display-${accName}">-- : -- : --</div>
-                <button class="btn-start-join" id="btn-timer-${accName}" onclick="startJoinTimer('${accName}')">Mulai Masuk Grup</button>
+                <div class="timer-units-row" id="display-${accName}">
+                    <div class="timer-unit"><div class="timer-unit-val" id="tu-bln-${accName}">0</div><div class="timer-unit-label">Bulan</div></div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-unit"><div class="timer-unit-val" id="tu-hari-${accName}">0</div><div class="timer-unit-label">Hari</div></div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-unit"><div class="timer-unit-val" id="tu-jam-${accName}">0</div><div class="timer-unit-label">Jam</div></div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-unit"><div class="timer-unit-val" id="tu-min-${accName}">0</div><div class="timer-unit-label">Menit</div></div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-unit"><div class="timer-unit-val" id="tu-det-${accName}">0</div><div class="timer-unit-label">Detik</div></div>
+                </div>
+                <div class="timer-progress-bar"><div class="timer-progress-fill" id="prog-${accName}" style="width:0%"></div></div>
             `;
             fragment.appendChild(card);
-            
-            if(startTime > 0) {
-                updateTimerUI(accName, startTime);
-            }
         });
         container.appendChild(fragment);
+
+        // Langsung update semua timer setelah render
+        allDisban.forEach(acc => {
+            updateTimerUI(acc.name, window.joinTimers[acc.name] || Date.now());
+        });
     }
 
     window.startJoinTimer = function(accName) {
-        if(!confirm(`Mulai timer 50 jam untuk ${accName}?`)) return;
         const startTime = Date.now();
         db.ref('joinTimers/' + accName).set(startTime);
     }
@@ -1838,31 +1916,49 @@
         const remaining = hours50 - diff;
         
         const card = document.getElementById(`timer-card-${accName}`);
-        const display = document.getElementById(`display-${accName}`);
-        const status = document.getElementById(`status-${accName}`);
-        const btn = document.getElementById(`btn-timer-${accName}`);
-
         if(!card) return;
 
+        const badge = document.getElementById(`badge-${accName}`);
+        const progBar = document.getElementById(`prog-${accName}`);
+
         if (remaining <= 0) {
-            display.innerText = "SIAP MASUK GRUP";
-            display.classList.add('finished');
-            status.innerText = "Waktu Habis";
+            // Selesai - tampilkan banner
+            const unitsRow = document.getElementById(`display-${accName}`);
+            if (unitsRow) {
+                unitsRow.outerHTML = `<div class="timer-finished-banner" id="display-${accName}">✅ SIAP MASUK GRUP</div>`;
+            }
+            if (badge) { badge.innerText = '✅ Selesai'; badge.style.background = '#e7f9e7'; badge.style.color = '#36a420'; }
+            if (progBar) progBar.style.width = '100%';
             card.classList.add('ready');
             card.classList.remove('active-timer');
-            btn.innerText = "Reset Timer";
-            btn.onclick = () => { db.ref('joinTimers/' + accName).remove(); };
         } else {
             card.classList.add('active-timer');
             card.classList.remove('ready');
-            status.innerText = "Sedang Berjalan";
-            btn.disabled = true;
-            btn.innerText = "Timer Berjalan...";
-            
-            const h = Math.floor(remaining / (1000 * 60 * 60));
-            const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((remaining % (1000 * 60)) / 1000);
-            display.innerText = `${h}h ${m}m ${s}s`;
+            if (badge) { badge.innerText = '⏳ Berjalan'; badge.style.background = '#fff8e1'; badge.style.color = '#b98900'; }
+
+            const totalSec = Math.floor(remaining / 1000);
+            const det = totalSec % 60;
+            const totalMin = Math.floor(totalSec / 60);
+            const menit = totalMin % 60;
+            const totalJam = Math.floor(totalMin / 60);
+            const jam = totalJam % 24;
+            const totalHari = Math.floor(totalJam / 24);
+            const bulan = Math.floor(totalHari / 30);
+            const hari = totalHari % 30;
+
+            const setUnit = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = String(val).padStart(2, '0');
+            };
+            setUnit(`tu-bln-${accName}`, bulan);
+            setUnit(`tu-hari-${accName}`, hari);
+            setUnit(`tu-jam-${accName}`, jam);
+            setUnit(`tu-min-${accName}`, menit);
+            setUnit(`tu-det-${accName}`, det);
+
+            // Progress bar (0 → 100% saat waktu habis)
+            const progress = Math.min(100, (diff / hours50) * 100);
+            if (progBar) progBar.style.width = progress.toFixed(1) + '%';
         }
     }
 
@@ -1931,7 +2027,7 @@
             <div class="week-day-card${isToday ? ' open' : ''}" id="wday-${di}">
                 <div class="week-day-header" onclick="toggleWeekDay(${di})">
                     <div class="week-day-name">
-                        ${isToday ? '📌 ' : ''}<span>${dayObj.label}</span>
+                        ${isToday ? '<span style="background:#e7f3ff;color:#1877F2;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">HARI INI</span> ' : ''}<span>${dayObj.label}</span>
                         <span class="week-day-badge">${totalAcc.size} akun</span>
                     </div>
                     <i class="fas fa-chevron-down week-day-chevron"></i>
@@ -2046,6 +2142,16 @@
             warnList.forEach(w => { warnUsed[w.name] = 0; });
 
             // Setiap akun gacor punya 1 hari libur acak dalam 7 hari
+            // Buat label 7 hari dari tanggal hari ini
+            const today = new Date();
+            const _dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+            const _monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            const actualDayLabels = Array.from({length: 7}, (_, i) => {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
+                return `${_dayNames[d.getDay()]}, ${d.getDate()} ${_monthNames[d.getMonth()]}`;
+            });
+
             // Buat array hari untuk setiap akun gacor: 6 dari 7 hari aktif
             const gacorDays = {}; // name → Set<dayIndex> yang AKTIF
             gacorList.forEach(g => {
@@ -2055,7 +2161,7 @@
             });
 
             // Bangun jadwal 7 hari
-            const week = HARI_NAMES.map((label, di) => {
+            const week = actualDayLabels.map((label, di) => {
                 // Akun yang tersedia hari ini (belum digunakan hari ini)
                 const usedToday = new Set();
                 const sessions = { pagi: [], siang: [], sore: [], malam: [] };
