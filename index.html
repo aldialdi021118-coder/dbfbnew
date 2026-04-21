@@ -419,10 +419,9 @@
     window.accountRecovery = {};
     window.fewfeedScanData = {};
     window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
-    // ✅ PERBAIKAN: Baca localStorage dulu (sinkron, instan) sebelum Firebase async load
-    // Ini mencegah race condition di mana renderHomeTab dipanggil sebelum DB2 sempat terbaca
-    window.homeCardOrder    = JSON.parse(localStorage.getItem('cardOrder_home')    || '[]');
-    window.fanpageCardOrder = JSON.parse(localStorage.getItem('cardOrder_fanpage') || '[]');
+    // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
+    window.homeCardOrder    = [];
+    window.fanpageCardOrder = [];
     window.postingScheduleData = null;
     // ✅ DB2: override per akun { SAFE_NAME: { status, browser } }
     window.accountOverrides = {};
@@ -591,22 +590,30 @@
     }
 
     // ============================================================
-    // INIT SEQUENCE: Load DB2 dulu → render aman → baru DB1
-    // Tujuan: tidak ada flash data lama saat pertama buka web
+    // CARD ORDER: DB2 = satu-satunya sumber kebenaran (master)
+    // localStorage = cache cepat, selalu disinkronkan dari DB2
+    // Urutan TIDAK AKAN hilang meski HTML diganti
     // ============================================================
     function applyDb2Snapshot(snap) {
         const d = snap || {};
-        window.accountOverrides  = d.accountOverrides  || {};
+        window.accountOverrides = d.accountOverrides || {};
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
-        // ✅ Gunakan Firebase jika ada data, jika tidak pakai localStorage yang sudah diset di atas
+        // DB2 selalu menang — tulis ke localStorage sebagai cache
         if (fbHome.length > 0) {
             window.homeCardOrder = fbHome;
             localStorage.setItem('cardOrder_home', JSON.stringify(fbHome));
+        } else {
+            // Tidak ada di DB2 → baca cache lokal kalau ada
+            const loc = localStorage.getItem('cardOrder_home');
+            if (loc) window.homeCardOrder = JSON.parse(loc);
         }
         if (fbFanpage.length > 0) {
             window.fanpageCardOrder = fbFanpage;
             localStorage.setItem('cardOrder_fanpage', JSON.stringify(fbFanpage));
+        } else {
+            const loc = localStorage.getItem('cardOrder_fanpage');
+            if (loc) window.fanpageCardOrder = JSON.parse(loc);
         }
     }
 
@@ -630,15 +637,14 @@
             });
             db2.ref('cardOrder').on('value', snap2 => {
                 const d2 = snap2.val() || {};
-                const now = Date.now();
-                const saved = window._cardOrderSavedAt || {};
-                // ✅ Jika baru saja disimpan lokal (< 5 detik), abaikan update dari DB2
-                // Ini mencegah DB2 mengirim balik nilai lama dan overwrite drag terbaru
-                if (d2.home && d2.home.length > 0 && (!saved.home || now - saved.home > 5000)) {
+                // ✅ DB2 adalah master — update hanya diblokir saat user sedang drag
+                // (isDragging mencegah overwrite posisi di tengah geser)
+                if (window.isDragging) return;
+                if (d2.home && d2.home.length > 0) {
                     window.homeCardOrder = d2.home;
                     localStorage.setItem('cardOrder_home', JSON.stringify(d2.home));
                 }
-                if (d2.fanpage && d2.fanpage.length > 0 && (!saved.fanpage || now - saved.fanpage > 5000)) {
+                if (d2.fanpage && d2.fanpage.length > 0) {
                     window.fanpageCardOrder = d2.fanpage;
                     localStorage.setItem('cardOrder_fanpage', JSON.stringify(d2.fanpage));
                 }
@@ -893,10 +899,6 @@
                 <div class="disban-card-info">
                     <div class="disban-card-name">${akun.name}</div>
                     <div class="disban-card-source">Asal: ${akun.sourceLabel}</div>
-                    <div class="btn-disban-actions">
-                        <button class="btn-disban-status" onclick="startDisbanTimer('${akun.name}', '${akun.originalDb}')"><i class="fas fa-redo"></i> Mulai Timer</button>
-                        <button class="btn-disban-status" onclick="openStatusModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-edit"></i> Status</button>
-                    </div>
                 </div>
                 <div class="disban-timer-wrap">${timerHTML}</div>
             `;
@@ -1175,12 +1177,9 @@
         const order = Array.from(cards).map(c => c.dataset.accname);
         if (tabKey === 'home') window.homeCardOrder = order;
         else window.fanpageCardOrder = order;
-        // ✅ Simpan ke localStorage DULU (sinkron, langsung aktif saat refresh)
+        // Cache ke localStorage (sinkron, cepat)
         localStorage.setItem('cardOrder_' + tabKey, JSON.stringify(order));
-        // ✅ Catat timestamp terakhir save lokal — cegah DB2 overwrite dengan data stale
-        window._cardOrderSavedAt = window._cardOrderSavedAt || {};
-        window._cardOrderSavedAt[tabKey] = Date.now();
-        // Lalu simpan ke Firebase DB2 (async, backup cross-device)
+        // ✅ Simpan ke DB2 sebagai master — ini yang dibaca saat HTML diganti
         const update = {};
         update[tabKey] = order;
         db2.ref('cardOrder').update(update);
