@@ -338,8 +338,10 @@
     window.dbHistory = []; 
     window.joinTimers = {};
     window.fewfeedScanData = {};
-    window.homeCardOrder = [];
-    window.fanpageCardOrder = [];
+    // ✅ PERBAIKAN: Baca localStorage dulu (sinkron, instan) sebelum Firebase async load
+    // Ini mencegah race condition di mana renderHomeTab dipanggil sebelum DB2 sempat terbaca
+    window.homeCardOrder    = JSON.parse(localStorage.getItem('cardOrder_home')    || '[]');
+    window.fanpageCardOrder = JSON.parse(localStorage.getItem('cardOrder_fanpage') || '[]');
     window.postingScheduleData = null;
     // ✅ DB2: override per akun { SAFE_NAME: { status, browser } }
     window.accountOverrides = {};
@@ -501,8 +503,17 @@
     function applyDb2Snapshot(snap) {
         const d = snap || {};
         window.accountOverrides  = d.accountOverrides  || {};
-        window.homeCardOrder     = (d.cardOrder && d.cardOrder.home)    || [];
-        window.fanpageCardOrder  = (d.cardOrder && d.cardOrder.fanpage) || [];
+        const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
+        const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
+        // ✅ Gunakan Firebase jika ada data, jika tidak pakai localStorage yang sudah diset di atas
+        if (fbHome.length > 0) {
+            window.homeCardOrder = fbHome;
+            localStorage.setItem('cardOrder_home', JSON.stringify(fbHome));
+        }
+        if (fbFanpage.length > 0) {
+            window.fanpageCardOrder = fbFanpage;
+            localStorage.setItem('cardOrder_fanpage', JSON.stringify(fbFanpage));
+        }
     }
 
     // Tampilkan loading overlay
@@ -525,8 +536,14 @@
             });
             db2.ref('cardOrder').on('value', snap2 => {
                 const d2 = snap2.val() || {};
-                window.homeCardOrder    = d2.home    || [];
-                window.fanpageCardOrder = d2.fanpage || [];
+                if (d2.home && d2.home.length > 0) {
+                    window.homeCardOrder = d2.home;
+                    localStorage.setItem('cardOrder_home', JSON.stringify(d2.home));
+                }
+                if (d2.fanpage && d2.fanpage.length > 0) {
+                    window.fanpageCardOrder = d2.fanpage;
+                    localStorage.setItem('cardOrder_fanpage', JSON.stringify(d2.fanpage));
+                }
                 // Posisi dipakai saat render berikutnya (tidak perlu full refresh)
             });
         })
@@ -919,9 +936,11 @@
         const order = Array.from(cards).map(c => c.dataset.accname);
         if (tabKey === 'home') window.homeCardOrder = order;
         else window.fanpageCardOrder = order;
+        // ✅ Simpan ke localStorage DULU (sinkron, langsung aktif saat refresh)
+        localStorage.setItem('cardOrder_' + tabKey, JSON.stringify(order));
+        // Lalu simpan ke Firebase DB2 (async, backup cross-device)
         const update = {};
         update[tabKey] = order;
-        // ✅ Simpan posisi kartu ke DB2 saja
         db2.ref('cardOrder').update(update);
     }
 
