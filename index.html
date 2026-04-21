@@ -820,15 +820,22 @@
             return;
         }
 
-        // ✅ Akun baru yang belum ada di homeCardOrder → append ke paling bawah dan simpan ke DB2
-        const newAccNames = allAccs.map(a => a.name).filter(n => !window.homeCardOrder.includes(n));
-        if (newAccNames.length > 0) {
-            window.homeCardOrder = [...window.homeCardOrder, ...newAccNames];
-            db2.ref('cardOrder').update({ home: window.homeCardOrder });
+        // ✅ SELALU baca dari localStorage sebagai sumber kebenaran utama
+        // Mencegah window.homeCardOrder yang volatile dari Firebase listener merusak urutan
+        const _savedHomeRaw = localStorage.getItem('cardOrder_home');
+        const _savedHomeOrder = _savedHomeRaw ? JSON.parse(_savedHomeRaw) : [];
+        window.homeCardOrder = _savedHomeOrder;
+
+        // Akun baru yg belum ada di order → append ke bawah, simpan localStorage saja (bukan DB2)
+        const _allHomeNames = collectAllAccounts().map(a => a.name);
+        const _newHomeAccs = _allHomeNames.filter(n => !_savedHomeOrder.includes(n));
+        if (_newHomeAccs.length > 0) {
+            window.homeCardOrder = [..._savedHomeOrder, ..._newHomeAccs];
+            localStorage.setItem('cardOrder_home', JSON.stringify(window.homeCardOrder));
         }
 
-        // Terapkan urutan yang tersimpan
-        if (window.homeCardOrder && window.homeCardOrder.length > 0) {
+        // Terapkan urutan
+        if (window.homeCardOrder.length > 0) {
             allAccs = applyCardOrder(allAccs, window.homeCardOrder);
         }
 
@@ -1125,14 +1132,20 @@
         const container = document.getElementById(containerId);
         container.innerHTML = '';
 
-        // ✅ Akun baru yang belum ada di fanpageCardOrder → append ke paling bawah dan simpan ke DB2
+        // ✅ SELALU baca dari localStorage sebagai sumber kebenaran utama untuk fanpage
         if (containerId === 'list-2') {
-            const newFpNames = data.map(a => a.name).filter(n => !window.fanpageCardOrder.includes(n));
-            if (newFpNames.length > 0) {
-                window.fanpageCardOrder = [...window.fanpageCardOrder, ...newFpNames];
-                db2.ref('cardOrder').update({ fanpage: window.fanpageCardOrder });
+            const _savedFpRaw = localStorage.getItem('cardOrder_fanpage');
+            const _savedFpOrder = _savedFpRaw ? JSON.parse(_savedFpRaw) : [];
+            window.fanpageCardOrder = _savedFpOrder;
+
+            // Akun baru → append, simpan localStorage saja (bukan DB2)
+            const _newFpAccs = data.map(a => a.name).filter(n => !_savedFpOrder.includes(n));
+            if (_newFpAccs.length > 0) {
+                window.fanpageCardOrder = [..._savedFpOrder, ..._newFpAccs];
+                localStorage.setItem('cardOrder_fanpage', JSON.stringify(window.fanpageCardOrder));
             }
-            if (window.fanpageCardOrder && window.fanpageCardOrder.length > 0) {
+
+            if (window.fanpageCardOrder.length > 0) {
                 data = applyCardOrder(data, window.fanpageCardOrder);
             }
         }
@@ -1438,7 +1451,21 @@
 
     window.openRangeModal = function(cityName, cityVal, accountName, status, dbRefName) { 
         window.currentOpenModalParams = { city: cityName, val: cityVal, acc: accountName, status: status, db: dbRefName };
-        let rangeLimit = 20; 
+        
+        // ✅ Tentukan rangeLimit berdasarkan browser akun
+        // Chromium selain AMIRA, LIORA, YUMI → per 5 grup
+        const CHROMIUM_EXCEPTIONS = ['AMIRA', 'LIORA', 'YUMI'];
+        const allDbs = ['dbUtama1', 'dbSecondary1', 'dbUtama5'];
+        let accObj = null;
+        for (const dbKey of allDbs) {
+            const found = (window[dbKey] || []).find(a => a && a.name === accountName);
+            if (found) { accObj = found; break; }
+        }
+        const browserType = accObj ? getBrowserType(accObj)
+            : (() => { const n = accountName.toUpperCase(); if(browserMap.chromium.includes(n)) return 'chromium'; return 'other'; })();
+        const isChromiumException = CHROMIUM_EXCEPTIONS.includes(accountName.toUpperCase());
+        let rangeLimit = (browserType === 'chromium' && !isChromiumException) ? 5 : 20;
+
         const rangesCount = Math.ceil(cityVal / rangeLimit); 
         
         document.getElementById('modalTitle').innerText = cityName; 
