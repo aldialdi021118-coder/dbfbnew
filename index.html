@@ -85,6 +85,32 @@
         
         .disban-info { font-size: 10px; color: #999; margin-top: 5px; display: block; }
 
+        /* === DISBAN SIMPLE CARDS === */
+        .disban-notif-banner { background: #fff3cd; border: 1px solid #f7b928; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+        .disban-notif-title { font-size: 12px; font-weight: 700; color: #b98900; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .disban-notif-item { background: white; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+        .disban-notif-name { flex: 1; font-size: 12px; font-weight: 700; color: var(--text-primary); }
+        .disban-notif-phase { font-size: 10px; color: #b98900; margin-top: 1px; }
+        .disban-notif-actions { display: flex; gap: 6px; }
+        .btn-disban-ok { background: #e7f9e7; color: #36a420; border: none; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .btn-disban-lanjut { background: #fee2e2; color: #fa3e3e; border: none; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+        .disban-simple-card { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(0,0,0,0.04); }
+        .disban-card-info { flex: 1; min-width: 0; }
+        .disban-card-name { font-size: 13px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .disban-card-source { font-size: 10px; color: #999; margin-top: 1px; }
+        .disban-timer-wrap { text-align: right; flex-shrink: 0; }
+        .disban-timer-countdown { font-size: 11px; font-weight: 700; color: #f7b928; font-family: 'Courier New', monospace; }
+        .disban-timer-countdown.expired { color: #fa3e3e; }
+        .disban-timer-phase { font-size: 9px; color: #bbb; margin-top: 1px; }
+        .btn-disban-actions { display: flex; gap: 5px; margin-top: 8px; }
+        .btn-disban-status { background: #f0f2f5; color: var(--text-secondary); border: none; padding: 5px 8px; border-radius: 5px; font-size: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+
+        /* === RECOVERY BADGE === */
+        .recovery-bar-wrap { background: #e7f9e7; border-radius: 6px; height: 5px; margin-top: 4px; overflow: hidden; }
+        .recovery-bar-fill { background: #36a420; height: 100%; border-radius: 6px; transition: width 0.4s; }
+        .recovery-label { font-size: 9px; color: #36a420; font-weight: 700; margin-top: 2px; }
+
         .timer-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
         .timer-card.ready { border: 1px solid #36a420; }
         .timer-card.active-timer { border: 1px solid #f7b928; }
@@ -176,6 +202,47 @@
         .sched-ai-status i { font-size: 30px; color: var(--fb-blue); margin-bottom: 8px; display: block; }
         .sched-loading { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 30px 10px; }
         .sched-spinner { width: 36px; height: 36px; border: 4px solid #e4e6eb; border-top-color: var(--fb-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+        /* --- WEEKLY SCHEDULE STYLES --- */
+        .week-legend { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; background: white; padding: 10px 12px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .week-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--text-secondary); }
+        .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .leg-gacor { background: var(--status-gacor); }
+        .leg-warn { background: var(--status-warn); }
+        .leg-disban { background: var(--status-disban); }
+
+        .week-day-card { background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); }
+        .week-day-header { padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; border-bottom: 1px solid #f0f2f5; background: #fafafa; }
+        .week-day-header:active { background: #f0f2f5; }
+        .week-day-name { font-weight: 700; font-size: 13px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .week-day-badge { font-size: 10px; background: #e7f3ff; color: var(--fb-blue); padding: 2px 7px; border-radius: 10px; font-weight: 700; }
+        .week-day-chevron { font-size: 11px; color: var(--text-secondary); transition: transform 0.3s; }
+        .week-day-card.open .week-day-chevron { transform: rotate(180deg); }
+        .week-day-body { display: none; }
+        .week-day-card.open .week-day-body { display: block; }
+
+        .week-session-block { border-bottom: 1px solid #f7f7f7; }
+        .week-session-block:last-child { border-bottom: none; }
+        .week-session-label { padding: 8px 15px 4px; display: flex; align-items: center; gap: 6px; }
+        .week-session-icon { font-size: 13px; }
+        .week-session-name { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .week-session-time { font-size: 10px; color: #bbb; margin-left: auto; }
+        .week-session-empty { padding: 4px 15px 8px; font-size: 11px; color: #bbb; font-style: italic; }
+
+        .week-acc-row { padding: 6px 15px 6px 36px; display: flex; align-items: center; gap: 8px; }
+        .week-acc-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .week-acc-name { font-size: 12px; font-weight: 700; color: var(--text-primary); flex: 1; }
+        .week-acc-status { font-size: 9px; font-weight: 600; padding: 2px 5px; border-radius: 4px; }
+        .wstatus-gacor { background: #e7f9e7; color: #36a420; }
+        .wstatus-warn { background: #fff8e1; color: #b98900; }
+
+        .week-summary-section { background: white; border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .week-summary-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .week-acc-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; background: #f0f2f5; border-radius: 5px; padding: 3px 7px; margin: 2px; }
+        .week-acc-tag.tag-gacor { background: #e7f9e7; color: #36a420; }
+        .week-acc-tag.tag-warn { background: #fff8e1; color: #b98900; }
+        .week-acc-tag.tag-disban { background: #fee2e2; color: #fa3e3e; }
+        .week-acc-tag.tag-rest { background: #f0f2f5; color: #888; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -232,20 +299,20 @@
         </section>
 
         <section id="tab-6" class="tab-content">
-            <div class="section-header-wrap"><span class="section-title">📅 Jadwal Posting Harian</span></div>
+            <div class="section-header-wrap"><span class="section-title">📅 Jadwal Grup Mingguan</span></div>
             <div class="sched-toolbar">
-                <button class="btn-gen-sched" id="btnGenSched" onclick="generatePostingSchedule()">
-                    <i class="fas fa-magic"></i> Generate Jadwal
+                <button class="btn-gen-sched" id="btnGenSched" onclick="generateWeeklySchedule()">
+                    <i class="fas fa-magic"></i> Generate Mingguan
                 </button>
-                <button class="btn-reset-sched" onclick="resetPostingSchedule()">
+                <button class="btn-reset-sched" onclick="resetWeeklySchedule()">
                     <i class="fas fa-redo"></i> Reset
                 </button>
             </div>
             <div id="posting-schedule-container">
                 <div class="sched-ai-status">
-                    <i class="fas fa-calendar-alt"></i>
-                    Belum ada jadwal.<br>Klik <b>Generate Jadwal</b> untuk membuat jadwal posting otomatis hari ini.<br><br>
-                    <span style="font-size:11px; color:#aaa;">Akun DISBAN akan otomatis dilewati.<br>Minimal 300 posting/hari dengan sesi siang & malam.</span>
+                    <i class="fas fa-calendar-week"></i>
+                    Belum ada jadwal mingguan.<br>Klik <b>Generate Mingguan</b> untuk membuat jadwal 7 hari otomatis.<br><br>
+                    <span style="font-size:11px; color:#aaa;">Akun DISBAN dilewati. Akun Peringatan maks 2x/minggu.<br>4 sesi/hari: Pagi, Siang, Sore, Malam.</span>
                 </div>
             </div>
         </section>
@@ -337,6 +404,8 @@
     window.dbUtama5 = [];
     window.dbHistory = []; 
     window.joinTimers = {};
+    window.disbanTimers = {};
+    window.accountRecovery = {};
     window.fewfeedScanData = {};
     // ✅ PERBAIKAN: Baca localStorage dulu (sinkron, instan) sebelum Firebase async load
     // Ini mencegah race condition di mana renderHomeTab dipanggil sebelum DB2 sempat terbaca
@@ -493,6 +562,19 @@
             }
             // ✅ Sync ke DB2
             syncToDb2('postingSchedule', snapshot.val());
+        });
+
+        // Listener disban timers
+        db.ref('disbanTimers').on('value', (snapshot) => {
+            window.disbanTimers = snapshot.val() || {};
+            if(document.getElementById('tab-4').classList.contains('active')) {
+                window.refreshDisbanTab();
+            }
+        });
+
+        // Listener account recovery (peringatan → gacor)
+        db.ref('accountRecovery').on('value', (snapshot) => {
+            window.accountRecovery = snapshot.val() || {};
         });
     }
 
@@ -686,7 +768,7 @@
             });
     }
 
-    // --- 7. RENDER DISBAN TAB (Tab 7) ---
+    // --- 7. RENDER DISBAN TAB (Tab 4) — SIMPLIFIED + TIMER ---
     window.refreshDisbanTab = function() {
         const container = document.getElementById('list-disban');
         container.innerHTML = '';
@@ -697,64 +779,99 @@
             return;
         }
 
+        const now = Date.now();
+        const PHASE_DURATION = [0, 3 * 86400000, 7 * 86400000, 14 * 86400000]; // phase 1=3hr, 2=7hr, 3+=14hr
+
+        // === BANNER NOTIFIKASI AKUN YANG WAKTUNYA HABIS ===
+        const expired = allDisban.filter(akun => {
+            const key = getSafeKey(akun.name);
+            const timer = window.disbanTimers[key];
+            if (!timer) return false;
+            const dur = PHASE_DURATION[timer.phase] || PHASE_DURATION[3];
+            return (now - timer.startTime) >= dur;
+        });
+
+        if (expired.length > 0) {
+            let bannerHTML = `<div class="disban-notif-banner">
+                <div class="disban-notif-title"><i class="fas fa-bell"></i> Cek Akun — Timer Selesai!</div>`;
+            expired.forEach(akun => {
+                const key = getSafeKey(akun.name);
+                const timer = window.disbanTimers[key];
+                const nextPhase = (timer.phase || 1) + 1;
+                const nextDays = nextPhase === 2 ? 7 : 14;
+                bannerHTML += `
+                <div class="disban-notif-item">
+                    <div>
+                        <div class="disban-notif-name">${akun.name}</div>
+                        <div class="disban-notif-phase">Fase ${timer.phase} selesai • Perlu dicek</div>
+                    </div>
+                    <div class="disban-notif-actions">
+                        <button class="btn-disban-ok" onclick="markDisbanPulih('${akun.name}', '${akun.originalDb}', ${akun.originalIdx})">✅ Pulih</button>
+                        <button class="btn-disban-lanjut" onclick="markStillDisban('${akun.name}', ${nextDays})">🔒 +${nextDays} hari</button>
+                    </div>
+                </div>`;
+            });
+            bannerHTML += `</div>`;
+            container.innerHTML = bannerHTML;
+        }
+
+        // === KARTU AKUN DISBAN (TANPA KOTA) ===
         const fragment = document.createDocumentFragment();
         allDisban.forEach((akun) => {
-            // akun.status sudah berisi effStatus dari collectAllDisban
-            const effStatus = akun.status;
-            const card = document.createElement('div');
-            card.className = 'account-card status-disban';
-            
-            // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
-            const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
-            const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
-            let items;
-            if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
-                items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
-            } else {
-                items = akun.items || [];
-            }
-            let listHTML = items.map(item => `
-                <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${akun.originalDb}')">
-                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
-                </div>
-            `).join('');
-
+            const key = getSafeKey(akun.name);
+            const timer = window.disbanTimers[key];
             const browserIcon = getBrowserIcon(akun);
 
+            // Hitung timer info
+            let timerHTML = '';
+            if (timer) {
+                const dur = PHASE_DURATION[timer.phase] || PHASE_DURATION[3];
+                const remaining = dur - (now - timer.startTime);
+                const isExpired = remaining <= 0;
+                let countdownStr = '';
+                if (isExpired) {
+                    countdownStr = `<div class="disban-timer-countdown expired">⚠ Waktu Habis</div>`;
+                } else {
+                    const d = Math.floor(remaining / 86400000);
+                    const h = Math.floor((remaining % 86400000) / 3600000);
+                    const m = Math.floor((remaining % 3600000) / 60000);
+                    const display = d > 0 ? `${d}h ${h}j` : `${h}j ${m}m`;
+                    countdownStr = `<div class="disban-timer-countdown">⏳ ${display}</div>`;
+                }
+                const phaseDays = [3, 7, 14][timer.phase - 1] || 14;
+                timerHTML = `${countdownStr}<div class="disban-timer-phase">Fase ${timer.phase} (${phaseDays} hari)</div>`;
+            } else {
+                timerHTML = `<div class="disban-timer-countdown" style="color:#aaa;font-size:10px;">Belum ada timer</div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'disban-simple-card';
             card.innerHTML = `
-                <div class="account-header">
-                    <div class="browser-icon-circle">${browserIcon}</div>
-                    <div class="acc-info">
-                        <div class="acc-name">${akun.name}</div>
-                        <span class="disban-info">Asal: ${akun.sourceLabel}</span>
-                    </div>
-                    <i class="fas fa-chevron-down arrow-icon"></i>
-                </div>
-                <div class="account-data-container">
-                    <div class="data-grid">${listHTML}</div>
-                    <div class="card-actions">
-                        <button class="btn-card-action btn-status" onclick="openStatusModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-edit"></i> Ubah Status</button>
-                        <button class="btn-card-action btn-edit" onclick="openEditValueModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-pen"></i> Edit Angka</button>
-                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-trash"></i> Hapus</button>
+                <div class="browser-icon-circle">${browserIcon}</div>
+                <div class="disban-card-info">
+                    <div class="disban-card-name">${akun.name}</div>
+                    <div class="disban-card-source">Asal: ${akun.sourceLabel}</div>
+                    <div class="btn-disban-actions">
+                        <button class="btn-disban-status" onclick="startDisbanTimer('${akun.name}', '${akun.originalDb}')"><i class="fas fa-redo"></i> Mulai Timer</button>
+                        <button class="btn-disban-status" onclick="openStatusModal(${akun.originalIdx}, '${akun.originalDb}')"><i class="fas fa-edit"></i> Status</button>
                     </div>
                 </div>
+                <div class="disban-timer-wrap">${timerHTML}</div>
             `;
-            const header = card.querySelector('.account-header');
-            const content = card.querySelector('.account-data-container');
-            header.addEventListener('click', () => {
-                if (window.innerWidth >= 900) return; 
-                const isActive = card.classList.contains('active');
-                requestAnimationFrame(() => {
-                    document.querySelectorAll('.account-card.active').forEach(c => {
-                         if(c !== card) { c.classList.remove('active'); c.querySelector('.account-data-container').style.maxHeight = null; }
-                    });
-                    if (!isActive) { card.classList.add('active'); setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }, 10); } 
-                    else { card.classList.remove('active'); content.style.maxHeight = null; }
-                });
-            });
             fragment.appendChild(card);
         });
         container.appendChild(fragment);
+
+        // Auto-start timer untuk akun yang belum punya timer
+        allDisban.forEach(akun => {
+            const key = getSafeKey(akun.name);
+            if (!window.disbanTimers[key]) {
+                // Auto-start fase 1 tanpa prompt
+                const timerData = { startTime: Date.now(), phase: 1, accName: akun.name, dbKey: akun.originalDb };
+                window.disbanTimers[key] = timerData;
+                db.ref('disbanTimers/' + key).set(timerData);
+            }
+        });
     }
     
     function collectAllDisban() {
@@ -773,6 +890,78 @@
         collect(window.dbUtama5, 'dbUtama5', 'Db Fanpage');
         return allDisban;
     }
+
+    // === DISBAN TIMER FUNCTIONS ===
+    window.startDisbanTimer = function(accName, dbKey) {
+        const key = getSafeKey(accName);
+        const existing = window.disbanTimers[key];
+        const phase = existing ? existing.phase : 1;
+        const timerData = { startTime: Date.now(), phase: phase, accName: accName, dbKey: dbKey };
+        window.disbanTimers[key] = timerData;
+        db.ref('disbanTimers/' + key).set(timerData)
+            .then(() => window.refreshDisbanTab())
+            .catch(e => alert('Gagal simpan timer: ' + e.message));
+    };
+
+    window.markStillDisban = function(accName, addDays) {
+        const key = getSafeKey(accName);
+        const existing = window.disbanTimers[key] || {};
+        const nextPhase = existing.phase >= 3 ? 3 : (existing.phase || 1) + 1;
+        const timerData = { startTime: Date.now(), phase: nextPhase, accName: accName, dbKey: existing.dbKey || '' };
+        window.disbanTimers[key] = timerData;
+        db.ref('disbanTimers/' + key).set(timerData)
+            .then(() => window.refreshDisbanTab())
+            .catch(e => alert('Gagal update timer: ' + e.message));
+    };
+
+    window.markDisbanPulih = function(accName, dbKey, idx) {
+        const key = getSafeKey(accName);
+        // Hapus timer disban
+        delete window.disbanTimers[key];
+        db.ref('disbanTimers/' + key).remove();
+        // Ubah status ke peringatan
+        if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+        window.accountOverrides[key].status = 'warn';
+        db2.ref('accountOverrides/' + key + '/status').set('warn');
+        // Mulai tracking recovery
+        const recovery = { cleanSessions: 0, accName: accName };
+        window.accountRecovery[key] = recovery;
+        db.ref('accountRecovery/' + key).set(recovery);
+        refreshAllTabs('disban_pulih');
+        alert(`✅ ${accName} berubah ke PERINGATAN. Butuh 7 sesi bersih untuk jadi GACOR.`);
+    };
+
+    // Dipanggil setiap generate jadwal mingguan — tambah cleanSessions untuk akun peringatan
+    function incrementRecoverySessions(accNames) {
+        accNames.forEach(name => {
+            const st = getEffectiveStatus({ name });
+            if (st !== 'warn') return;
+            const key = getSafeKey(name);
+            const rec = window.accountRecovery[key] || { cleanSessions: 0, accName: name };
+            rec.cleanSessions = (rec.cleanSessions || 0) + 1;
+            window.accountRecovery[key] = rec;
+            db.ref('accountRecovery/' + key).set(rec);
+            if (rec.cleanSessions >= 7) {
+                // Promosi ke gacor
+                if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+                window.accountOverrides[key].status = 'gacor';
+                db2.ref('accountOverrides/' + key + '/status').set('gacor');
+                db.ref('accountRecovery/' + key).remove();
+                delete window.accountRecovery[key];
+                setTimeout(() => {
+                    alert(`🎉 ${name} sudah 7 sesi bersih — STATUS GACOR!`);
+                    refreshAllTabs('promoted_gacor');
+                }, 300);
+            }
+        });
+    }
+
+    // Auto-refresh countdown timer setiap menit saat tab-4 aktif
+    setInterval(() => {
+        if (document.getElementById('tab-4').classList.contains('active')) {
+            window.refreshDisbanTab();
+        }
+    }, 60000);
 
     // --- 8. LOGIC UI ---
     window.currentHomeSubTab = 'all';
@@ -1313,11 +1502,31 @@
             const accName = targetDb[window.currentEditAccountIndex].name;
             const newStatus = document.getElementById('newStatusInput').value;
             const safeKey = getSafeKey(accName);
+            const oldStatus = getEffectiveStatus(targetDb[window.currentEditAccountIndex]);
             // ✅ Simpan HANYA ke DB2 — tidak menyentuh DB1 sama sekali
             if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
             window.accountOverrides[safeKey].status = newStatus;
             db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
                 .catch(e => alert("Gagal simpan status: " + e.message));
+
+            // ✅ AUTO-START TIMER DISBAN
+            if (newStatus === 'disban' && oldStatus !== 'disban') {
+                const timerData = { startTime: Date.now(), phase: 1, accName: accName, dbKey: window.currentEditDb };
+                window.disbanTimers[safeKey] = timerData;
+                db.ref('disbanTimers/' + safeKey).set(timerData);
+            }
+            // ✅ BERSIHKAN TIMER JIKA STATUS BERUBAH DARI DISBAN
+            if (oldStatus === 'disban' && newStatus !== 'disban') {
+                delete window.disbanTimers[safeKey];
+                db.ref('disbanTimers/' + safeKey).remove();
+                // Jika berubah ke peringatan, mulai recovery tracking
+                if (newStatus === 'warn') {
+                    const recovery = { cleanSessions: 0, accName: accName };
+                    window.accountRecovery[safeKey] = recovery;
+                    db.ref('accountRecovery/' + safeKey).set(recovery);
+                }
+            }
+
             refreshAllTabs('status');
         }
         closeModal(null, 'statusModal', true);
@@ -1665,76 +1874,138 @@
     }, 1000);
 
     // ============================================================
-    // --- TAB 6: JADWAL POSTING HARIAN (AI GENERATED) ---
+    // --- TAB 6: JADWAL GRUP MINGGUAN ---
     // ============================================================
+
+    const HARI_NAMES = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+    const SESSIONS = [
+        { key:'pagi',  label:'Pagi',  icon:'🌅', time:'05:00 – 09:00' },
+        { key:'siang', label:'Siang', icon:'☀️', time:'10:00 – 13:00' },
+        { key:'sore',  label:'Sore',  icon:'🌤️', time:'14:00 – 17:00' },
+        { key:'malam', label:'Malam', icon:'🌙', time:'18:00 – 23:00' }
+    ];
 
     window.renderPostingScheduleTab = function() {
         const container = document.getElementById('posting-schedule-container');
         if (!container) return;
 
         const sched = window.postingScheduleData;
-        if (!sched || !sched.siang || !sched.malam) {
+        if (!sched || !sched.week) {
             container.innerHTML = `
                 <div class="sched-ai-status">
-                    <i class="fas fa-calendar-alt"></i>
-                    Belum ada jadwal.<br>Klik <b>Generate Jadwal</b> untuk membuat jadwal posting otomatis hari ini.<br><br>
-                    <span style="font-size:11px; color:#aaa;">Akun DISBAN akan otomatis dilewati.<br>Minimal 300 posting/hari dengan sesi siang & malam.</span>
+                    <i class="fas fa-calendar-week"></i>
+                    Belum ada jadwal mingguan.<br>Klik <b>Generate Mingguan</b> untuk membuat jadwal 7 hari otomatis.<br><br>
+                    <span style="font-size:11px; color:#aaa;">Akun DISBAN dilewati. Akun Peringatan maks 2x/minggu.<br>4 sesi/hari: Pagi, Siang, Sore, Malam.</span>
                 </div>`;
             return;
         }
 
-        const totalPosting = (sched.totalSiang || 0) + (sched.totalMalam || 0);
         const tgl = sched.tanggal ? new Date(sched.tanggal).toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '-';
 
-        function buildItems(list) {
-            return list.map((item, i) => `
-                <div class="sched-item">
-                    <div class="sched-item-num">${i+1}</div>
-                    <div class="sched-item-body">
-                        <div class="sched-acc-name">${item.akun}</div>
-                        <div class="sched-city-info">📍 ${item.kota} &nbsp;•&nbsp; Range ${item.rangeLabel}</div>
+        // Hitung summary akun
+        const usedSet = new Set(), disbandList = sched.disbandList || [], warnList = sched.warnList || [], restSet = new Set();
+        sched.week.forEach(dayObj => {
+            SESSIONS.forEach(s => {
+                (dayObj.sessions[s.key] || []).forEach(acc => usedSet.add(acc.name));
+            });
+        });
+        const allNames = sched.allNames || [];
+        allNames.forEach(n => { if (!usedSet.has(n) && !disbandList.includes(n)) restSet.add(n); });
+
+        let html = `
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;text-align:right;">
+            Dibuat: ${tgl}
+        </div>
+        <div class="week-legend">
+            <div class="week-legend-item"><div class="leg-dot leg-gacor"></div> Gacor</div>
+            <div class="week-legend-item"><div class="leg-dot leg-warn"></div> Peringatan</div>
+            <div class="week-legend-item"><div class="leg-dot leg-disban"></div> Disban</div>
+        </div>`;
+
+        // Render setiap hari
+        sched.week.forEach((dayObj, di) => {
+            const totalAcc = new Set();
+            SESSIONS.forEach(s => { (dayObj.sessions[s.key] || []).forEach(a => totalAcc.add(a.name)); });
+            const isToday = di === 0;
+            html += `
+            <div class="week-day-card${isToday ? ' open' : ''}" id="wday-${di}">
+                <div class="week-day-header" onclick="toggleWeekDay(${di})">
+                    <div class="week-day-name">
+                        ${isToday ? '📌 ' : ''}<span>${dayObj.label}</span>
+                        <span class="week-day-badge">${totalAcc.size} akun</span>
                     </div>
-                    <div class="sched-item-count">+${item.jumlah}</div>
-                </div>`).join('');
+                    <i class="fas fa-chevron-down week-day-chevron"></i>
+                </div>
+                <div class="week-day-body">`;
+
+            SESSIONS.forEach(s => {
+                const list = dayObj.sessions[s.key] || [];
+                html += `
+                    <div class="week-session-block">
+                        <div class="week-session-label">
+                            <span class="week-session-icon">${s.icon}</span>
+                            <span class="week-session-name">${s.label}</span>
+                            <span class="week-session-time">${s.time}</span>
+                        </div>`;
+                if (list.length === 0) {
+                    html += `<div class="week-session-empty">— Tidak ada posting —</div>`;
+                } else {
+                    list.forEach(acc => {
+                        const isWarn = acc.status === 'warn';
+                        const recKey = getSafeKey(acc.name);
+                        const rec = window.accountRecovery && window.accountRecovery[recKey];
+                        const sessions = rec ? (rec.cleanSessions || 0) : 0;
+                        const recoveryHTML = isWarn && rec ? `
+                            <div style="width:70px;">
+                                <div class="recovery-bar-wrap"><div class="recovery-bar-fill" style="width:${Math.min(100,(sessions/7)*100)}%"></div></div>
+                                <div class="recovery-label">${sessions}/7 sesi</div>
+                            </div>` : '';
+                        html += `
+                        <div class="week-acc-row">
+                            <div class="week-acc-dot" style="background:${isWarn ? 'var(--status-warn)' : 'var(--status-gacor)'}"></div>
+                            <div class="week-acc-name">${acc.name}</div>
+                            ${recoveryHTML}
+                            <div class="week-acc-status ${isWarn ? 'wstatus-warn' : 'wstatus-gacor'}">${isWarn ? 'Peringatan' : 'Gacor'}</div>
+                        </div>`;
+                    });
+                }
+                html += `</div>`;
+            });
+
+            html += `</div></div>`;
+        });
+
+        // Summary section
+        html += `<div class="week-summary-section">
+            <div class="week-summary-title">📋 Ringkasan Akun</div>
+            <div style="margin-bottom:6px;font-size:11px;color:var(--text-secondary);font-weight:600;">Digunakan minggu ini:</div>
+            <div>`;
+        [...usedSet].forEach(n => {
+            const isWarn = warnList.includes(n);
+            html += `<span class="week-acc-tag ${isWarn ? 'tag-warn' : 'tag-gacor'}">${isWarn ? '⚠️' : '✅'} ${n}</span>`;
+        });
+        html += `</div>`;
+        if (disbandList.length > 0) {
+            html += `<div style="margin-top:8px;margin-bottom:4px;font-size:11px;color:var(--text-secondary);font-weight:600;">🚫 Tidak digunakan (Disban):</div><div>`;
+            disbandList.forEach(n => { html += `<span class="week-acc-tag tag-disban">🚫 ${n}</span>`; });
+            html += `</div>`;
         }
+        if (restSet.size > 0) {
+            html += `<div style="margin-top:8px;margin-bottom:4px;font-size:11px;color:var(--text-secondary);font-weight:600;">😴 Libur minggu ini:</div><div>`;
+            [...restSet].forEach(n => { html += `<span class="week-acc-tag tag-rest">💤 ${n}</span>`; });
+            html += `</div>`;
+        }
+        html += `</div>`;
 
-        container.innerHTML = `
-            <div class="sched-summary-bar">
-                <div>
-                    <div class="sched-total">Total: <span>${totalPosting}</span> posting</div>
-                    <div class="sched-date">${tgl}</div>
-                </div>
-                <div style="font-size:11px; background:${totalPosting>=300?'#e6f9ec':'#fff3cd'}; color:${totalPosting>=300?'#36a420':'#b98900'}; padding:4px 10px; border-radius:20px; font-weight:700;">
-                    ${totalPosting >= 300 ? '✓ Target Tercapai' : '⚠ Kurang dari 300'}
-                </div>
-            </div>
-
-            <div class="sched-session">
-                <div class="sched-session-header">
-                    <div class="sched-session-icon siang-icon">☀️</div>
-                    <div>
-                        <div class="sched-session-title">Sesi Siang</div>
-                        <div class="sched-session-sub">07:00 – 13:00</div>
-                    </div>
-                    <div class="sched-session-count">${sched.totalSiang || 0} grup</div>
-                </div>
-                ${buildItems(sched.siang)}
-            </div>
-
-            <div class="sched-session">
-                <div class="sched-session-header">
-                    <div class="sched-session-icon malam-icon">🌙</div>
-                    <div>
-                        <div class="sched-session-title">Sesi Malam</div>
-                        <div class="sched-session-sub">18:00 – 23:00</div>
-                    </div>
-                    <div class="sched-session-count">${sched.totalMalam || 0} grup</div>
-                </div>
-                ${buildItems(sched.malam)}
-            </div>`;
+        container.innerHTML = html;
     };
 
-    window.generatePostingSchedule = async function() {
+    window.toggleWeekDay = function(idx) {
+        const card = document.getElementById('wday-' + idx);
+        if (card) card.classList.toggle('open');
+    };
+
+    window.generateWeeklySchedule = async function() {
         const btn = document.getElementById('btnGenSched');
         const container = document.getElementById('posting-schedule-container');
         btn.disabled = true;
@@ -1743,105 +2014,96 @@
         container.innerHTML = `
             <div class="sched-loading">
                 <div class="sched-spinner"></div>
-                <div style="font-size:13px; color:var(--text-secondary);">Membuat jadwal otomatis...</div>
+                <div style="font-size:13px; color:var(--text-secondary);">Membuat jadwal mingguan...</div>
             </div>`;
 
         try {
-            // Kumpulkan semua akun aktif (non-disban)
-            const allAccs = collectAllAccounts().filter(a => a && a.status !== 'disban');
+            const allAccs = collectAllAccounts().filter(a => a && a.name);
+            const disbandList = [];
+            const warnList = [];
+            const gacorList = [];
+            const allNames = [];
 
-            // Siapkan pool semua range task yang tersedia
-            const pool = [];
-            allAccs.forEach(akun => {
-                const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
-                const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
-                let cities;
-                if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
-                    cities = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
-                } else {
-                    cities = akun.items || [];
-                }
-
-                cities.forEach(cityObj => {
-                    const totalGrup = cityObj.val || 0;
-                    if (totalGrup === 0) return;
-                    const jumlahRange = Math.ceil(totalGrup / 20);
-                    for (let r = 1; r <= jumlahRange; r++) {
-                        const min = (r - 1) * 20 + 1;
-                        const max = (r === jumlahRange) ? totalGrup : r * 20;
-                        const jumlah = max - min + 1;
-                        pool.push({
-                            akun: akun.name,
-                            kota: cityObj.city,
-                            rangeLabel: `${r} (${min}-${max})`,
-                            jumlah: jumlah,
-                            priority: getEffectiveStatus(akun) === 'gacor' ? 2 : 1
-                        });
-                    }
-                });
+            allAccs.forEach(a => {
+                const st = getEffectiveStatus(a);
+                allNames.push(a.name);
+                if (st === 'disban') disbandList.push(a.name);
+                else if (st === 'warn') warnList.push({ name: a.name, status: 'warn' });
+                else gacorList.push({ name: a.name, status: 'gacor' });
             });
 
-            if (pool.length === 0) {
-                container.innerHTML = `<div class="sched-ai-status"><i class="fas fa-exclamation-circle" style="color:#fa3e3e;"></i>Tidak ada akun aktif dengan data kota.<br><span style="font-size:11px;color:#aaa;">Tambahkan kota & jumlah grup ke akun terlebih dahulu.</span></div>`;
+            const activePool = [...gacorList, ...warnList]; // warn masuk tapi dibatasi
+
+            if (activePool.length === 0) {
+                container.innerHTML = `<div class="sched-ai-status"><i class="fas fa-exclamation-circle" style="color:#fa3e3e;"></i>Tidak ada akun aktif.<br><span style="font-size:11px;color:#aaa;">Semua akun berstatus DISBAN.</span></div>`;
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-magic"></i> Generate Jadwal';
+                btn.innerHTML = '<i class="fas fa-magic"></i> Generate Mingguan';
                 return;
             }
 
-            // Shuffle pool dengan distribusi merata per akun
-            // Urutkan berselang-seling antar akun supaya tidak menumpuk 1 akun
-            const byAcc = {};
-            pool.forEach(t => {
-                if (!byAcc[t.akun]) byAcc[t.akun] = [];
-                byAcc[t.akun].push(t);
+            // Tracking berapa kali warn digunakan
+            const warnUsed = {};
+            warnList.forEach(w => { warnUsed[w.name] = 0; });
+
+            // Setiap akun gacor punya 1 hari libur acak dalam 7 hari
+            // Buat array hari untuk setiap akun gacor: 6 dari 7 hari aktif
+            const gacorDays = {}; // name → Set<dayIndex> yang AKTIF
+            gacorList.forEach(g => {
+                const restDay = Math.floor(Math.random() * 7);
+                const active = new Set([0,1,2,3,4,5,6].filter(d => d !== restDay));
+                gacorDays[g.name] = active;
             });
-            const accKeys = Object.keys(byAcc);
-            // Acak urutan akun
-            accKeys.sort(() => Math.random() - 0.5);
-            const interleaved = [];
-            let hasMore = true;
-            let i = 0;
-            while (hasMore) {
-                hasMore = false;
-                accKeys.forEach(k => {
-                    if (byAcc[k][i]) { interleaved.push(byAcc[k][i]); hasMore = true; }
+
+            // Bangun jadwal 7 hari
+            const week = HARI_NAMES.map((label, di) => {
+                // Akun yang tersedia hari ini (belum digunakan hari ini)
+                const usedToday = new Set();
+                const sessions = { pagi: [], siang: [], sore: [], malam: [] };
+
+                // Siapkan pool hari ini: gacor yang dayIndex aktif
+                let dayPool = gacorList.filter(g => gacorDays[g.name].has(di));
+                // Acak urutan pool
+                dayPool = dayPool.sort(() => Math.random() - 0.5);
+
+                // Tambahkan warn jika quota belum habis
+                const warnAvail = warnList.filter(w => warnUsed[w.name] < 2).sort(() => Math.random() - 0.5);
+
+                // Gabungkan: gacor dulu, warn belakangan
+                const combined = [...dayPool, ...warnAvail];
+
+                // Distribusi ke 4 sesi, max 2 per sesi, max 1 per akun per hari
+                const sessionKeys = ['pagi','siang','sore','malam'];
+                let pIdx = 0; // pointer ke combined
+                sessionKeys.forEach(sk => {
+                    let count = 0;
+                    while (count < 4 && pIdx < combined.length) {
+                        const acc = combined[pIdx++];
+                        if (usedToday.has(acc.name)) continue; // skip kalau sudah dipakai hari ini
+                        sessions[sk].push({ name: acc.name, status: acc.status });
+                        usedToday.add(acc.name);
+                        if (acc.status === 'warn') warnUsed[acc.name]++;
+                        count++;
+                    }
                 });
-                i++;
-            }
 
-            // Ambil task sampai total >= 300 atau habis semua
-            const TARGET = 300;
-            let selected = [];
-            let total = 0;
-            for (const task of interleaved) {
-                selected.push(task);
-                total += task.jumlah;
-                if (total >= TARGET && selected.length >= 6) break; // minimal 6 task (3 siang, 3 malam)
-            }
-
-            // Kalau masih kurang 300 tapi pool habis, pakai semua
-            if (total < TARGET) selected = interleaved;
-
-            // Split siang/malam: distribusi merata berselang-seling
-            const siang = [], malam = [];
-            let totalSiang = 0, totalMalam = 0;
-            selected.forEach((task, idx) => {
-                if (idx % 2 === 0) { siang.push(task); totalSiang += task.jumlah; }
-                else { malam.push(task); totalMalam += task.jumlah; }
+                return { label, sessions };
             });
 
-            // Pastikan masing-masing sesi dapat minimal 1 task
-            if (siang.length === 0 && malam.length > 0) {
-                siang.push(malam.shift());
-                totalSiang = siang.reduce((s, t) => s + t.jumlah, 0);
-                totalMalam = malam.reduce((s, t) => s + t.jumlah, 0);
-            }
+            const result = {
+                week,
+                disbandList,
+                warnList: warnList.map(w => w.name),
+                allNames,
+                tanggal: Date.now()
+            };
 
-            const result = { siang, malam, totalSiang, totalMalam, tanggal: Date.now() };
-
-            // Simpan ke Firebase
             await db.ref('postingSchedule').set(result);
             window.postingScheduleData = result;
+
+            // ✅ Track recovery sessions for 'warn' accounts
+            const warnUsedNames = warnList.filter(w => warnUsed[w.name] > 0).map(w => w.name);
+            if (warnUsedNames.length > 0) incrementRecoverySessions(warnUsedNames);
+
             renderPostingScheduleTab();
 
         } catch(err) {
@@ -1854,15 +2116,19 @@
         }
 
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-magic"></i> Generate Jadwal';
+        btn.innerHTML = '<i class="fas fa-magic"></i> Generate Mingguan';
     };
 
-    window.resetPostingSchedule = function() {
-        if (!confirm('Reset jadwal posting hari ini?')) return;
+    window.resetWeeklySchedule = function() {
+        if (!confirm('Reset jadwal mingguan?')) return;
         db.ref('postingSchedule').remove();
         window.postingScheduleData = null;
         renderPostingScheduleTab();
     };
+
+    // Alias compat lama
+    window.generatePostingSchedule = window.generateWeeklySchedule;
+    window.resetPostingSchedule = window.resetWeeklySchedule;
 
     window.switchTab = function(n) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); document.querySelectorAll('.nav-item')[n-1].classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); if(n === 1) renderHomeTab(); if(n === 2) window.refreshFanpageTab(); if(n === 3) renderHistoryTab(); if(n === 4) refreshDisbanTab(); if(n === 5) renderScheduleTab(); if(n === 6) renderPostingScheduleTab(); }
 </script>
