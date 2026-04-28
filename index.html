@@ -28,7 +28,7 @@
         .account-header { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: white; border-bottom: 1px solid transparent; flex-shrink: 0; user-select: none; }
         .account-card.active .account-header { border-bottom: 1px solid #f0f2f5; }
         .browser-icon-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: #f0f2f5; }
-        .browser-icon-circle i.fa-chrome { color: #4285F4; font-size: 18px; } .browser-icon-circle i.fa-edge { color: #0078D7; font-size: 18px; } .browser-icon-circle i.fa-shield-halved { color: #FF5722; font-size: 16px; } .browser-icon-circle i.fa-circle-dot { color: #607D8B; font-size: 16px; } .browser-icon-circle i.fa-globe { color: #65676B; font-size: 16px; }
+        .browser-icon-circle i.fa-chrome { color: #4285F4; font-size: 18px; } .browser-icon-circle i.fa-shield-halved { color: #FF5722; font-size: 16px; } .browser-icon-circle i.fa-record-vinyl { color: #EF3939; font-size: 16px; } .browser-icon-circle i.fa-circle-dot { color: #607D8B; font-size: 16px; } .browser-icon-circle i.fa-leaf { color: #2D7A4F; font-size: 16px; } .browser-icon-circle i.fa-globe { color: #65676B; font-size: 16px; }
         .acc-info { flex: 1; } .acc-name { font-weight: 700; font-size: 14px; color: var(--text-primary); text-transform: uppercase; }
         .status-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; width: fit-content; margin-top: 2px; display: inline-flex; align-items: center; gap: 3px; }
         .badge-gacor { background: #e7f3ff; color: #1877F2; } .badge-gacor::before { content:'●'; color:#36a420; }
@@ -151,8 +151,9 @@
         #btn-home-all  { font-size: 10px; }
         #btn-home-chrome.active  i { color: #4285F4; }
         #btn-home-brave.active   i { color: #FF5722; }
-        #btn-home-edge.active    i { color: #0078D7; }
+        #btn-home-vivaldi.active i { color: #EF3939; }
         #btn-home-chromium.active i { color: #607D8B; }
+        #btn-home-ecosia.active  i { color: #2D7A4F; }
 
         /* --- BROWSER FANPAGE SUB-TABS --- */
         #tab-2 .sub-nav-container { gap: 3px; }
@@ -161,8 +162,9 @@
         #btn-fp-all { font-size: 10px; }
         #btn-fp-chrome.active  i { color: #4285F4; }
         #btn-fp-brave.active   i { color: #FF5722; }
-        #btn-fp-edge.active    i { color: #0078D7; }
+        #btn-fp-vivaldi.active i { color: #EF3939; }
         #btn-fp-chromium.active i { color: #607D8B; }
+        #btn-fp-ecosia.active  i { color: #2D7A4F; }
 
         /* --- MOVE BROWSER BTN --- */
         .btn-move-browser { width: 100%; padding: 7px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; background: #f0f2f5; color: #555; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
@@ -273,11 +275,12 @@
                 <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all">Semua</div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chrome')" id="btn-home-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('brave')" id="btn-home-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
-                <div class="sub-nav-btn" onclick="switchHomeTab('edge')" id="btn-home-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('vivaldi')" id="btn-home-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chromium')" id="btn-home-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('ecosia')" id="btn-home-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
             </div>
             <div id="list-1" class="grid-container"></div>
-            <div class="drag-sort-hint" id="home-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun</div>
+            <div class="drag-sort-hint" id="home-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun <button onclick="saveOrderToDb2()" id="btn-save-order-home" style="margin-left:8px;background:#1877F2;color:white;border:none;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-cloud-upload-alt"></i> Simpan Urutan</button></div>
         </section>
 
         <section id="tab-2" class="tab-content">
@@ -286,11 +289,12 @@
                 <div class="sub-nav-btn active" onclick="switchFanpageTab('all')" id="btn-fp-all">Semua</div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('chrome')" id="btn-fp-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('brave')" id="btn-fp-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
-                <div class="sub-nav-btn" onclick="switchFanpageTab('edge')" id="btn-fp-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('vivaldi')" id="btn-fp-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('chromium')" id="btn-fp-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('ecosia')" id="btn-fp-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
             </div>
             <div id="list-2" class="grid-container"></div>
-            <div class="drag-sort-hint" id="fanpage-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun</div>
+            <div class="drag-sort-hint" id="fanpage-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun <button onclick="saveOrderToDb2()" id="btn-save-order-fanpage" style="margin-left:8px;background:#1877F2;color:white;border:none;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-cloud-upload-alt"></i> Simpan Urutan</button></div>
         </section>
         
         <section id="tab-3" class="tab-content">
@@ -347,8 +351,9 @@
                 <div style="display:flex;flex-direction:column;gap:8px;">
                     <button class="btn-action btn-yes" style="background:#4285F4;" onclick="submitMoveBrowser('chrome')"><i class="fab fa-chrome"></i> Chrome</button>
                     <button class="btn-action btn-yes" style="background:#FF5722;" onclick="submitMoveBrowser('brave')"><i class="fas fa-shield-halved"></i> Brave</button>
-                    <button class="btn-action btn-yes" style="background:#0078D7;" onclick="submitMoveBrowser('edge')"><i class="fab fa-edge"></i> Edge</button>
+                    <button class="btn-action btn-yes" style="background:#EF3939;" onclick="submitMoveBrowser('vivaldi')"><i class="fas fa-record-vinyl"></i> Vivaldi</button>
                     <button class="btn-action btn-yes" style="background:#555;" onclick="submitMoveBrowser('chromium')"><i class="fas fa-circle-dot"></i> Chromium</button>
+                    <button class="btn-action btn-yes" style="background:#2D7A4F;" onclick="submitMoveBrowser('ecosia')"><i class="fas fa-leaf"></i> Ecosia</button>
                 </div>
             </div>
             <button class="btn-close" onclick="closeModal(null,'moveBrowserModal',true)">Batal</button>
@@ -454,7 +459,8 @@
         'chrome':   ['REBECCA', 'NIA', 'ELON', 'ASAFA', 'SILVI', 'ELAINA', 'NAURA', 'RALIA', 'ALDI'], 
         'brave':    ['ADELIA', 'ADRIANA', 'ALENA', 'MELI', 'TEDY', 'SARAH', 'SUKI', 'ALEX'],
         'chromium': ['IVY', 'AZKA', 'ERIKA', 'LAVIANA', 'NOEVRA', 'IZNA', 'MEYSA', 'PARAMITA', 'NASYA', 'FEBRIANA FANPAGE', 'AFKA'],
-        'edge':     ['VERA SISILA', 'JANE', 'VERA']
+        'vivaldi':  ['VERA SISILA', 'JANE', 'VERA'],
+        'ecosia':   []
     };
 
     function getBrowserType(acc) {
@@ -466,18 +472,20 @@
         if (browserMap.chrome.includes(n))   return 'chrome';
         if (browserMap.brave.includes(n))    return 'brave';
         if (browserMap.chromium.includes(n)) return 'chromium';
-        if (browserMap.edge.includes(n))     return 'edge';
+        if (browserMap.vivaldi.includes(n))  return 'vivaldi';
+        if (browserMap.ecosia.includes(n))   return 'ecosia';
         return 'other';
     }
 
     function getBrowserIcon(accOrName) {
         const type = typeof accOrName === 'string'
-            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.edge.includes(n)) return 'edge'; return 'other'; })()
+            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.vivaldi.includes(n)) return 'vivaldi'; if(browserMap.ecosia.includes(n)) return 'ecosia'; return 'other'; })()
             : getBrowserType(accOrName);
         if (type === 'chrome')   return '<i class="fab fa-chrome" style="color:#4285F4;font-size:18px;"></i>';
         if (type === 'brave')    return '<i class="fas fa-shield-halved" style="color:#FF5722;font-size:16px;"></i>';
         if (type === 'chromium') return '<i class="fas fa-circle-dot" style="color:#607D8B;font-size:16px;"></i>';
-        if (type === 'edge')     return '<i class="fab fa-edge" style="color:#0078D7;font-size:18px;"></i>';
+        if (type === 'vivaldi')  return '<i class="fas fa-record-vinyl" style="color:#EF3939;font-size:16px;"></i>';
+        if (type === 'ecosia')   return '<i class="fas fa-leaf" style="color:#2D7A4F;font-size:16px;"></i>';
         return '<i class="fas fa-globe" style="color:#65676B;font-size:16px;"></i>';
     }
 
@@ -1029,7 +1037,7 @@
 
     window.switchHomeTab = function(type) {
         window.currentHomeSubTab = type;
-        ['all','chrome','brave','edge','chromium'].forEach(t => {
+        ['all','chrome','brave','vivaldi','chromium','ecosia'].forEach(t => {
             const el = document.getElementById('btn-home-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
@@ -1177,13 +1185,30 @@
         const order = Array.from(cards).map(c => c.dataset.accname);
         if (tabKey === 'home') window.homeCardOrder = order;
         else window.fanpageCardOrder = order;
-        // Cache ke localStorage (sinkron, cepat)
+        // Cache ke localStorage saja (cepat & tidak konflik antar perangkat)
         localStorage.setItem('cardOrder_' + tabKey, JSON.stringify(order));
-        // ✅ Simpan ke DB2 sebagai master — ini yang dibaca saat HTML diganti
-        const update = {};
-        update[tabKey] = order;
-        db2.ref('cardOrder').update(update);
+        // ✅ DB2 HANYA disimpan saat user klik tombol "Simpan Urutan"
+        // Ini mencegah urutan dari perangkat lain menimpa urutan lokal secara otomatis
     }
+
+    // ✅ Fungsi tombol "Simpan Urutan" — push urutan lokal ke DB2 secara eksplisit
+    window.saveOrderToDb2 = function() {
+        const update = {
+            home: window.homeCardOrder,
+            fanpage: window.fanpageCardOrder
+        };
+        db2.ref('cardOrder').update(update)
+            .then(() => {
+                // Feedback visual pada semua tombol simpan urutan
+                document.querySelectorAll('[id^="btn-save-order"]').forEach(btn => {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Tersimpan!';
+                    btn.style.background = '#36a420';
+                    setTimeout(() => { btn.innerHTML = orig; btn.style.background = '#1877F2'; }, 2500);
+                });
+            })
+            .catch(e => alert('Gagal simpan urutan ke server: ' + e.message));
+    };
 
     function initDragDrop(container, tabKey) {
         let dragSrc = null;
@@ -1343,7 +1368,7 @@
 
     window.switchFanpageTab = function(type) {
         window.currentFanpageSubTab = type;
-        ['all','chrome','brave','edge','chromium'].forEach(t => {
+        ['all','chrome','brave','vivaldi','chromium','ecosia'].forEach(t => {
             const el = document.getElementById('btn-fp-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
