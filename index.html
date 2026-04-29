@@ -154,6 +154,7 @@
         #btn-home-vivaldi.active i { color: #EF3939; }
         #btn-home-chromium.active i { color: #607D8B; }
         #btn-home-ecosia.active  i { color: #2D7A4F; }
+        #btn-home-lainnya.active i { color: #9C27B0; }
 
         /* --- BROWSER FANPAGE SUB-TABS --- */
         #tab-2 .sub-nav-container { gap: 3px; }
@@ -165,6 +166,7 @@
         #btn-fp-vivaldi.active i { color: #EF3939; }
         #btn-fp-chromium.active i { color: #607D8B; }
         #btn-fp-ecosia.active  i { color: #2D7A4F; }
+        #btn-fp-lainnya.active i { color: #9C27B0; }
 
         /* --- MOVE BROWSER BTN --- */
         .btn-move-browser { width: 100%; padding: 7px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; background: #f0f2f5; color: #555; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
@@ -278,6 +280,7 @@
                 <div class="sub-nav-btn" onclick="switchHomeTab('vivaldi')" id="btn-home-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chromium')" id="btn-home-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('ecosia')" id="btn-home-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('lainnya')" id="btn-home-lainnya"><i class="fas fa-ellipsis"></i><span>Lainnya</span></div>
             </div>
             <div id="list-1" class="grid-container"></div>
             <div class="drag-sort-hint" id="home-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun <button onclick="saveOrderToDb2()" id="btn-save-order-home" style="margin-left:8px;background:#1877F2;color:white;border:none;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-cloud-upload-alt"></i> Simpan Urutan</button></div>
@@ -292,6 +295,7 @@
                 <div class="sub-nav-btn" onclick="switchFanpageTab('vivaldi')" id="btn-fp-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('chromium')" id="btn-fp-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('ecosia')" id="btn-fp-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('lainnya')" id="btn-fp-lainnya"><i class="fas fa-ellipsis"></i><span>Lainnya</span></div>
             </div>
             <div id="list-2" class="grid-container"></div>
             <div class="drag-sort-hint" id="fanpage-drag-hint" style="display:none;"><i class="fas fa-grip-lines"></i> Geser ikon ☰ untuk mengatur urutan akun <button onclick="saveOrderToDb2()" id="btn-save-order-fanpage" style="margin-left:8px;background:#1877F2;color:white;border:none;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-cloud-upload-alt"></i> Simpan Urutan</button></div>
@@ -354,6 +358,7 @@
                     <button class="btn-action btn-yes" style="background:#EF3939;" onclick="submitMoveBrowser('vivaldi')"><i class="fas fa-record-vinyl"></i> Vivaldi</button>
                     <button class="btn-action btn-yes" style="background:#555;" onclick="submitMoveBrowser('chromium')"><i class="fas fa-circle-dot"></i> Chromium</button>
                     <button class="btn-action btn-yes" style="background:#2D7A4F;" onclick="submitMoveBrowser('ecosia')"><i class="fas fa-leaf"></i> Ecosia</button>
+                    <button class="btn-action btn-yes" style="background:#9C27B0;" onclick="submitMoveBrowser('lainnya')"><i class="fas fa-ellipsis"></i> Lainnya</button>
                 </div>
             </div>
             <button class="btn-close" onclick="closeModal(null,'moveBrowserModal',true)">Batal</button>
@@ -460,7 +465,8 @@
         'brave':    ['ADELIA', 'ADRIANA', 'ALENA', 'MELI', 'TEDY', 'SARAH', 'SUKI', 'ALEX'],
         'chromium': ['IVY', 'AZKA', 'ERIKA', 'LAVIANA', 'NOEVRA', 'IZNA', 'MEYSA', 'PARAMITA', 'NASYA', 'FEBRIANA FANPAGE', 'AFKA'],
         'vivaldi':  ['VERA SISILA', 'JANE', 'VERA'],
-        'ecosia':   []
+        'ecosia':   [],
+        'lainnya':  []
     };
 
     function getBrowserType(acc) {
@@ -474,18 +480,20 @@
         if (browserMap.chromium.includes(n)) return 'chromium';
         if (browserMap.vivaldi.includes(n))  return 'vivaldi';
         if (browserMap.ecosia.includes(n))   return 'ecosia';
-        return 'other';
+        if (browserMap.lainnya.includes(n))  return 'lainnya';
+        return 'lainnya';
     }
 
     function getBrowserIcon(accOrName) {
         const type = typeof accOrName === 'string'
-            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.vivaldi.includes(n)) return 'vivaldi'; if(browserMap.ecosia.includes(n)) return 'ecosia'; return 'other'; })()
+            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.vivaldi.includes(n)) return 'vivaldi'; if(browserMap.ecosia.includes(n)) return 'ecosia'; if(browserMap.lainnya.includes(n)) return 'lainnya'; return 'lainnya'; })()
             : getBrowserType(accOrName);
         if (type === 'chrome')   return '<i class="fab fa-chrome" style="color:#4285F4;font-size:18px;"></i>';
         if (type === 'brave')    return '<i class="fas fa-shield-halved" style="color:#FF5722;font-size:16px;"></i>';
         if (type === 'chromium') return '<i class="fas fa-circle-dot" style="color:#607D8B;font-size:16px;"></i>';
         if (type === 'vivaldi')  return '<i class="fas fa-record-vinyl" style="color:#EF3939;font-size:16px;"></i>';
         if (type === 'ecosia')   return '<i class="fas fa-leaf" style="color:#2D7A4F;font-size:16px;"></i>';
+        if (type === 'lainnya')  return '<i class="fas fa-ellipsis" style="color:#9C27B0;font-size:16px;"></i>';
         return '<i class="fas fa-globe" style="color:#65676B;font-size:16px;"></i>';
     }
 
@@ -1037,7 +1045,7 @@
 
     window.switchHomeTab = function(type) {
         window.currentHomeSubTab = type;
-        ['all','chrome','brave','vivaldi','chromium','ecosia'].forEach(t => {
+        ['all','chrome','brave','vivaldi','chromium','ecosia','lainnya'].forEach(t => {
             const el = document.getElementById('btn-home-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
@@ -1368,7 +1376,7 @@
 
     window.switchFanpageTab = function(type) {
         window.currentFanpageSubTab = type;
-        ['all','chrome','brave','vivaldi','chromium','ecosia'].forEach(t => {
+        ['all','chrome','brave','vivaldi','chromium','ecosia','lainnya'].forEach(t => {
             const el = document.getElementById('btn-fp-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
