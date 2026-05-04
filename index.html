@@ -34,12 +34,13 @@
         .badge-gacor { background: #e7f3ff; color: #1877F2; } .badge-gacor::before { content:'●'; color:#36a420; }
         .badge-warn { background: #fff8e1; color: #b98900; } .badge-warn::before { content:'●'; color:#f7b928; }
         .badge-disban { background: #fee2e2; color: #fa3e3e; } .badge-disban::before { content:'●'; color:#fa3e3e; }
+        .badge-sembuh { background: #f0fff4; color: #059669; } .badge-sembuh::before { content:'●'; color:#10b981; }
         .arrow-icon { color: var(--text-secondary); font-size: 12px; transition: 0.3s; } .account-card.active .arrow-icon { transform: rotate(180deg); }
         .account-data-container { max-height: 0; overflow: hidden; background: #ffffff; transition: max-height 0.4s var(--ease-ios); }
-        .data-grid { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .data-item { background: #F0F2F5; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .data-grid { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .data-item:hover { background: #e4e6eb; } .data-item:active { transform: scale(0.98); }
-        .city { font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; } .val { font-weight: 700; color: var(--text-primary); }
+        .city { font-weight: 600; color: var(--text-primary); font-size: 11px; line-height: 1.3; word-break: break-word; white-space: normal; flex: 1; } 
+        .val { font-weight: 700; color: var(--fb-blue); font-size: 13px; flex-shrink: 0; margin-left: 4px; }
         .card-actions { padding: 10px; border-top: 1px solid #f0f2f5; display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-card-action { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 80px; }
         
@@ -84,6 +85,19 @@
         .btn-migration { background: #36a420; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } .btn-migration:active { transform: scale(0.95); }
         
         .disban-info { font-size: 10px; color: #999; margin-top: 5px; display: block; }
+
+        /* === DISBAN LIST COMPACT === */
+        .disban-list-wrap { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05); }
+        .disban-list-header { padding: 8px 12px; background: #fee2e2; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #fa3e3e; border-bottom: 1px solid #fecaca; }
+        .disban-list-row { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid #f7f7f7; }
+        .disban-list-row:last-child { border-bottom: none; }
+        .disban-list-row.row-expired { background: #fff5f5; }
+        .disban-row-num { width: 18px; height: 18px; border-radius: 50%; background: #fee2e2; color: #fa3e3e; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .disban-row-icon { flex-shrink: 0; }
+        .disban-row-name { flex: 1; font-size: 12px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .disban-row-phase { font-size: 9px; font-weight: 700; color: #aaa; background: #f0f2f5; padding: 2px 5px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+        .disban-row-timer { font-size: 10px; font-weight: 700; color: #f7b928; font-family: 'Courier New', monospace; white-space: nowrap; flex-shrink: 0; text-align: right; min-width: 80px; }
+        .disban-row-timer.expired { color: #fa3e3e; }
 
         /* === DISBAN SIMPLE CARDS === */
         .disban-notif-banner { background: #fff3cd; border: 1px solid #f7b928; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
@@ -134,7 +148,7 @@
         .timer-card.ready .timer-progress-fill { background: linear-gradient(90deg, #36a420, #52c41a); }
         
         .desktop-trigger { display: none; }
-        @media (min-width: 900px) { .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; } body { padding-bottom: 0; overflow: hidden; } .app-container { max-width: 100%; height: 100vh; padding: 15px; margin-right: 0; } .app-header { margin: 0 0 15px 0; padding: 8px 20px; } .tab-content.active { flex: 1; display: flex; flex-direction: column; min-height: 0; } .grid-container { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: 100%; gap: 8px; overflow: hidden; } .account-card { height: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .account-header { padding: 8px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: column; text-align: center; gap: 5px; } .fb-icon-circle { width: 20px; height: 20px; font-size: 10px; margin-bottom: 0; } .acc-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;} .arrow-icon { display: none; } .account-data-container { max-height: none !important; flex: 1; overflow-y: auto; background: #fff; } .data-grid { grid-template-columns: 1fr; padding: 5px; gap: 4px; } .card-actions { flex-direction: column; gap: 4px; padding: 5px; } .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; } .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; } .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); } .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); } .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); } .nav-item.active::after { display: none; } body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); } body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); } }
+        @media (min-width: 900px) { .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; } body { padding-bottom: 0; overflow: hidden; } .app-container { max-width: 100%; height: 100vh; padding: 15px; margin-right: 0; } .app-header { margin: 0 0 15px 0; padding: 8px 20px; } .tab-content.active { flex: 1; display: flex; flex-direction: column; min-height: 0; } .grid-container { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: 100%; gap: 8px; overflow: hidden; } .account-card { height: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .account-header { padding: 8px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: column; text-align: center; gap: 5px; } .fb-icon-circle { width: 20px; height: 20px; font-size: 10px; margin-bottom: 0; } .acc-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;} .arrow-icon { display: none; } .account-data-container { max-height: none !important; flex: 1; overflow-y: auto; background: #fff; } .data-grid { grid-template-columns: 1fr; padding: 5px; gap: 4px; } .data-item { padding: 6px 10px; } .card-actions { flex-direction: column; gap: 4px; padding: 5px; } .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; } .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; } .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); } .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); } .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); } .nav-item.active::after { display: none; } body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); } body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); } }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); } .modal-overlay.show { display: flex; animation: fadeIn 0.2s; } .modal-content { background: white; width: 85%; max-width: 350px; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: zoomIn 0.2s; } .modal-header { padding: 15px; border-bottom: 1px solid #f0f2f5; text-align: center; } .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); } .modal-subtitle { font-size: 12px; color: var(--text-secondary); } .modal-body { padding: 15px; max-height: 50vh; overflow-y: auto; }
         .range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .range-btn { background: #F0F2F5; padding: 12px; border-radius: 8px; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; transition: 0.2s; } .range-btn.done { background: #e7f3ff; border: 1px solid #1877F2; } .range-btn.done .range-label { color: #1877F2; }
         .btn-all-range { grid-column: span 2; background: #E7F3FF; border: 1px solid transparent; margin-bottom: 5px; } .btn-all-range .range-label { color: #1877F2; font-size: 13px; } .btn-all-range.done { background: #1877F2; border-color: #1877F2; } .btn-all-range.done .range-label, .btn-all-range.done .range-desc { color: white !important; }
@@ -258,6 +272,36 @@
         .week-acc-tag.tag-warn { background: #fff8e1; color: #b98900; }
         .week-acc-tag.tag-disban { background: #fee2e2; color: #fa3e3e; }
         .week-acc-tag.tag-rest { background: #f0f2f5; color: #888; }
+        /* === RECOVERY / INKUBASI TAB === */
+        :root { --status-sembuh: #10b981; }
+        .recovery-sub-nav { display: flex; background: #e4e6eb; border-radius: 10px; padding: 4px; margin-bottom: 12px; gap: 3px; }
+        .recovery-sub-btn { flex: 1; text-align: center; padding: 7px 3px; font-size: 11px; font-weight: 700; color: var(--text-secondary); border-radius: 7px; cursor: pointer; transition: all 0.2s; }
+        .recovery-sub-btn.active { background: white; color: #059669; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .recovery-list-wrap { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 10px; border: 1px solid rgba(16,185,129,0.15); }
+        .recovery-list-header { padding: 9px 13px; background: #f0fff4; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #059669; border-bottom: 1px solid rgba(16,185,129,0.15); }
+        .recovery-card { display: flex; align-items: center; gap: 10px; padding: 10px 13px; border-bottom: 1px solid #f0f2f5; }
+        .recovery-card:last-child { border-bottom: none; }
+        .recovery-card-num { width: 20px; height: 20px; border-radius: 50%; background: #f0fff4; color: #059669; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .recovery-card-info { flex: 1; min-width: 0; }
+        .recovery-card-name { font-size: 12px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .recovery-card-sub { font-size: 9px; color: #aaa; margin-top: 1px; }
+        .recovery-timer-txt { font-size: 10px; font-weight: 700; color: #f7b928; font-family: 'Courier New', monospace; white-space: nowrap; text-align: right; }
+        .recovery-timer-txt.done { color: #10b981; }
+        .btn-tes-akun { background: #059669; color: white; border: none; padding: 6px 11px; border-radius: 7px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: 0.2s; }
+        .btn-tes-akun:active { transform: scale(0.95); }
+        .btn-tes-akun.waiting { background: #f0f2f5; color: #aaa; cursor: default; }
+        .recovery-empty { text-align: center; padding: 25px 10px; color: #aaa; font-size: 12px; line-height: 1.7; }
+
+        /* === TES MODAL === */
+        .tes-modal-result { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-tes-sukses { flex: 1; padding: 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-tes-gagal { flex: 1; padding: 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, #fa3e3e, #e02d2d); color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-tes-sukses:active, .btn-tes-gagal:active { transform: scale(0.97); }
+        .tes-akun-info { background: #f0f2f5; border-radius: 8px; padding: 10px 13px; margin-bottom: 5px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* === CITY HISTORY in data-item === */
+        .data-item { background: #F0F2F5; padding: 7px 9px; border-radius: 7px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; gap: 4px; }
+        .city-last-post { font-size: 9px; color: #36a420; font-weight: 600; white-space: nowrap; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -272,9 +316,9 @@
         </div>
 
         <section id="tab-1" class="tab-content active">
-            <div class="section-header-wrap"><span class="section-title">Home – Semua Akun</span></div>
+            <div class="section-header-wrap"><span class="section-title">Home – Akun FB Aktif</span></div>
             <div class="sub-nav-container" style="gap:2px;">
-                <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all">Semua</div>
+                <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all" style="font-size:9px;white-space:nowrap;">FB Aktif</div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chrome')" id="btn-home-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('brave')" id="btn-home-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('vivaldi')" id="btn-home-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
@@ -335,6 +379,36 @@
                 </div>
             </div>
         </section>
+
+        <section id="tab-7" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title" style="color:#059669;">🌿 INKUBASI RECOVERY</span></div>
+            <div class="recovery-sub-nav">
+                <div class="recovery-sub-btn active" onclick="switchRecoveryPhase(3)" id="btn-rec-3">3 Hari</div>
+                <div class="recovery-sub-btn" onclick="switchRecoveryPhase(7)" id="btn-rec-7">7 Hari</div>
+                <div class="recovery-sub-btn" onclick="switchRecoveryPhase(14)" id="btn-rec-14">14 Hari</div>
+                <div class="recovery-sub-btn" onclick="switchRecoveryPhase(30)" id="btn-rec-30">30 Hari</div>
+            </div>
+            <div id="list-recovery"></div>
+        </section>
+    </div>
+
+    <!-- Modal Tes Akun Recovery -->
+    <div class="modal-overlay" id="tesModal">
+        <div class="modal-content" style="max-width:300px;">
+            <div class="modal-header">
+                <div class="modal-title">🧪 Tes Akun Recovery</div>
+                <div class="modal-subtitle" id="tesModalAccName" style="font-weight:700;color:#059669;"></div>
+            </div>
+            <div class="modal-body">
+                <div class="tes-akun-info" id="tesModalInfo"></div>
+                <p style="font-size:12px;color:#65676B;text-align:center;margin-bottom:5px;">Apakah akun berhasil posting?</p>
+                <div class="tes-modal-result">
+                    <button class="btn-tes-sukses" onclick="submitTesAkun('sukses')"><i class="fas fa-check-circle"></i> SUKSES</button>
+                    <button class="btn-tes-gagal" onclick="submitTesAkun('gagal')"><i class="fas fa-times-circle"></i> GAGAL</button>
+                </div>
+                <button style="margin-top:10px;width:100%;background:#f0f2f5;color:#555;border:none;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;" onclick="closeModal(null,'tesModal',true)">Batal</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="rangeModal" onclick="closeModal(event, 'rangeModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title" id="modalTitle">Kota</div><div class="modal-subtitle" id="modalSubtitle">Detail</div></div><div class="modal-body"><div class="range-grid" id="modalGrid"></div></div><button class="btn-close" onclick="closeModal(null, 'rangeModal', true)">Tutup</button></div></div>
@@ -344,7 +418,7 @@
     
     <div class="modal-overlay" id="confirmModal"><div class="modal-content" style="max-width: 280px;"><div class="modal-header" style="border:none; padding-bottom:0;"><div class="modal-title" style="font-size:16px;" id="confirmTitle">Konfirmasi</div></div><div class="modal-body" style="text-align: center; padding-top:5px;"><p style="color:#65676B; font-size:13px;" id="confirmDesc">Tandai postingan selesai?</p><div class="confirm-actions"><button class="btn-action btn-no" onclick="closeModal(null, 'confirmModal', true)">Batal</button><button class="btn-action btn-yes" id="btnConfirmYes">Ya</button></div></div></div></div>
     
-    <div class="modal-overlay" id="statusModal" onclick="closeModal(event, 'statusModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Ubah Status Akun</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Pilih Status Baru</label><select id="newStatusInput" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option></select></div><button class="btn-submit" onclick="submitStatusChange()">Simpan Perubahan</button></div></div></div>
+    <div class="modal-overlay" id="statusModal" onclick="closeModal(event, 'statusModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Ubah Status Akun</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Pilih Status Baru</label><select id="newStatusInput" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option><option value="sembuh">Sembuh (Inkubasi)</option></select></div><button class="btn-submit" onclick="submitStatusChange()">Simpan Perubahan</button></div></div></div>
     <div class="modal-overlay" id="addCityModal" onclick="closeModal(event, 'addCityModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Kota</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Kota</label><input type="text" id="newCityName" class="form-input" placeholder="Contoh: Surabaya"></div><div class="form-group"><label class="form-label">Jumlah Grup</label><input type="number" id="newCityVal" class="form-input" placeholder="0"></div><button class="btn-submit" onclick="submitNewCity()">Tambah</button></div></div></div>
 
     <!-- Modal Pindah Browser -->
@@ -367,9 +441,9 @@
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
-        <div class="nav-item" onclick="switchTab(2)"><i class="fas fa-flag"></i></div>
         <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
         <div class="nav-item" onclick="switchTab(4)" style="color: var(--danger-color);"><i class="fas fa-ban"></i></div>
+        <div class="nav-item" onclick="switchTab(7)" style="color:#059669;"><i class="fas fa-seedling"></i></div>
         <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="switchTab(6)"><i class="fas fa-calendar-check"></i></div>
     </nav>
@@ -427,6 +501,8 @@
     window.joinTimers = {};
     window.disbanTimers = {};
     window.accountRecovery = {};
+    window.recoveryQueue = {};   // ✅ NEW: inkubasi recovery queue
+    window.currentRecoveryPhase = 3; // ✅ NEW: active sub-tab phase
     window.fewfeedScanData = {};
     window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
@@ -666,6 +742,11 @@
                 }
                 // Posisi dipakai saat render berikutnya (tidak perlu full refresh)
             });
+            // ✅ NEW: real-time listener recovery queue dari DB2
+            db2.ref('recoveryQueue').on('value', snapRec => {
+                window.recoveryQueue = snapRec.val() || {};
+                if (document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
+            });
         })
         .catch(err => {
             console.warn('DB2 gagal dimuat, lanjut tanpa override:', err);
@@ -782,6 +863,7 @@
                     window.refreshDisbanTab();
                     if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
                     if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
+                    if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
                 }, 500);
                 return;
             }
@@ -790,6 +872,7 @@
             window.refreshDisbanTab(); 
             if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
             if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
+            if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
         }, 250); // debounce 250ms
     }
     
@@ -868,22 +951,27 @@
             container.innerHTML = bannerHTML;
         }
 
-        // === KARTU AKUN DISBAN (TANPA KOTA) ===
+        // === LIST COMPACT AKUN DISBAN ===
+        const listWrap = document.createElement('div');
+        listWrap.className = 'disban-list-wrap';
+        listWrap.innerHTML = `<div class="disban-list-header"><i class="fas fa-ban"></i> ${allDisban.length} Akun Dibanned</div>`;
+
         const fragment = document.createDocumentFragment();
-        allDisban.forEach((akun) => {
+        allDisban.forEach((akun, rowIdx) => {
             const key = getSafeKey(akun.name);
             const timer = window.disbanTimers[key];
             const browserIcon = getBrowserIcon(akun);
 
             // Hitung timer info
-            let timerHTML = '';
+            let timerStr = '<span style="color:#aaa;font-size:9px;">No timer</span>';
+            let phaseStr = '';
+            let isExpiredRow = false;
             if (timer) {
                 const dur = PHASE_DURATION[timer.phase] || PHASE_DURATION[3];
                 const remaining = dur - (now - timer.startTime);
-                const isExpired = remaining <= 0;
-                let countdownStr = '';
-                if (isExpired) {
-                    countdownStr = `<div class="disban-timer-countdown expired">⚠ Waktu Habis</div>`;
+                isExpiredRow = remaining <= 0;
+                if (isExpiredRow) {
+                    timerStr = `⚠ Habis`;
                 } else {
                     const totalSec = Math.floor(remaining / 1000);
                     const det = totalSec % 60;
@@ -900,27 +988,24 @@
                     parts.push(`${jam}j`);
                     parts.push(`${String(menit).padStart(2,'0')}m`);
                     parts.push(`${String(det).padStart(2,'0')}d`);
-                    countdownStr = `<div class="disban-timer-countdown">⏳ ${parts.join(' ')}</div>`;
+                    timerStr = `⏳ ${parts.join(' ')}`;
                 }
                 const phaseDays = [3, 7, 14][timer.phase - 1] || 14;
-                timerHTML = `${countdownStr}<div class="disban-timer-phase">Fase ${timer.phase} (${phaseDays} hari)</div>`;
-            } else {
-                timerHTML = `<div class="disban-timer-countdown" style="color:#aaa;font-size:10px;">Belum ada timer</div>`;
+                phaseStr = `F${timer.phase}·${phaseDays}hr`;
             }
 
-            const card = document.createElement('div');
-            card.className = 'disban-simple-card';
-            card.innerHTML = `
-                <div class="browser-icon-circle">${browserIcon}</div>
-                <div class="disban-card-info">
-                    <div class="disban-card-name">${akun.name}</div>
-                    <div class="disban-card-source">Asal: ${akun.sourceLabel}</div>
-                </div>
-                <div class="disban-timer-wrap">${timerHTML}</div>
+            const row = document.createElement('div');
+            row.className = `disban-list-row${isExpiredRow ? ' row-expired' : ''}`;
+            row.innerHTML = `
+                <span class="disban-row-num">${rowIdx + 1}</span>
+                <span class="disban-row-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:13px;">${browserIcon}</span>
+                <span class="disban-row-name" title="${akun.name}">${akun.name}</span>
+                ${phaseStr ? `<span class="disban-row-phase">${phaseStr}</span>` : ''}
+                <span class="disban-row-timer${isExpiredRow ? ' expired' : ''}">${timerStr}</span>
             `;
-            fragment.appendChild(card);
+            listWrap.appendChild(row);
         });
-        container.appendChild(fragment);
+        container.appendChild(listWrap);
 
         // Auto-start timer untuk akun yang belum punya timer
         allDisban.forEach(akun => {
@@ -979,16 +1064,16 @@
         // Hapus timer disban
         delete window.disbanTimers[key];
         db.ref('disbanTimers/' + key).remove();
-        // Ubah status ke peringatan
+        // Ubah status ke SEMBUH (bukan warn langsung)
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
-        window.accountOverrides[key].status = 'warn';
-        db2.ref('accountOverrides/' + key + '/status').set('warn');
-        // Mulai tracking recovery
-        const recovery = { cleanSessions: 0, accName: accName };
-        window.accountRecovery[key] = recovery;
-        db.ref('accountRecovery/' + key).set(recovery);
+        window.accountOverrides[key].status = 'sembuh';
+        db2.ref('accountOverrides/' + key + '/status').set('sembuh');
+        // Masukkan ke recovery queue fase 3 hari
+        const recEntry = { name: accName, phase: 3, startTime: Date.now(), originalDb: dbKey, originalIdx: idx };
+        window.recoveryQueue[key] = recEntry;
+        db2.ref('recoveryQueue/' + key).set(recEntry);
         refreshAllTabs('disban_pulih');
-        alert(`✅ ${accName} berubah ke PERINGATAN. Butuh 7 sesi bersih untuk jadi GACOR.`);
+        alert(`✅ ${accName} masuk INKUBASI 3 Hari. Cek di tab Recovery!`);
     };
 
     // Dipanggil setiap generate jadwal mingguan — tambah cleanSessions untuk akun peringatan
@@ -1021,7 +1106,179 @@
         if (document.getElementById('tab-4').classList.contains('active')) {
             window.refreshDisbanTab();
         }
+        if (document.getElementById('tab-7').classList.contains('active')) {
+            renderRecoveryTab();
+        }
     }, 1000);
+
+    // =====================================================================
+    // RECOVERY / INKUBASI TAB (tab-7)
+    // =====================================================================
+    window.currentRecoveryPhase = 3;
+    window._tesAkunTarget = null; // { key, accName, phase, originalDb, originalIdx }
+
+    window.switchRecoveryPhase = function(phase) {
+        window.currentRecoveryPhase = phase;
+        [3,7,14,30].forEach(p => {
+            const el = document.getElementById('btn-rec-' + p);
+            if (el) el.className = 'recovery-sub-btn' + (p === phase ? ' active' : '');
+        });
+        renderRecoveryTab();
+    };
+
+    window.renderRecoveryTab = function() {
+        const container = document.getElementById('list-recovery');
+        if (!container) return;
+
+        const phase = window.currentRecoveryPhase;
+        const PHASE_MS = { 3: 3*86400000, 7: 7*86400000, 14: 14*86400000, 30: 30*86400000 };
+        const now = Date.now();
+        const durationMs = PHASE_MS[phase];
+
+        // Kumpulkan semua akun yang ada di phase ini
+        const entries = Object.entries(window.recoveryQueue || {})
+            .filter(([k, v]) => v && v.phase === phase)
+            .map(([k, v]) => ({ key: k, ...v }));
+
+        if (entries.length === 0) {
+            container.innerHTML = `<div class="recovery-empty">
+                <i class="fas fa-seedling" style="font-size:28px;color:#10b981;display:block;margin-bottom:8px;"></i>
+                Tidak ada akun di fase inkubasi ${phase} hari.<br>
+                <span style="font-size:11px;">Akun yang sembuh dari disban akan muncul di sini.</span>
+            </div>`;
+            return;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'recovery-list-wrap';
+        wrap.innerHTML = `<div class="recovery-list-header"><i class="fas fa-seedling"></i> ${entries.length} Akun — Inkubasi ${phase} Hari</div>`;
+
+        entries.forEach((entry, idx) => {
+            const elapsed = now - entry.startTime;
+            const remaining = durationMs - elapsed;
+            const isDone = remaining <= 0;
+
+            let timerTxt, timerClass;
+            if (isDone) {
+                timerTxt = '✅ Siap Tes';
+                timerClass = 'done';
+            } else {
+                const totalSec = Math.floor(remaining / 1000);
+                const det = totalSec % 60;
+                const totalMin = Math.floor(totalSec / 60);
+                const menit = totalMin % 60;
+                const totalJam = Math.floor(totalMin / 60);
+                const jam = totalJam % 24;
+                const hari = Math.floor(totalJam / 24);
+                let parts = [];
+                if (hari > 0) parts.push(`${hari}h`);
+                parts.push(`${jam}j`);
+                parts.push(`${String(menit).padStart(2,'0')}m`);
+                parts.push(`${String(det).padStart(2,'0')}d`);
+                timerTxt = `⏳ ${parts.join(' ')}`;
+                timerClass = '';
+            }
+
+            const browserIcon = getBrowserIcon({ name: entry.name });
+            const disbanDate = new Date(entry.startTime).toLocaleDateString('id-ID',{ day:'2-digit', month:'short' });
+
+            const card = document.createElement('div');
+            card.className = 'recovery-card';
+            card.innerHTML = `
+                <span class="recovery-card-num">${idx + 1}</span>
+                <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${browserIcon}</span>
+                <div class="recovery-card-info">
+                    <div class="recovery-card-name">${entry.name}</div>
+                    <div class="recovery-card-sub">Masuk inkubasi: ${disbanDate}</div>
+                </div>
+                <span class="recovery-timer-txt ${timerClass}">${timerTxt}</span>
+                <button class="btn-tes-akun${isDone ? '' : ' waiting'}" 
+                    onclick="${isDone ? `openTesModal('${entry.key}')` : 'void(0)'}">
+                    ${isDone ? '🧪 Tes' : '🔒 Tunggu'}
+                </button>
+            `;
+            wrap.appendChild(card);
+        });
+        container.innerHTML = '';
+        container.appendChild(wrap);
+    };
+
+    window.openTesModal = function(key) {
+        const entry = window.recoveryQueue[key];
+        if (!entry) return;
+        const nextPhaseMap = { 3: 7, 7: 14, 14: 30, 30: null };
+        const nextPhase = nextPhaseMap[entry.phase];
+        window._tesAkunTarget = { key, ...entry };
+        document.getElementById('tesModalAccName').textContent = entry.name;
+        document.getElementById('tesModalInfo').innerHTML = `
+            <b>Fase:</b> Inkubasi ${entry.phase} Hari<br>
+            <b>Sukses</b> → Akun kembali ke Home (GACOR)<br>
+            <b>Gagal</b> → ${nextPhase ? `Lanjut inkubasi ${nextPhase} hari` : 'Kembali ke Disban'}
+        `;
+        document.getElementById('tesModal').classList.add('show');
+    };
+
+    window.submitTesAkun = function(result) {
+        const t = window._tesAkunTarget;
+        if (!t) return;
+        const key = t.key;
+        const nextPhaseMap = { 3: 7, 7: 14, 14: 30, 30: null };
+
+        closeModal(null, 'tesModal', true);
+
+        if (result === 'sukses') {
+            // Hapus dari recoveryQueue
+            delete window.recoveryQueue[key];
+            db2.ref('recoveryQueue/' + key).remove();
+            // Set status GACOR
+            if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+            window.accountOverrides[key].status = 'gacor';
+            db2.ref('accountOverrides/' + key + '/status').set('gacor');
+            refreshAllTabs('recovery_sukses');
+            setTimeout(() => alert(`🎉 ${t.name} SUKSES! Akun kembali ke Home sebagai GACOR.`), 100);
+        } else {
+            // Gagal → pindah ke fase berikutnya
+            const nextPhase = nextPhaseMap[t.phase];
+            if (nextPhase) {
+                const updEntry = { ...window.recoveryQueue[key], phase: nextPhase, startTime: Date.now() };
+                window.recoveryQueue[key] = updEntry;
+                db2.ref('recoveryQueue/' + key).set(updEntry);
+                // Status tetap sembuh
+                refreshAllTabs('recovery_gagal');
+                // Switch ke sub-tab berikutnya
+                switchRecoveryPhase(nextPhase);
+                setTimeout(() => alert(`⏳ ${t.name} GAGAL. Pindah ke inkubasi ${nextPhase} hari.`), 100);
+            } else {
+                // Fase 30 gagal → kembali disban
+                delete window.recoveryQueue[key];
+                db2.ref('recoveryQueue/' + key).remove();
+                if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+                window.accountOverrides[key].status = 'disban';
+                db2.ref('accountOverrides/' + key + '/status').set('disban');
+                // Mulai timer disban lagi
+                const timerData = { startTime: Date.now(), phase: 1, accName: t.name, dbKey: t.originalDb || '' };
+                window.disbanTimers[key] = timerData;
+                db.ref('disbanTimers/' + key).set(timerData);
+                refreshAllTabs('recovery_disban');
+                setTimeout(() => alert(`🚫 ${t.name} gagal fase 30 hari. Kembali ke DISBAN.`), 100);
+            }
+        }
+        window._tesAkunTarget = null;
+    };
+
+    // ✅ Helper: ambil tanggal posting terakhir per akun+kota
+    function getLastPostDate(accName, cityName) {
+        const hits = (window.dbHistory || []).filter(h => h.acc === accName && h.city === cityName);
+        if (!hits.length) return null;
+        // dbHistory sudah diurutkan desc by timestamp
+        const d = hits[0].date; // format dd/mm/yyyy
+        if (!d) return null;
+        const parts = d.split('/');
+        if (parts.length < 2) return d;
+        const BULAN = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        const m = parseInt(parts[1]);
+        return `${parseInt(parts[0])} ${BULAN[m] || parts[1]}`;
+    }
 
     // --- 8. LOGIC UI ---
     window.currentHomeSubTab = 'all';
@@ -1064,6 +1321,20 @@
             allAccs = allAccs.filter(acc => getBrowserType(acc) === filter);
         }
 
+        // ✅ Filter out disban & sembuh dari Home — hanya tampilkan gacor & warn
+        allAccs = allAccs.filter(acc => {
+            const st = getEffectiveStatus(acc);
+            return st !== 'disban' && st !== 'sembuh';
+        });
+
+        // ✅ Sort: gacor paling atas, warn di bawahnya
+        const statusOrder = { 'gacor': 0, 'warn': 1 };
+        allAccs = allAccs.sort((a, b) => {
+            const sa = statusOrder[getEffectiveStatus(a)] ?? 99;
+            const sb = statusOrder[getEffectiveStatus(b)] ?? 99;
+            return sa - sb;
+        });
+
         if (allAccs.length === 0) {
             container.innerHTML = `<div class="empty-state">Tidak ada akun di tab ini.</div>`;
             document.getElementById('home-drag-hint').style.display = 'none';
@@ -1105,6 +1376,7 @@
             let statusLabel = '', statusClass = '';
             if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
             else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            else if(effStatus === 'sembuh') { statusLabel = 'SEMBUH'; statusClass = 'badge-sembuh'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -1120,11 +1392,14 @@
                 items = akun.items || [];
             }
 
-            let listHTML = items.map(item => `
+            let listHTML = items.map(item => {
+                const lastDate = getLastPostDate(akun.name, item.city);
+                return `
                 <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
-                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
-                </div>
-            `).join('');
+                    <span class="city">${item.city}${lastDate ? `<span class="city-last-post"> · ${lastDate}</span>` : ''}</span>
+                    <span class="val">${item.val}</span>
+                </div>`;
+            }).join('');
 
             const browserIcon = getBrowserIcon(akun);
 
@@ -1440,6 +1715,7 @@
             let statusLabel = '', statusClass = '';
             if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
             else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            else if(effStatus === 'sembuh') { statusLabel = 'SEMBUH'; statusClass = 'badge-sembuh'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
@@ -1457,11 +1733,14 @@
                 items = akun.items || [];
             }
 
-            let listHTML = items.map(item => `
+            let listHTML = items.map(item => {
+                const lastDate = getLastPostDate(akun.name, item.city);
+                return `
                 <div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
-                    <span class="city">${item.city}</span><span class="val">${item.val}</span>
-                </div>
-            `).join('');
+                    <span class="city">${item.city}${lastDate ? `<span class="city-last-post"> · ${lastDate}</span>` : ''}</span>
+                    <span class="val">${item.val}</span>
+                </div>`;
+            }).join('');
 
             const browserIcon = getBrowserIcon(akun);
 
@@ -2268,7 +2547,27 @@
     window.generatePostingSchedule = window.generateWeeklySchedule;
     window.resetPostingSchedule = window.resetWeeklySchedule;
 
-    window.switchTab = function(n) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); document.querySelectorAll('.nav-item')[n-1].classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); if(n === 1) renderHomeTab(); if(n === 2) window.refreshFanpageTab(); if(n === 3) renderHistoryTab(); if(n === 4) refreshDisbanTab(); if(n === 5) renderScheduleTab(); if(n === 6) renderPostingScheduleTab(); }
+    window.switchTab = function(n) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('tab-'+n).classList.add('active');
+        // Mapping tab number → nav index (tab-2 fanpage dihapus dari nav)
+        // Nav: Home=0, History=1, Disban=2, Recovery=3, Schedule=4, Jadwal=5
+        const navMap = { 1: 0, 3: 1, 4: 2, 7: 3, 5: 4, 6: 5 };
+        const navIdx = navMap[n];
+        if (navIdx !== undefined) {
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems[navIdx]) navItems[navIdx].classList.add('active');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if(n === 1) renderHomeTab();
+        if(n === 2) window.refreshFanpageTab();
+        if(n === 3) renderHistoryTab();
+        if(n === 4) refreshDisbanTab();
+        if(n === 5) renderScheduleTab();
+        if(n === 6) renderPostingScheduleTab();
+        if(n === 7) renderRecoveryTab();
+    };
 </script>
 </body>
 </html>
