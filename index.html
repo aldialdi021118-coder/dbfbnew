@@ -512,6 +512,9 @@
     // ✅ DB2: override per akun { SAFE_NAME: { status, browser } }
     window.accountOverrides = {};
     window.db2Ready = false; // flag: DB2 sudah dimuat sebelum render pertama
+    // ✅ FIX RACE CONDITION: flag sudah-dimuat agar timer tidak di-reset saat refresh
+    window.disbanTimersLoaded = false;
+    window.joinTimersLoaded = false;
 
     // ============================================================
     // HELPERS: safeKey, effective status & browser dari DB2
@@ -645,6 +648,7 @@
 
         db.ref('joinTimers').on('value', (snapshot) => {
             window.joinTimers = snapshot.val() || {};
+            window.joinTimersLoaded = true; // ✅ FIX: tandai sudah dimuat dari Firebase
             if(document.getElementById('tab-5').classList.contains('active')) {
                 renderScheduleTab();
             }
@@ -670,6 +674,7 @@
         // Listener disban timers
         db.ref('disbanTimers').on('value', (snapshot) => {
             window.disbanTimers = snapshot.val() || {};
+            window.disbanTimersLoaded = true; // ✅ FIX: tandai sudah dimuat dari Firebase
             if(document.getElementById('tab-4').classList.contains('active')) {
                 window.refreshDisbanTab();
             }
@@ -1008,15 +1013,19 @@
         container.appendChild(listWrap);
 
         // Auto-start timer untuk akun yang belum punya timer
-        allDisban.forEach(akun => {
-            const key = getSafeKey(akun.name);
-            if (!window.disbanTimers[key]) {
-                // Auto-start fase 1 tanpa prompt
-                const timerData = { startTime: Date.now(), phase: 1, accName: akun.name, dbKey: akun.originalDb };
-                window.disbanTimers[key] = timerData;
-                db.ref('disbanTimers/' + key).set(timerData);
-            }
-        });
+        // ✅ FIX: hanya jalankan SETELAH disbanTimers dimuat dari Firebase
+        // agar tidak membuat timer baru yang menimpa data lama saat refresh
+        if (window.disbanTimersLoaded) {
+            allDisban.forEach(akun => {
+                const key = getSafeKey(akun.name);
+                if (!window.disbanTimers[key]) {
+                    // Auto-start fase 1 tanpa prompt
+                    const timerData = { startTime: Date.now(), phase: 1, accName: akun.name, dbKey: akun.originalDb };
+                    window.disbanTimers[key] = timerData;
+                    db.ref('disbanTimers/' + key).set(timerData);
+                }
+            });
+        }
     }
     
     function collectAllDisban() {
@@ -2168,15 +2177,19 @@
             const disbanTimer = window.disbanTimers && window.disbanTimers[key];
 
             // Auto-start joinTimer dari waktu disban jika belum ada
-            if (!window.joinTimers[accName] && disbanTimer && disbanTimer.startTime) {
-                window.joinTimers[accName] = disbanTimer.startTime;
-                db.ref('joinTimers/' + accName).set(disbanTimer.startTime);
+            // ✅ FIX: hanya tulis ke Firebase setelah joinTimers & disbanTimers dimuat
+            if (window.joinTimersLoaded && window.disbanTimersLoaded) {
+                if (!window.joinTimers[accName] && disbanTimer && disbanTimer.startTime) {
+                    window.joinTimers[accName] = disbanTimer.startTime;
+                    db.ref('joinTimers/' + accName).set(disbanTimer.startTime);
+                }
+                const startTime = window.joinTimers[accName] || Date.now();
+                if (!window.joinTimers[accName]) {
+                    window.joinTimers[accName] = startTime;
+                    db.ref('joinTimers/' + accName).set(startTime);
+                }
             }
-            const startTime = window.joinTimers[accName] || Date.now();
-            if (!window.joinTimers[accName]) {
-                window.joinTimers[accName] = startTime;
-                db.ref('joinTimers/' + accName).set(startTime);
-            }
+            const startTime = window.joinTimers[accName] || (disbanTimer && disbanTimer.startTime) || Date.now();
 
             const disbanDate = startTime ? new Date(startTime).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '-';
 
