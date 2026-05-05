@@ -9,7 +9,7 @@
     
     <style>
         /* --- CSS UTAMA --- */
-        :root { --fb-blue: #1877F2; --fb-bg: #F0F2F5; --text-primary: #050505; --text-secondary: #65676B; --nav-height: 60px; --status-gacor: #36a420; --status-warn: #f7b928; --status-disban: #fa3e3e; --danger-color: #fa3e3e; --ease-ios: cubic-bezier(0.25, 1, 0.5, 1); }
+        :root { --fb-blue: #1877F2; --fb-bg: #F0F2F5; --text-primary: #050505; --text-secondary: #65676B; --nav-height: 60px; --status-gacor: #36a420; --status-warn: #f7b928; --status-disban: #fa3e3e; --status-blocking: #7c3aed; --danger-color: #fa3e3e; --ease-ios: cubic-bezier(0.25, 1, 0.5, 1); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; min-height: 100vh; color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 20px); overflow-x: hidden; scroll-behavior: smooth; background: url('https://t3.ftcdn.net/jpg/03/94/94/92/360_F_394949282_FOyFFN53l0juz58dXuKjzl1CQ3Ruuq90.jpg') no-repeat center center fixed; background-size: cover; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(240, 242, 245, 0.85); z-index: -1; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
@@ -35,6 +35,7 @@
         .badge-warn { background: #fff8e1; color: #b98900; } .badge-warn::before { content:'●'; color:#f7b928; }
         .badge-disban { background: #fee2e2; color: #fa3e3e; } .badge-disban::before { content:'●'; color:#fa3e3e; }
         .badge-sembuh { background: #f0fff4; color: #059669; } .badge-sembuh::before { content:'●'; color:#10b981; }
+        .badge-blocking { background: #f3e8ff; color: #7c3aed; } .badge-blocking::before { content:'●'; color:#7c3aed; }
         .arrow-icon { color: var(--text-secondary); font-size: 12px; transition: 0.3s; } .account-card.active .arrow-icon { transform: rotate(180deg); }
         .account-data-container { max-height: 0; overflow: hidden; background: #ffffff; transition: max-height 0.4s var(--ease-ios); }
         .data-grid { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -326,6 +327,38 @@
         .data-item { background: #F0F2F5; padding: 7px 9px; border-radius: 7px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; gap: 4px; }
         .city-last-post { font-size: 9px; color: #36a420; font-weight: 600; white-space: nowrap; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* === BLOCKING TAB === */
+        .blocking-list-wrap { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 10px; border: 1px solid rgba(124,58,237,0.15); }
+        .blocking-list-header { padding: 9px 13px; background: #f3e8ff; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #7c3aed; border-bottom: 1px solid rgba(124,58,237,0.15); }
+        .blocking-card { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-bottom: 1px solid #f0f2f5; cursor: pointer; transition: background 0.15s; }
+        .blocking-card:last-child { border-bottom: none; }
+        .blocking-card:active { background: #f9f5ff; }
+        .blocking-card-num { width: 20px; height: 20px; border-radius: 50%; background: #f3e8ff; color: #7c3aed; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .blocking-card-info { flex: 1; min-width: 0; }
+        .blocking-card-name { font-size: 12px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .blocking-card-sub { font-size: 9px; color: #aaa; margin-top: 1px; }
+        .blocking-tap-hint { font-size: 9px; color: #7c3aed; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+        .blocking-empty { text-align: center; padding: 25px 10px; color: #aaa; font-size: 12px; line-height: 1.7; }
+
+        /* === MODAL BLOCKING RESULT === */
+        .blocking-modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-blocking-lolos { flex: 1; padding: 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, #36a420, #2d8a1a); color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-blocking-gagal { flex: 1; padding: 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, #fa3e3e, #e02d2d); color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-blocking-lolos:active, .btn-blocking-gagal:active { transform: scale(0.97); }
+
+        /* === DISBAN NAME CLICKABLE === */
+        .disban-row-name-btn { cursor: pointer; color: var(--text-primary); font-size: 12px; font-weight: 700; text-transform: uppercase; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: underline dotted #bbb; transition: color 0.15s; }
+        .disban-row-name-btn:hover { color: var(--fb-blue); }
+
+        /* === FANPAGE & SECONDARY TAB (tab-9) === */
+        .fs-sub-nav { display: flex; background: #e4e6eb; border-radius: 10px; padding: 4px; margin-bottom: 12px; gap: 4px; }
+        .fs-sub-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 12px; font-weight: 700; color: var(--text-secondary); border-radius: 7px; cursor: pointer; transition: all 0.2s; }
+        .fs-sub-btn.active { background: white; color: var(--fb-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .acc-parent-label { font-size: 9px; color: #1877F2; font-weight: 600; display: block; margin-top: 1px; opacity: 0.8; }
+        .btn-move-tab { background: #E7F3FF; color: #1877F2; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 7px 10px; transition: 0.2s; }
+        .btn-move-tab:active { transform: scale(0.97); }
+        .move-tab-wrap { padding: 0 10px 6px; display: flex; gap: 6px; }
     </style>
 </head>
 <body>
@@ -413,6 +446,20 @@
             </div>
             <div id="list-recovery"></div>
         </section>
+
+        <section id="tab-8" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title" style="color:#7c3aed;">🔒 BLOCKING</span></div>
+            <div id="list-blocking"></div>
+        </section>
+
+        <section id="tab-9" class="tab-content">
+            <div class="section-header-wrap"><span class="section-title">Fanpage &amp; Secondary</span></div>
+            <div class="fs-sub-nav">
+                <div class="fs-sub-btn active" onclick="switchFSTab('fanpage')" id="btn-fs-fanpage">📄 Fanpage</div>
+                <div class="fs-sub-btn" onclick="switchFSTab('secondary')" id="btn-fs-secondary">👤 Secondary</div>
+            </div>
+            <div id="list-fs" class="grid-container"></div>
+        </section>
     </div>
 
     <!-- Modal Tes Akun Recovery -->
@@ -435,13 +482,58 @@
     </div>
 
     <div class="modal-overlay" id="rangeModal" onclick="closeModal(event, 'rangeModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title" id="modalTitle">Kota</div><div class="modal-subtitle" id="modalSubtitle">Detail</div></div><div class="modal-body"><div class="range-grid" id="modalGrid"></div></div><button class="btn-close" onclick="closeModal(null, 'rangeModal', true)">Tutup</button></div></div>
-    <div class="modal-overlay" id="addAccountModal" onclick="closeModal(event, 'addAccountModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Akun Baru</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Akun</label><input type="text" id="newAccName" class="form-input" placeholder="Nama Akun"></div><div class="form-group"><label class="form-label">Status Awal</label><select id="newAccStatus" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option></select></div><button class="btn-submit" onclick="submitNewAccount()">Buat Akun</button></div></div></div>
+    <div class="modal-overlay" id="addAccountModal" onclick="closeModal(event, 'addAccountModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Akun Baru</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Akun</label><input type="text" id="newAccName" class="form-input" placeholder="Nama Akun"></div><div class="form-group"><label class="form-label">Status Awal</label><select id="newAccStatus" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option><option value="blocking">Blocking (Ungu)</option></select></div><button class="btn-submit" onclick="submitNewAccount()">Buat Akun</button></div></div></div>
     
     <div class="modal-overlay" id="editValueModal" onclick="closeModal(event, 'editValueModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Edit Kota & Jumlah</div></div><div class="modal-body"><div id="editValueList" class="edit-list-container"></div><button class="btn-submit" onclick="submitValueChanges()">Simpan Perubahan</button></div></div></div>
     
     <div class="modal-overlay" id="confirmModal"><div class="modal-content" style="max-width: 280px;"><div class="modal-header" style="border:none; padding-bottom:0;"><div class="modal-title" style="font-size:16px;" id="confirmTitle">Konfirmasi</div></div><div class="modal-body" style="text-align: center; padding-top:5px;"><p style="color:#65676B; font-size:13px;" id="confirmDesc">Tandai postingan selesai?</p><div class="confirm-actions"><button class="btn-action btn-no" onclick="closeModal(null, 'confirmModal', true)">Batal</button><button class="btn-action btn-yes" id="btnConfirmYes">Ya</button></div></div></div></div>
     
-    <div class="modal-overlay" id="statusModal" onclick="closeModal(event, 'statusModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Ubah Status Akun</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Pilih Status Baru</label><select id="newStatusInput" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option><option value="sembuh">Sembuh (Inkubasi)</option></select></div><button class="btn-submit" onclick="submitStatusChange()">Simpan Perubahan</button></div></div></div>
+    <div class="modal-overlay" id="statusModal" onclick="closeModal(event, 'statusModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Ubah Status Akun</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Pilih Status Baru</label><select id="newStatusInput" class="form-select"><option value="gacor">Gacor (Hijau)</option><option value="warn">Peringatan (Kuning)</option><option value="disban">Disban (Merah)</option><option value="sembuh">Sembuh (Inkubasi)</option><option value="blocking">Blocking (Ungu)</option></select></div><button class="btn-submit" onclick="submitStatusChange()">Simpan Perubahan</button></div></div></div>
+
+    <!-- Modal Blocking Result (Lolos / Tidak Lolos) -->
+    <div class="modal-overlay" id="blockingModal">
+        <div class="modal-content" style="max-width:300px;">
+            <div class="modal-header">
+                <div class="modal-title">🔒 Cek Blocking</div>
+                <div class="modal-subtitle" id="blockingModalAccName" style="font-weight:700;color:#7c3aed;"></div>
+            </div>
+            <div class="modal-body">
+                <div class="tes-akun-info" style="font-size:12px;color:#65676B;line-height:1.6;">
+                    Periksa apakah akun ini berhasil melewati blocking.<br>
+                    <b>Lolos</b> → akun masuk ke tab DISBAN<br>
+                    <b>Tidak Lolos</b> → akun dihapus permanen
+                </div>
+                <div class="blocking-modal-actions">
+                    <button class="btn-blocking-lolos" onclick="submitBlockingResult('lolos')"><i class="fas fa-check-circle"></i> LOLOS</button>
+                    <button class="btn-blocking-gagal" onclick="submitBlockingResult('tidak_lolos')"><i class="fas fa-times-circle"></i> TIDAK LOLOS</button>
+                </div>
+                <button style="margin-top:10px;width:100%;background:#f0f2f5;color:#555;border:none;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;" onclick="closeModal(null,'blockingModal',true)">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ubah Status Disban (klik nama) -->
+    <div class="modal-overlay" id="disbanStatusModal" onclick="closeModal(event,'disbanStatusModal')">
+        <div class="modal-content" style="max-width:300px;">
+            <div class="modal-header">
+                <div class="modal-title">Ubah Status</div>
+                <div class="modal-subtitle" id="disbanStatusModalName" style="font-weight:700;color:#fa3e3e;"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Pilih Status Baru</label>
+                    <select id="disbanNewStatusInput" class="form-select">
+                        <option value="gacor">Gacor (Hijau)</option>
+                        <option value="warn">Peringatan (Kuning)</option>
+                        <option value="disban" selected>Disban (Merah)</option>
+                        <option value="sembuh">Sembuh (Inkubasi)</option>
+                        <option value="blocking">Blocking (Ungu)</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="submitDisbanStatusChange()">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
     <div class="modal-overlay" id="addCityModal" onclick="closeModal(event, 'addCityModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Kota</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Kota</label><input type="text" id="newCityName" class="form-input" placeholder="Contoh: Surabaya"></div><div class="form-group"><label class="form-label">Jumlah Grup</label><input type="number" id="newCityVal" class="form-input" placeholder="0"></div><button class="btn-submit" onclick="submitNewCity()">Tambah</button></div></div></div>
 
     <!-- Modal Pindah Browser -->
@@ -462,11 +554,41 @@
         </div>
     </div>
 
+    <!-- Modal Pindah Tab (Fanpage / Secondary) -->
+    <div class="modal-overlay" id="moveTabModal" onclick="closeModal(event,'moveTabModal')">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">
+                <div class="modal-title">Pindah ke Tab</div>
+                <div class="modal-subtitle" id="moveTabAccName" style="font-weight:700;color:var(--fb-blue);"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Pilih Tujuan Tab</label>
+                    <select id="moveTabDestination" class="form-select" onchange="onMoveTabDestChange()">
+                        <option value="">— Pilih Tab —</option>
+                        <option value="fanpage">📄 Fanpage</option>
+                        <option value="secondary">👤 Secondary</option>
+                        <option value="home">🏠 Kembali ke Home</option>
+                    </select>
+                </div>
+                <div class="form-group" id="moveTabParentGroup" style="display:none;">
+                    <label class="form-label">Akun Utama (Parent)</label>
+                    <select id="moveTabParent" class="form-select">
+                        <option value="">— Pilih Akun Utama —</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="submitMoveTab()">Pindahkan</button>
+            </div>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
+        <div class="nav-item" onclick="switchTab(9)" style="color:#1877F2;"><i class="fas fa-layer-group"></i></div>
         <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
         <div class="nav-item" onclick="switchTab(4)" style="color: var(--danger-color);"><i class="fas fa-ban"></i></div>
         <div class="nav-item" onclick="switchTab(7)" style="color:#059669;"><i class="fas fa-seedling"></i></div>
+        <div class="nav-item" onclick="switchTab(8)" style="color:#7c3aed;"><i class="fas fa-shield-virus"></i></div>
         <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="switchTab(6)"><i class="fas fa-calendar-check"></i></div>
     </nav>
@@ -528,6 +650,11 @@
     window.currentRecoveryPhase = 3; // ✅ NEW: active sub-tab phase
     window.fewfeedScanData = {};
     window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
+    window._blockingTarget = null; // target akun yang sedang dicek di blocking modal
+    window._disbanStatusTarget = null; // target akun di disban untuk ubah status
+    window.tabPlacements = {};   // { safeKey: { tab: 'fanpage'|'secondary', parentAcc: 'NAME' } }
+    window.currentFSSubTab = 'fanpage'; // active subtab di tab-9
+    window._moveTabTarget = null; // { index, dbRefName, accName }
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
     window.homeCardOrder    = [];
     window.fanpageCardOrder = [];
@@ -717,6 +844,7 @@
     function applyDb2Snapshot(snap) {
         const d = snap || {};
         window.accountOverrides = d.accountOverrides || {};
+        window.tabPlacements = d.tabPlacements || {};
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -774,6 +902,11 @@
             db2.ref('recoveryQueue').on('value', snapRec => {
                 window.recoveryQueue = snapRec.val() || {};
                 if (document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
+            });
+            // ✅ NEW: real-time listener tab placements dari DB2
+            db2.ref('tabPlacements').on('value', snapTP => {
+                window.tabPlacements = snapTP.val() || {};
+                refreshAllTabs('tabPlacements');
             });
         })
         .catch(err => {
@@ -889,6 +1022,8 @@
                     renderHomeTab();
                     window.refreshFanpageTab();
                     window.refreshDisbanTab();
+                    renderBlockingTab();
+                    renderFSTab();
                     if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
                     if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
                     if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
@@ -897,7 +1032,9 @@
             }
             renderHomeTab();
             window.refreshFanpageTab(); 
-            window.refreshDisbanTab(); 
+            window.refreshDisbanTab();
+            renderBlockingTab();
+            renderFSTab();
             if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
             if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
             if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
@@ -1027,7 +1164,7 @@
             row.innerHTML = `
                 <span class="disban-row-num">${rowIdx + 1}</span>
                 <span class="disban-row-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:13px;">${browserIcon}</span>
-                <span class="disban-row-name" title="${akun.name}">${akun.name}</span>
+                <span class="disban-row-name-btn" title="Klik untuk ubah status" onclick="openDisbanStatusModal('${akun.name.replace(/'/g,"\\'")}','${akun.originalDb}',${akun.originalIdx})">${akun.name}</span>
                 ${phaseStr ? `<span class="disban-row-phase">${phaseStr}</span>` : ''}
                 <span class="disban-row-timer${isExpiredRow ? ' expired' : ''}">${timerStr}</span>
             `;
@@ -1067,6 +1204,151 @@
         collect(window.dbUtama5, 'dbUtama5', 'Db Fanpage');
         return allDisban;
     }
+
+    function collectAllBlocking() {
+        let allBlocking = [];
+        const collect = (arr, dbRefName, label) => {
+            if(!arr) return;
+            arr.forEach((acc, idx) => {
+                if(getEffectiveStatus(acc) === 'blocking') {
+                    allBlocking.push({ ...acc, status: 'blocking', originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
+                }
+            });
+        };
+        collect(window.dbUtama1, 'dbUtama1', 'Db 1 Utama');
+        collect(window.dbSecondary1, 'dbSecondary1', 'Db 1 Secondary');
+        collect(window.dbUtama5, 'dbUtama5', 'Db Fanpage');
+        return allBlocking;
+    }
+
+    // === BLOCKING TAB FUNCTIONS ===
+    window.renderBlockingTab = function() {
+        const container = document.getElementById('list-blocking');
+        if (!container) return;
+        container.innerHTML = '';
+        const allBlocking = collectAllBlocking();
+
+        if (allBlocking.length === 0) {
+            container.innerHTML = `<div class="blocking-empty">
+                <i class="fas fa-shield-check" style="font-size:28px;color:#7c3aed;display:block;margin-bottom:8px;"></i>
+                Tidak ada akun kena blocking.<br>
+                <span style="font-size:11px;">Akun dengan status Blocking akan muncul di sini.</span>
+            </div>`;
+            return;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'blocking-list-wrap';
+        wrap.innerHTML = `<div class="blocking-list-header"><i class="fas fa-shield-virus"></i> ${allBlocking.length} Akun Blocking</div>`;
+
+        allBlocking.forEach((akun, idx) => {
+            const browserIcon = getBrowserIcon(akun);
+            const card = document.createElement('div');
+            card.className = 'blocking-card';
+            card.innerHTML = `
+                <span class="blocking-card-num">${idx + 1}</span>
+                <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${browserIcon}</span>
+                <div class="blocking-card-info">
+                    <div class="blocking-card-name">${akun.name}</div>
+                    <div class="blocking-card-sub">${akun.sourceLabel}</div>
+                </div>
+                <span class="blocking-tap-hint"><i class="fas fa-hand-pointer"></i> Cek</span>
+            `;
+            card.addEventListener('click', () => openBlockingModal(akun));
+            wrap.appendChild(card);
+        });
+
+        container.appendChild(wrap);
+    };
+
+    window.openBlockingModal = function(akun) {
+        window._blockingTarget = akun;
+        document.getElementById('blockingModalAccName').textContent = akun.name;
+        document.getElementById('blockingModal').classList.add('show');
+    };
+
+    window.submitBlockingResult = function(result) {
+        const t = window._blockingTarget;
+        if (!t) return;
+        const safeKey = getSafeKey(t.name);
+
+        if (result === 'lolos') {
+            // Lolos → pindah ke disban
+            if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
+            window.accountOverrides[safeKey].status = 'disban';
+            db2.ref('accountOverrides/' + safeKey + '/status').set('disban')
+                .catch(e => alert('Gagal simpan status: ' + e.message));
+            // Auto-start disban timer fase 1
+            const timerData = { startTime: Date.now(), phase: 1, accName: t.name, dbKey: t.originalDb };
+            window.disbanTimers[safeKey] = timerData;
+            db.ref('disbanTimers/' + safeKey).set(timerData);
+            refreshAllTabs('blocking_lolos');
+            alert(`✅ ${t.name} LOLOS — Masuk tab DISBAN.`);
+        } else {
+            // Tidak lolos → hapus akun dari database
+            if (!confirm(`Yakin hapus akun ${t.name} secara permanen?`)) return;
+            let targetDb = JSON.parse(JSON.stringify(window[t.originalDb] || []));
+            if (targetDb && targetDb[t.originalIdx]) {
+                targetDb.splice(t.originalIdx, 1);
+                saveToFirebase(t.originalDb, targetDb);
+            }
+            // Bersihkan overrides
+            delete window.accountOverrides[safeKey];
+            db2.ref('accountOverrides/' + safeKey).remove();
+            alert(`🗑️ ${t.name} dihapus permanen.`);
+        }
+
+        window._blockingTarget = null;
+        closeModal(null, 'blockingModal', true);
+    };
+
+    // === DISBAN STATUS MODAL (klik nama di tab disban) ===
+    window.openDisbanStatusModal = function(accName, dbRefName, idx) {
+        window._disbanStatusTarget = { accName, dbRefName, idx };
+        document.getElementById('disbanStatusModalName').textContent = accName;
+        document.getElementById('disbanNewStatusInput').value = 'disban';
+        document.getElementById('disbanStatusModal').classList.add('show');
+    };
+
+    window.submitDisbanStatusChange = function() {
+        const t = window._disbanStatusTarget;
+        if (!t) return;
+        const safeKey = getSafeKey(t.accName);
+        const newStatus = document.getElementById('disbanNewStatusInput').value;
+        const oldStatus = 'disban';
+
+        if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
+        window.accountOverrides[safeKey].status = newStatus;
+        db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
+            .catch(e => alert('Gagal simpan status: ' + e.message));
+
+        // Bersihkan timer disban jika pindah dari disban
+        if (newStatus !== 'disban') {
+            delete window.disbanTimers[safeKey];
+            db.ref('disbanTimers/' + safeKey).remove();
+        }
+        // Jika jadi sembuh → masuk recovery
+        if (newStatus === 'sembuh') {
+            const recEntry = { name: t.accName, phase: 3, startTime: Date.now(), originalDb: t.dbRefName, originalIdx: t.idx };
+            window.recoveryQueue[safeKey] = recEntry;
+            db2.ref('recoveryQueue/' + safeKey).set(recEntry);
+            alert(`✅ ${t.accName} masuk INKUBASI 3 Hari.`);
+        }
+        // Jika jadi blocking → auto-move ke blocking tab (status saja)
+        if (newStatus === 'blocking') {
+            alert(`🔒 ${t.accName} dipindahkan ke tab BLOCKING.`);
+        }
+        // Jika jadi warn → start recovery tracking
+        if (newStatus === 'warn') {
+            const recovery = { cleanSessions: 0, accName: t.accName };
+            window.accountRecovery[safeKey] = recovery;
+            db.ref('accountRecovery/' + safeKey).set(recovery);
+        }
+
+        refreshAllTabs('disban_status_change');
+        closeModal(null, 'disbanStatusModal', true);
+        window._disbanStatusTarget = null;
+    };
 
     // === DISBAN TIMER FUNCTIONS ===
     window.startDisbanTimer = function(accName, dbKey) {
@@ -1140,6 +1422,9 @@
         }
         if (document.getElementById('tab-7').classList.contains('active')) {
             renderRecoveryTab();
+        }
+        if (document.getElementById('tab-8').classList.contains('active')) {
+            renderBlockingTab();
         }
     }, 1000);
 
@@ -1353,10 +1638,15 @@
             allAccs = allAccs.filter(acc => getBrowserType(acc) === filter);
         }
 
-        // ✅ Filter out disban & sembuh dari Home — hanya tampilkan gacor & warn
+        // ✅ Filter out disban & sembuh & blocking dari Home — hanya tampilkan gacor & warn
         allAccs = allAccs.filter(acc => {
             const st = getEffectiveStatus(acc);
-            return st !== 'disban' && st !== 'sembuh';
+            if (st === 'disban' || st === 'sembuh' || st === 'blocking') return false;
+            // Filter out akun yang sudah dipindah ke Fanpage/Secondary tab
+            const sk = getSafeKey(acc.name);
+            const tp = window.tabPlacements[sk];
+            if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return false;
+            return true;
         });
 
         // ✅ Sort: tanggal posting terlama (paling jarang diposting) paling atas
@@ -1393,6 +1683,7 @@
             if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
             else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
             else if(effStatus === 'sembuh') { statusLabel = 'SEMBUH'; statusClass = 'badge-sembuh'; }
+            else if(effStatus === 'blocking') { statusLabel = 'BLOCKING'; statusClass = 'badge-blocking'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -1454,6 +1745,9 @@
                     <div class="move-btn-wrap">
                         <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${akun.name}')">
                             <i class="fas fa-arrows-rotate"></i> Pindah Browser
+                        </button>
+                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${akun.name}')">
+                            <i class="fas fa-layer-group"></i> Pindah Tab
                         </button>
                     </div>
                 </div>
@@ -1744,6 +2038,7 @@
             if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
             else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
             else if(effStatus === 'sembuh') { statusLabel = 'SEMBUH'; statusClass = 'badge-sembuh'; }
+            else if(effStatus === 'blocking') { statusLabel = 'BLOCKING'; statusClass = 'badge-blocking'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
             // ✅ AMBIL DATA KOTA & JUMLAH DARI FIREBASE CONTENT.JS (fewfeed_scan)
@@ -1915,6 +2210,12 @@
                     window.accountRecovery[safeKey] = recovery;
                     db.ref('accountRecovery/' + safeKey).set(recovery);
                 }
+            }
+            // ✅ STATUS BLOCKING: hapus timer disban jika ada
+            if (newStatus === 'blocking') {
+                delete window.disbanTimers[safeKey];
+                db.ref('disbanTimers/' + safeKey).remove();
+                setTimeout(() => alert(`🔒 ${accName} dipindahkan ke tab BLOCKING.`), 100);
             }
 
             refreshAllTabs('status');
@@ -2579,13 +2880,191 @@
     window.generatePostingSchedule = window.generateWeeklySchedule;
     window.resetPostingSchedule = window.resetWeeklySchedule;
 
+    // =====================================================================
+    // TAB 9: FANPAGE & SECONDARY
+    // =====================================================================
+    window.switchFSTab = function(type) {
+        window.currentFSSubTab = type;
+        ['fanpage','secondary'].forEach(t => {
+            const el = document.getElementById('btn-fs-' + t);
+            if (el) el.className = 'fs-sub-btn' + (t === type ? ' active' : '');
+        });
+        renderFSTab();
+    };
+
+    window.renderFSTab = function() {
+        const container = document.getElementById('list-fs');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const subTab = window.currentFSSubTab || 'fanpage';
+
+        // Kumpulkan semua akun yang ada di tab ini
+        const allAccs = [];
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach((acc, idx) => {
+                if (!acc || !acc.name) return;
+                const sk = getSafeKey(acc.name);
+                const tp = window.tabPlacements[sk];
+                if (tp && tp.tab === subTab) {
+                    allAccs.push({ ...acc, originalIdx: idx, originalDb: dbKey, parentAcc: tp.parentAcc || '' });
+                }
+            });
+        });
+
+        if (allAccs.length === 0) {
+            container.innerHTML = `<div class="empty-state">Belum ada akun di ${subTab === 'fanpage' ? 'Fanpage' : 'Secondary'}.<br><span style="font-size:11px;color:#bbb;">Pindahkan akun dari Home menggunakan tombol "Pindah Tab".</span></div>`;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        allAccs.forEach((akun) => {
+            const index = akun.originalIdx;
+            const dbRefName = akun.originalDb;
+            const effStatus = getEffectiveStatus(akun);
+
+            const card = document.createElement('div');
+            card.className = `account-card ${effStatus === 'disban' ? 'status-disban' : ''}`;
+            card.dataset.accname = akun.name;
+
+            let statusLabel = '', statusClass = '';
+            if(effStatus === 'gacor') { statusLabel = 'GACOR'; statusClass = 'badge-gacor'; }
+            else if(effStatus === 'warn') { statusLabel = 'PERINGATAN'; statusClass = 'badge-warn'; }
+            else if(effStatus === 'sembuh') { statusLabel = 'SEMBUH'; statusClass = 'badge-sembuh'; }
+            else if(effStatus === 'blocking') { statusLabel = 'BLOCKING'; statusClass = 'badge-blocking'; }
+            else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
+
+            const items = akun.items || [];
+            let listHTML = items.map(item => {
+                const lastDate = getLastPostDate(akun.name, item.city);
+                return `<div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
+                    <span class="city">${item.city}${lastDate ? `<span class="city-last-post"> · ${lastDate}</span>` : ''}</span>
+                    <span class="val">${item.val}</span>
+                </div>`;
+            }).join('');
+
+            const browserIcon = getBrowserIcon(akun);
+            const parentLabel = akun.parentAcc
+                ? `<span class="acc-parent-label">↳ from ${akun.parentAcc}</span>`
+                : '';
+
+            card.innerHTML = `
+                <div class="account-header">
+                    <div class="browser-icon-circle">${browserIcon}</div>
+                    <div class="acc-info">
+                        <div class="acc-name">${akun.name}</div>
+                        ${parentLabel}
+                        <div class="status-badge ${statusClass}">${statusLabel}</div>
+                    </div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </div>
+                <div class="account-data-container">
+                    <div class="data-grid">${listHTML}</div>
+                    <div class="card-actions">
+                        <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Status</button>
+                        <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit</button>
+                        <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Kota</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                    <div class="move-btn-wrap">
+                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${akun.name}')">
+                            <i class="fas fa-arrows-rotate"></i> Pindah Browser
+                        </button>
+                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${akun.name}')">
+                            <i class="fas fa-layer-group"></i> Pindah Tab
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const header = card.querySelector('.account-header');
+            const content = card.querySelector('.account-data-container');
+            header.addEventListener('click', (e) => {
+                if (window.innerWidth >= 900) return;
+                const isActive = card.classList.contains('active');
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.account-card.active').forEach(c => {
+                        if(c !== card) { c.classList.remove('active'); c.querySelector('.account-data-container').style.maxHeight = null; }
+                    });
+                    if (!isActive) { card.classList.add('active'); setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; }, 10); }
+                    else { card.classList.remove('active'); content.style.maxHeight = null; }
+                });
+            });
+            fragment.appendChild(card);
+        });
+        container.appendChild(fragment);
+    };
+
+    // --- MOVE TAB MODAL ---
+    window.openMoveTabModal = function(index, dbRefName, accName) {
+        window._moveTabTarget = { index, dbRefName, accName };
+        document.getElementById('moveTabAccName').textContent = accName;
+        document.getElementById('moveTabDestination').value = '';
+        document.getElementById('moveTabParentGroup').style.display = 'none';
+        // Populate parent list dari semua akun di Home (tidak termasuk dirinya sendiri & tidak di FS tab)
+        const parentSel = document.getElementById('moveTabParent');
+        parentSel.innerHTML = '<option value="">— Pilih Akun Utama —</option>';
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        const added = new Set();
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (!acc || !acc.name) return;
+                if (acc.name.toUpperCase() === accName.toUpperCase()) return; // skip diri sendiri
+                if (added.has(acc.name)) return;
+                const sk = getSafeKey(acc.name);
+                const tp = window.tabPlacements[sk];
+                if (!tp || tp.tab === 'home' || !tp.tab) {
+                    // akun di Home
+                    const opt = document.createElement('option');
+                    opt.value = acc.name;
+                    opt.textContent = acc.name;
+                    parentSel.appendChild(opt);
+                    added.add(acc.name);
+                }
+            });
+        });
+        document.getElementById('moveTabModal').classList.add('show');
+    };
+
+    window.onMoveTabDestChange = function() {
+        const dest = document.getElementById('moveTabDestination').value;
+        const parentGroup = document.getElementById('moveTabParentGroup');
+        parentGroup.style.display = (dest === 'fanpage' || dest === 'secondary') ? 'block' : 'none';
+    };
+
+    window.submitMoveTab = function() {
+        const t = window._moveTabTarget;
+        if (!t) return;
+        const dest = document.getElementById('moveTabDestination').value;
+        if (!dest) { alert('Pilih tujuan tab terlebih dahulu.'); return; }
+        const safeKey = getSafeKey(t.accName);
+
+        if (dest === 'home') {
+            // Kembali ke Home — hapus tabPlacement
+            delete window.tabPlacements[safeKey];
+            db2.ref('tabPlacements/' + safeKey).remove()
+                .catch(e => alert('Gagal hapus placement: ' + e.message));
+        } else {
+            const parentAcc = document.getElementById('moveTabParent').value;
+            if (!parentAcc) { alert('Pilih akun utama (parent) terlebih dahulu.'); return; }
+            const placement = { tab: dest, parentAcc: parentAcc };
+            window.tabPlacements[safeKey] = placement;
+            db2.ref('tabPlacements/' + safeKey).set(placement)
+                .catch(e => alert('Gagal simpan placement: ' + e.message));
+        }
+
+        refreshAllTabs('moveTab');
+        closeModal(null, 'moveTabModal', true);
+        window._moveTabTarget = null;
+    };
+
     window.switchTab = function(n) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-'+n).classList.add('active');
-        // Mapping tab number → nav index (tab-2 fanpage dihapus dari nav)
-        // Nav: Home=0, History=1, Disban=2, Recovery=3, Schedule=4, Jadwal=5
-        const navMap = { 1: 0, 3: 1, 4: 2, 7: 3, 5: 4, 6: 5 };
+        // Nav: Home=0, FS=1, History=2, Disban=3, Recovery=4, Blocking=5, Schedule=6, Jadwal=7
+        const navMap = { 1: 0, 9: 1, 3: 2, 4: 3, 7: 4, 8: 5, 5: 6, 6: 7 };
         const navIdx = navMap[n];
         if (navIdx !== undefined) {
             const navItems = document.querySelectorAll('.nav-item');
@@ -2599,6 +3078,8 @@
         if(n === 5) renderScheduleTab();
         if(n === 6) renderPostingScheduleTab();
         if(n === 7) renderRecoveryTab();
+        if(n === 8) renderBlockingTab();
+        if(n === 9) renderFSTab();
     };
 </script>
 </body>
