@@ -148,7 +148,30 @@
         .timer-card.ready .timer-progress-fill { background: linear-gradient(90deg, #36a420, #52c41a); }
         
         .desktop-trigger { display: none; }
-        @media (min-width: 900px) { .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; } body { padding-bottom: 0; overflow: hidden; } .app-container { max-width: 100%; height: 100vh; padding: 15px; margin-right: 0; } .app-header { margin: 0 0 15px 0; padding: 8px 20px; } .tab-content.active { flex: 1; display: flex; flex-direction: column; min-height: 0; } .grid-container { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: 100%; gap: 8px; overflow: hidden; } .account-card { height: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .account-header { padding: 8px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: column; text-align: center; gap: 5px; } .fb-icon-circle { width: 20px; height: 20px; font-size: 10px; margin-bottom: 0; } .acc-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;} .arrow-icon { display: none; } .account-data-container { max-height: none !important; flex: 1; overflow-y: auto; background: #fff; } .data-grid { grid-template-columns: 1fr; padding: 5px; gap: 4px; } .data-item { padding: 6px 10px; } .card-actions { flex-direction: column; gap: 4px; padding: 5px; } .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; } .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; } .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); } .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); } .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); } .nav-item.active::after { display: none; } body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); } body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); } }
+        @media (min-width: 900px) {
+            .desktop-trigger { display: block; position: fixed; top: 0; right: 0; width: 40px; height: 100vh; z-index: 2001; }
+            body { padding-bottom: 0; overflow-y: auto; }
+            .app-container { max-width: 100%; min-height: 100vh; padding: 15px; margin-right: 0; }
+            .app-header { margin: 0 0 15px 0; padding: 8px 20px; }
+            .tab-content.active { display: block; }
+            .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+            .account-card { height: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+            .account-header { padding: 10px 14px; cursor: default; background: #fff; border-bottom: 1px solid #f0f2f5; flex-direction: row; text-align: left; gap: 10px; }
+            .acc-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+            .arrow-icon { display: none; }
+            .account-data-container { max-height: none !important; overflow: visible; background: #fff; }
+            .data-grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
+            .data-item { padding: 6px 10px; }
+            .card-actions { flex-direction: row; gap: 6px; padding: 8px; flex-wrap: wrap; }
+            .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; position: fixed; }
+            .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; }
+            .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); }
+            .nav-item.active { background-color: #e7f3ff; color: var(--fb-blue); }
+            .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--fb-blue); }
+            .nav-item.active::after { display: none; }
+            body:has(.desktop-trigger:hover) .bottom-nav, .bottom-nav:hover { transform: translateX(0); }
+            body:has(.desktop-trigger:hover) .app-container, body:has(.bottom-nav:hover) .app-container { margin-right: 85px; width: calc(100% - 85px); }
+        }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); } .modal-overlay.show { display: flex; animation: fadeIn 0.2s; } .modal-content { background: white; width: 85%; max-width: 350px; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: zoomIn 0.2s; } .modal-header { padding: 15px; border-bottom: 1px solid #f0f2f5; text-align: center; } .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); } .modal-subtitle { font-size: 12px; color: var(--text-secondary); } .modal-body { padding: 15px; max-height: 50vh; overflow-y: auto; }
         .range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .range-btn { background: #F0F2F5; padding: 12px; border-radius: 8px; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; transition: 0.2s; } .range-btn.done { background: #e7f3ff; border: 1px solid #1877F2; } .range-btn.done .range-label { color: #1877F2; }
         .btn-all-range { grid-column: span 2; background: #E7F3FF; border: 1px solid transparent; margin-bottom: 5px; } .btn-all-range .range-label { color: #1877F2; font-size: 13px; } .btn-all-range.done { background: #1877F2; border-color: #1877F2; } .btn-all-range.done .range-label, .btn-all-range.done .range-desc { color: white !important; }
@@ -1336,13 +1359,15 @@
             return st !== 'disban' && st !== 'sembuh';
         });
 
-        // ✅ Sort: gacor paling atas, warn di bawahnya
-        const statusOrder = { 'gacor': 0, 'warn': 1 };
-        allAccs = allAccs.sort((a, b) => {
-            const sa = statusOrder[getEffectiveStatus(a)] ?? 99;
-            const sb = statusOrder[getEffectiveStatus(b)] ?? 99;
-            return sa - sb;
-        });
+        // ✅ Sort: tanggal posting terlama (paling jarang diposting) paling atas
+        function getLastPostTs(accName) {
+            const hits = (window.dbHistory || []).filter(h => h.acc === accName);
+            if (!hits.length) return 0; // belum pernah diposting = tampil paling atas
+            let maxTs = 0;
+            hits.forEach(h => { if (h.timestamp && h.timestamp > maxTs) maxTs = h.timestamp; });
+            return maxTs;
+        }
+        allAccs = allAccs.sort((a, b) => getLastPostTs(a.name) - getLastPostTs(b.name));
 
         if (allAccs.length === 0) {
             container.innerHTML = `<div class="empty-state">Tidak ada akun di tab ini.</div>`;
@@ -1350,26 +1375,8 @@
             return;
         }
 
-        // ✅ SELALU baca dari localStorage sebagai sumber kebenaran utama
-        // Mencegah window.homeCardOrder yang volatile dari Firebase listener merusak urutan
-        const _savedHomeRaw = localStorage.getItem('cardOrder_home');
-        const _savedHomeOrder = _savedHomeRaw ? JSON.parse(_savedHomeRaw) : [];
-        window.homeCardOrder = _savedHomeOrder;
-
-        // Akun baru yg belum ada di order → append ke bawah, simpan localStorage saja (bukan DB2)
-        const _allHomeNames = collectAllAccounts().map(a => a.name);
-        const _newHomeAccs = _allHomeNames.filter(n => !_savedHomeOrder.includes(n));
-        if (_newHomeAccs.length > 0) {
-            window.homeCardOrder = [..._savedHomeOrder, ..._newHomeAccs];
-            localStorage.setItem('cardOrder_home', JSON.stringify(window.homeCardOrder));
-        }
-
-        // Terapkan urutan
-        if (window.homeCardOrder.length > 0) {
-            allAccs = applyCardOrder(allAccs, window.homeCardOrder);
-        }
-
-        document.getElementById('home-drag-hint').style.display = 'flex';
+        // Urutan berdasarkan jarak posting terlama — tidak pakai card order override
+        document.getElementById('home-drag-hint').style.display = 'none';
 
         const fragment = document.createDocumentFragment();
         allAccs.forEach((akun) => {
@@ -1391,6 +1398,17 @@
             const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
             const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
             let items, scanBadge = '';
+
+            // Cari tanggal posting terakhir akun ini (lintas semua kota)
+            const accHitsHome = (window.dbHistory || []).filter(h => h.acc === akun.name);
+            let lastPostBadge = '';
+            if (accHitsHome.length > 0) {
+                let latestHit = accHitsHome.reduce((a, b) => ((b.timestamp||0) > (a.timestamp||0) ? b : a));
+                lastPostBadge = `<span style="font-size:9px;color:#e06c00;font-weight:600;display:block;margin-top:2px;">📅 Terakhir: ${latestHit.date}${latestHit.time ? ' ' + latestHit.time : ''}</span>`;
+            } else {
+                lastPostBadge = `<span style="font-size:9px;color:#aaa;display:block;margin-top:2px;">📅 Belum pernah posting</span>`;
+            }
+
             if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
                 items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
                 const scanTime = scanEntry.lastScan
@@ -1420,6 +1438,7 @@
                         <div class="acc-name">${akun.name}</div>
                         <div class="status-badge ${statusClass}">${statusLabel}</div>
                         ${scanBadge}
+                        ${lastPostBadge}
                         <span style="font-size:9px;color:#999;display:block;margin-top:1px;">${akun.sourceLabel}</span>
                     </div>
                     <i class="fas fa-chevron-down arrow-icon"></i>
