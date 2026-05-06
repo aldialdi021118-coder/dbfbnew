@@ -650,11 +650,12 @@
     window.currentRecoveryPhase = 3; // ✅ NEW: active sub-tab phase
     window.fewfeedScanData = {};
     window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
-    window._blockingTarget = null; // target akun yang sedang dicek di blocking modal
-    window._disbanStatusTarget = null; // target akun di disban untuk ubah status
-    window.tabPlacements = {};   // { safeKey: { tab: 'fanpage'|'secondary', parentAcc: 'NAME' } }
-    window.currentFSSubTab = 'fanpage'; // active subtab di tab-9
-    window._moveTabTarget = null; // { index, dbRefName, accName }
+    window._blockingTarget = null;
+    window._disbanStatusTarget = null;
+    window.tabPlacements = {};
+    window.currentFSSubTab = 'fanpage';
+    window._moveTabTarget = null;
+    window.deletedAccounts = {}; // { safeKey: true } — disimpan di DB2
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
     window.homeCardOrder    = [];
     window.fanpageCardOrder = [];
@@ -784,6 +785,12 @@
             window.dbHistory = data ? Object.entries(data).map(([key, val]) => ({...val, fbKey: key})) : [];
             window.dbHistory.sort((a, b) => b.timestamp - a.timestamp);
 
+            // ✅ Re-render Home & FS agar sort "terlama posting" langsung aktif
+            renderHomeTab();
+            if (document.getElementById('tab-9') && document.getElementById('tab-9').classList.contains('active')) {
+                renderFSTab();
+            }
+
             if(document.getElementById('tab-3').classList.contains('active')) {
                 renderHistoryTab();
             }
@@ -845,6 +852,7 @@
         const d = snap || {};
         window.accountOverrides = d.accountOverrides || {};
         window.tabPlacements = d.tabPlacements || {};
+        window.deletedAccounts = d.deletedAccounts || {};
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -903,10 +911,15 @@
                 window.recoveryQueue = snapRec.val() || {};
                 if (document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
             });
-            // ✅ NEW: real-time listener tab placements dari DB2
+            // ✅ Real-time listener tab placements dari DB2
             db2.ref('tabPlacements').on('value', snapTP => {
                 window.tabPlacements = snapTP.val() || {};
                 refreshAllTabs('tabPlacements');
+            });
+            // ✅ Real-time listener deleted accounts dari DB2
+            db2.ref('deletedAccounts').on('value', snapDel => {
+                window.deletedAccounts = snapDel.val() || {};
+                refreshAllTabs('deletedAccounts');
             });
         })
         .catch(err => {
@@ -1050,8 +1063,12 @@
     window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
         if(showLoading) { alert("Sedang mengupload... Jangan tutup halaman."); }
         
+        // Bersihkan null/undefined slot — Firebase akan strip null dan geser index
+        // sehingga menyebabkan data kembali setelah reload. Filter null dulu.
+        const cleaned = (dataArray || []).filter(item => item !== null && item !== undefined);
+
         // Deep clone supaya tidak ada reference conflict dengan Firebase listener
-        const cloned = JSON.parse(JSON.stringify(dataArray || []));
+        const cloned = JSON.parse(JSON.stringify(cleaned));
         
         // Update window variable LANGSUNG dengan data terbaru
         window[dbKey] = cloned;
@@ -1193,7 +1210,9 @@
         const collect = (arr, dbRefName, label) => {
             if(!arr) return;
             arr.forEach((acc, idx) => {
-                // ✅ Cek status efektif dari DB2 override
+                if (!acc) return;
+                const sk = getSafeKey(acc.name);
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
                 if(getEffectiveStatus(acc) === 'disban') {
                     allDisban.push({ ...acc, status: getEffectiveStatus(acc), originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
@@ -1210,6 +1229,9 @@
         const collect = (arr, dbRefName, label) => {
             if(!arr) return;
             arr.forEach((acc, idx) => {
+                if (!acc) return;
+                const sk = getSafeKey(acc.name);
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
                 if(getEffectiveStatus(acc) === 'blocking') {
                     allBlocking.push({ ...acc, status: 'blocking', originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
@@ -1611,7 +1633,10 @@
         let result = [];
         allDbDefs.forEach(def => {
             (window[def.key] || []).forEach((acc, idx) => {
-                if (acc) result.push({ ...acc, originalIdx: idx, originalDb: def.key, sourceLabel: def.label });
+                if (!acc) return;
+                const sk = getSafeKey(acc.name);
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return; // skip deleted
+                result.push({ ...acc, originalIdx: idx, originalDb: def.key, sourceLabel: def.label });
             });
         });
         return result;
@@ -1651,8 +1676,9 @@
 
         // ✅ Sort: tanggal posting terlama (paling jarang diposting) paling atas
         function getLastPostTs(accName) {
-            const hits = (window.dbHistory || []).filter(h => h.acc === accName);
-            if (!hits.length) return 0; // belum pernah diposting = tampil paling atas
+            const upper = (accName || '').toUpperCase();
+            const hits = (window.dbHistory || []).filter(h => h.acc && h.acc.toUpperCase() === upper);
+            if (!hits.length) return 0; // belum pernah posting = tampil paling atas
             let maxTs = 0;
             hits.forEach(h => { if (h.timestamp && h.timestamp > maxTs) maxTs = h.timestamp; });
             return maxTs;
@@ -2338,10 +2364,13 @@
     }
 
     window.askDeleteAccount = function(index, dbRefName) {
-        window.pendingAction = { index, dbRefName };
+        // Ambil nama akun dari array langsung (lebih aman dari index)
+        const acc = (window[dbRefName] || [])[index];
+        const accName = acc ? acc.name : null;
+        window.pendingAction = { index, dbRefName, accName };
         window.pendingActionType = 'delete_account';
         document.getElementById('confirmTitle').innerText = "Hapus Akun?";
-        document.getElementById('confirmDesc').innerText = "Yakin ingin menghapus akun ini secara permanen?";
+        document.getElementById('confirmDesc').innerText = `Yakin ingin menghapus akun "${accName || 'ini'}" secara permanen?`;
         const btnYes = document.getElementById('btnConfirmYes'); btnYes.innerText = "Ya, Hapus"; btnYes.className = "btn-action btn-yes danger";
         document.getElementById('confirmModal').classList.add('show');
     }
@@ -2459,9 +2488,27 @@
             closeModal(null, 'confirmModal', true); 
             window.pendingAction = null; 
         } else if (window.pendingActionType === 'delete_account' && window.pendingAction) {
-            const { index, dbRefName } = window.pendingAction;
-            let targetDb = JSON.parse(JSON.stringify(window[dbRefName] || []));
-            if (targetDb) { targetDb.splice(index, 1); saveToFirebase(dbRefName, targetDb); }
+            const { dbRefName, accName } = window.pendingAction;
+            if (accName) {
+                const safeKey = getSafeKey(accName);
+                // Tandai sebagai deleted di DB2 — tidak menyentuh DB1 sama sekali
+                // sehingga tidak terpengaruh jika DB1 dioverwrite sistem eksternal
+                window.deletedAccounts[safeKey] = true;
+                db2.ref('deletedAccounts/' + safeKey).set(true)
+                    .catch(e => alert('Gagal hapus: ' + e.message));
+                // Bersihkan data terkait di DB2
+                db2.ref('accountOverrides/' + safeKey).remove();
+                db.ref('disbanTimers/' + safeKey).remove();
+                db.ref('accountRecovery/' + safeKey).remove();
+                db2.ref('recoveryQueue/' + safeKey).remove();
+                db2.ref('tabPlacements/' + safeKey).remove();
+                delete window.accountOverrides[safeKey];
+                delete window.disbanTimers[safeKey];
+                delete window.accountRecovery[safeKey];
+                delete window.recoveryQueue[safeKey];
+                delete window.tabPlacements[safeKey];
+                refreshAllTabs('delete');
+            }
             closeModal(null, 'confirmModal', true);
             window.pendingAction = null;
         } else if (window.pendingActionType === 'delete_specific_history' && window.pendingAction) {
@@ -2906,6 +2953,7 @@
             (window[dbKey] || []).forEach((acc, idx) => {
                 if (!acc || !acc.name) return;
                 const sk = getSafeKey(acc.name);
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
                 const tp = window.tabPlacements[sk];
                 if (tp && tp.tab === subTab) {
                     allAccs.push({ ...acc, originalIdx: idx, originalDb: dbKey, parentAcc: tp.parentAcc || '' });
@@ -2935,7 +2983,36 @@
             else if(effStatus === 'blocking') { statusLabel = 'BLOCKING'; statusClass = 'badge-blocking'; }
             else { statusLabel = 'DISBAN'; statusClass = 'badge-disban'; }
 
-            const items = akun.items || [];
+            const keyAkun = akun.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            const scanEntry = window.fewfeedScanData && window.fewfeedScanData[keyAkun];
+            let items, scanBadge = '';
+
+            // Cari posting terakhir akun ini
+            const accHitsFS = (window.dbHistory || []).filter(h => h.acc && h.acc.toUpperCase() === akun.name.toUpperCase());
+            let lastPostBadge = '';
+            if (accHitsFS.length > 0) {
+                let latestHit = accHitsFS.reduce((a, b) => ((b.timestamp||0) > (a.timestamp||0) ? b : a));
+                lastPostBadge = `<span style="font-size:9px;color:#e06c00;font-weight:600;display:block;margin-top:2px;">📅 Terakhir: ${latestHit.date}${latestHit.time ? ' ' + latestHit.time : ''}</span>`;
+            } else {
+                lastPostBadge = `<span style="font-size:9px;color:#aaa;display:block;margin-top:2px;">📅 Belum pernah posting</span>`;
+            }
+
+            // Prioritas: scan data → DB items (sama persis dengan Home tab)
+            if (scanEntry && scanEntry.cities && scanEntry.cities.length > 0) {
+                items = scanEntry.cities.map(c => ({ city: c.label, val: c.count }));
+                const scanTime = scanEntry.lastScan
+                    ? new Date(scanEntry.lastScan).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                    : '';
+                scanBadge = `<span style="font-size:9px;color:#36a420;font-weight:600;margin-left:4px;">⚡ Scan ${scanTime}</span>`;
+            } else {
+                items = akun.items || [];
+            }
+
+            const browserIcon = getBrowserIcon(akun);
+            const parentLabel = akun.parentAcc
+                ? `<span class="acc-parent-label">↳ from ${akun.parentAcc}</span>`
+                : '';
+
             let listHTML = items.map(item => {
                 const lastDate = getLastPostDate(akun.name, item.city);
                 return `<div class="data-item" onclick="openRangeModal('${item.city}', ${item.val}, '${akun.name}', '${effStatus}', '${dbRefName}')">
@@ -2944,11 +3021,6 @@
                 </div>`;
             }).join('');
 
-            const browserIcon = getBrowserIcon(akun);
-            const parentLabel = akun.parentAcc
-                ? `<span class="acc-parent-label">↳ from ${akun.parentAcc}</span>`
-                : '';
-
             card.innerHTML = `
                 <div class="account-header">
                     <div class="browser-icon-circle">${browserIcon}</div>
@@ -2956,6 +3028,8 @@
                         <div class="acc-name">${akun.name}</div>
                         ${parentLabel}
                         <div class="status-badge ${statusClass}">${statusLabel}</div>
+                        ${scanBadge}
+                        ${lastPostBadge}
                     </div>
                     <i class="fas fa-chevron-down arrow-icon"></i>
                 </div>
