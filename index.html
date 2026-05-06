@@ -359,6 +359,19 @@
         .btn-move-tab { background: #E7F3FF; color: #1877F2; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 7px 10px; transition: 0.2s; }
         .btn-move-tab:active { transform: scale(0.97); }
         .move-tab-wrap { padding: 0 10px 6px; display: flex; gap: 6px; }
+
+        /* === TRANSFER TO MOBILE === */
+        .btn-transfer-mobile { background: linear-gradient(135deg, #1877F2, #0a5dc2); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 8px 12px; transition: 0.2s; width: 100%; justify-content: center; margin: 0 10px 10px; box-shadow: 0 2px 6px rgba(24,119,242,0.3); }
+        .btn-transfer-mobile:active { transform: scale(0.97); }
+        .transfer-mobile-wrap { padding: 0 10px 10px; }
+        .android-device-btn { flex: 1; padding: 10px; border: 2px solid #e4e6eb; border-radius: 8px; background: white; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; }
+        .android-device-btn:hover, .android-device-btn.selected { border-color: #1877F2; background: #e7f3ff; color: #1877F2; }
+        .android-device-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .android-browser-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 200px; overflow-y: auto; }
+        .android-browser-btn { padding: 8px; border: 1.5px solid #e4e6eb; border-radius: 7px; background: white; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+        .android-browser-btn:hover, .android-browser-btn.selected { border-color: #1877F2; background: #e7f3ff; color: #1877F2; }
+        .transfer-acc-name-badge { background: #e7f3ff; color: #1877F2; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+        .transfer-already-badge { font-size: 10px; color: #36a420; font-weight: 700; background: #e7f9e7; padding: 3px 8px; border-radius: 10px; margin-left: 6px; }
     </style>
 </head>
 <body>
@@ -582,6 +595,34 @@
         </div>
     </div>
 
+    <!-- Modal Transfer ke Mobile -->
+    <div class="modal-overlay" id="transferMobileModal" onclick="closeModal(event,'transferMobileModal')">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">
+                <div class="modal-title">📱 Transfer ke Mobile</div>
+                <div class="modal-subtitle" id="transferMobileAccName" style="font-weight:700;color:#1877F2;"></div>
+            </div>
+            <div class="modal-body">
+                <div class="transfer-acc-name-badge" id="transferMobileAccBadge"></div>
+                <div class="form-group">
+                    <label class="form-label">Pilih Perangkat</label>
+                    <div class="android-device-row">
+                        <button class="android-device-btn" id="dev-POCO" onclick="selectTransferDevice('POCO')">📱 POCO</button>
+                        <button class="android-device-btn" id="dev-SAMSUNG" onclick="selectTransferDevice('SAMSUNG')">📱 SAMSUNG</button>
+                        <button class="android-device-btn" id="dev-XPAD" onclick="selectTransferDevice('XPAD')">📱 XPAD</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pilih Browser</label>
+                    <div class="android-browser-grid" id="androidBrowserGrid"></div>
+                </div>
+                <button class="btn-submit" onclick="submitTransferMobile()" style="margin-top:12px;">Transfer Sekarang</button>
+                <button style="margin-top:8px;width:100%;background:#fee2e2;color:#fa3e3e;border:none;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;display:none;" id="btn-remove-android" onclick="removeFromAndroid()">🗑️ Hapus dari Mobile</button>
+            </div>
+            <button class="btn-close" onclick="closeModal(null,'transferMobileModal',true)">Batal</button>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
         <div class="nav-item" onclick="switchTab(9)" style="color:#1877F2;"><i class="fas fa-layer-group"></i></div>
@@ -656,6 +697,7 @@
     window.currentFSSubTab = 'fanpage';
     window._moveTabTarget = null;
     window.deletedAccounts = {}; // { safeKey: true } — disimpan di DB2
+    window.androidAccounts = {}; // { safeKey: { device, browser, accName } } — disimpan di DB2
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
     window.homeCardOrder    = [];
     window.fanpageCardOrder = [];
@@ -853,6 +895,7 @@
         window.accountOverrides = d.accountOverrides || {};
         window.tabPlacements = d.tabPlacements || {};
         window.deletedAccounts = d.deletedAccounts || {};
+        window.androidAccounts = d.androidAccounts || {};
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -920,6 +963,11 @@
             db2.ref('deletedAccounts').on('value', snapDel => {
                 window.deletedAccounts = snapDel.val() || {};
                 refreshAllTabs('deletedAccounts');
+            });
+            // ✅ Real-time listener androidAccounts dari DB2
+            db2.ref('androidAccounts').on('value', snapAnd => {
+                window.androidAccounts = snapAnd.val() || {};
+                refreshAllTabs('androidAccounts');
             });
         })
         .catch(err => {
@@ -1783,6 +1831,12 @@
                         </button>
                         <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${akun.name}')">
                             <i class="fas fa-layer-group"></i> Pindah Tab
+                        </button>
+                    </div>
+                    <div class="transfer-mobile-wrap">
+                        <button class="btn-transfer-mobile" onclick="openTransferMobileModal('${akun.name.replace(/'/g,"\\'")}')">
+                            <i class="fas fa-mobile-alt"></i> Transfer ke Mobile
+                            ${(window.androidAccounts && window.androidAccounts[getSafeKey(akun.name)]) ? `<span class="transfer-already-badge">✓ ${window.androidAccounts[getSafeKey(akun.name)].device}</span>` : ''}
                         </button>
                     </div>
                 </div>
@@ -3140,6 +3194,108 @@
         refreshAllTabs('moveTab');
         closeModal(null, 'moveTabModal', true);
         window._moveTabTarget = null;
+    };
+
+    // ============================================================
+    // TRANSFER KE MOBILE (fbandroid.html)
+    // ============================================================
+    const ANDROID_BROWSERS = [
+        'quetta','kiwibrowser','lemur browser','hu browser','mask browser',
+        'chromite','mises browser','quetta clone','kiwi clone','lemur clone',
+        'hu clone','mask clone','chromite clone','mises clone'
+    ];
+
+    window._transferMobileTarget = null;
+    window._selectedTransferDevice = null;
+    window._selectedTransferBrowser = null;
+
+    window.openTransferMobileModal = function(accName) {
+        window._transferMobileTarget = accName;
+        window._selectedTransferDevice = null;
+        window._selectedTransferBrowser = null;
+        document.getElementById('transferMobileAccName').textContent = accName;
+        document.getElementById('transferMobileAccBadge').textContent = accName;
+
+        // Reset device buttons
+        ['POCO','SAMSUNG','XPAD'].forEach(d => {
+            const btn = document.getElementById('dev-' + d);
+            if (btn) btn.className = 'android-device-btn';
+        });
+
+        // Render browser buttons
+        const grid = document.getElementById('androidBrowserGrid');
+        grid.innerHTML = ANDROID_BROWSERS.map(b =>
+            `<button class="android-browser-btn" id="abr-${b.replace(/ /g,'-')}" onclick="selectTransferBrowser('${b}')">${b}</button>`
+        ).join('');
+
+        // Check if already transferred
+        const sk = getSafeKey(accName);
+        const existing = window.androidAccounts && window.androidAccounts[sk];
+        const removeBtn = document.getElementById('btn-remove-android');
+        if (existing) {
+            removeBtn.style.display = 'block';
+            // Pre-select existing device & browser
+            selectTransferDevice(existing.device);
+            selectTransferBrowser(existing.browser);
+        } else {
+            removeBtn.style.display = 'none';
+        }
+
+        document.getElementById('transferMobileModal').classList.add('show');
+    };
+
+    window.selectTransferDevice = function(device) {
+        window._selectedTransferDevice = device;
+        ['POCO','SAMSUNG','XPAD'].forEach(d => {
+            const btn = document.getElementById('dev-' + d);
+            if (btn) btn.className = 'android-device-btn' + (d === device ? ' selected' : '');
+        });
+    };
+
+    window.selectTransferBrowser = function(browser) {
+        window._selectedTransferBrowser = browser;
+        ANDROID_BROWSERS.forEach(b => {
+            const btn = document.getElementById('abr-' + b.replace(/ /g,'-'));
+            if (btn) btn.className = 'android-browser-btn' + (b === browser ? ' selected' : '');
+        });
+    };
+
+    window.submitTransferMobile = function() {
+        const accName = window._transferMobileTarget;
+        if (!accName) return;
+        if (!window._selectedTransferDevice) { alert('Pilih perangkat terlebih dahulu.'); return; }
+        if (!window._selectedTransferBrowser) { alert('Pilih browser terlebih dahulu.'); return; }
+
+        const sk = getSafeKey(accName);
+        const entry = {
+            accName: accName,
+            device: window._selectedTransferDevice,
+            browser: window._selectedTransferBrowser,
+            transferredAt: Date.now()
+        };
+        window.androidAccounts[sk] = entry;
+        db2.ref('androidAccounts/' + sk).set(entry)
+            .then(() => {
+                alert(`✅ ${accName} berhasil ditransfer ke ${entry.device} dengan browser ${entry.browser}.`);
+                refreshAllTabs('androidAccounts');
+            })
+            .catch(e => alert('Gagal transfer: ' + e.message));
+
+        closeModal(null, 'transferMobileModal', true);
+        window._transferMobileTarget = null;
+    };
+
+    window.removeFromAndroid = function() {
+        const accName = window._transferMobileTarget;
+        if (!accName) return;
+        if (!confirm(`Hapus ${accName} dari Mobile?`)) return;
+        const sk = getSafeKey(accName);
+        delete window.androidAccounts[sk];
+        db2.ref('androidAccounts/' + sk).remove()
+            .then(() => refreshAllTabs('androidAccounts'))
+            .catch(e => alert('Gagal hapus: ' + e.message));
+        closeModal(null, 'transferMobileModal', true);
+        window._transferMobileTarget = null;
     };
 
     window.switchTab = function(n) {
