@@ -1213,6 +1213,9 @@
                 if (!acc) return;
                 const sk = getSafeKey(acc.name);
                 if (window.deletedAccounts && window.deletedAccounts[sk]) return;
+                // Akun di Fanpage/Secondary punya status mandiri — jangan masuk Disban tab
+                const tp = window.tabPlacements && window.tabPlacements[sk];
+                if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return;
                 if(getEffectiveStatus(acc) === 'disban') {
                     allDisban.push({ ...acc, status: getEffectiveStatus(acc), originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
@@ -1232,6 +1235,9 @@
                 if (!acc) return;
                 const sk = getSafeKey(acc.name);
                 if (window.deletedAccounts && window.deletedAccounts[sk]) return;
+                // Akun di Fanpage/Secondary punya status mandiri — jangan masuk Blocking tab
+                const tp = window.tabPlacements && window.tabPlacements[sk];
+                if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return;
                 if(getEffectiveStatus(acc) === 'blocking') {
                     allBlocking.push({ ...acc, status: 'blocking', originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
@@ -1635,7 +1641,10 @@
             (window[def.key] || []).forEach((acc, idx) => {
                 if (!acc) return;
                 const sk = getSafeKey(acc.name);
-                if (window.deletedAccounts && window.deletedAccounts[sk]) return; // skip deleted
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
+                // Akun di Fanpage/Secondary hanya muncul di tab-9, bukan Home
+                const tp = window.tabPlacements && window.tabPlacements[sk];
+                if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return;
                 result.push({ ...acc, originalIdx: idx, originalDb: def.key, sourceLabel: def.label });
             });
         });
