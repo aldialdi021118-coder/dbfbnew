@@ -164,6 +164,7 @@
             .data-grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
             .data-item { padding: 6px 10px; }
             .card-actions { flex-direction: row; gap: 6px; padding: 8px; flex-wrap: wrap; }
+            .desktop-only-accinfo { display: block !important; }
             .bottom-nav { bottom: auto; left: auto; border-top: none; top: 0; right: 0; bottom: 0; width: 85px; height: 100vh; flex-direction: column; justify-content: center; align-items: stretch; background: rgba(255, 255, 255, 0.98); border-left: 1px solid #e4e6eb; transform: translateX(100%); transition: transform 0.4s; padding: 0; gap: 0; position: fixed; }
             .nav-item { width: 100%; margin: 0; border-radius: 0; font-size: 24px; }
             .nav-item:hover { background-color: #F2F4F7; color: var(--fb-blue); }
@@ -359,6 +360,46 @@
         .btn-move-tab { background: #E7F3FF; color: #1877F2; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 7px 10px; transition: 0.2s; }
         .btn-move-tab:active { transform: scale(0.97); }
         .move-tab-wrap { padding: 0 10px 6px; display: flex; gap: 6px; }
+
+        /* === RANGE SIZE SELECTOR PER AKUN === */
+        .range-size-wrap { display: flex; gap: 4px; margin-top: 5px; flex-wrap: nowrap; }
+        .btn-range-size { border: 1.5px solid #e4e6eb; background: white; color: var(--text-secondary); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 5px; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+        .btn-range-size.rs-active { border-color: var(--fb-blue); background: #e7f3ff; color: var(--fb-blue); }
+        .btn-range-size:active { transform: scale(0.93); }
+
+        /* Mobile: collapsed → tampil scan+lastpost, sembunyikan tombol range */
+        /* Mobile: expanded  → sembunyikan scan+lastpost, tampil tombol range  */
+        @media (max-width: 899px) {
+            .acc-header-scanpost { display: block; }
+            .mobile-only-scanpost { display: inline; }
+            .acc-header-range-size { display: none; }
+            .account-card.active .acc-header-scanpost { display: none; }
+            .account-card.active .acc-header-range-size { display: flex; }
+            .range-size-desktop-wrap { display: none !important; }
+            .desktop-only-accinfo { display: none !important; }
+        }
+        /* Desktop: scan+lastpost selalu tampil di header, tombol range di footer */
+        @media (min-width: 900px) {
+            .acc-header-range-size { display: none !important; }
+            .acc-header-scanpost { display: block !important; }
+            .mobile-only-scanpost { display: none !important; }
+            .range-size-desktop-wrap { display: block; padding: 6px 10px 8px; border-top: 1px solid #f0f2f5; }
+            .mobile-only-accinfo { display: none !important; }
+            .account-data-container { max-height: none !important; overflow: visible; background: #fff; }
+            .data-grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
+            .data-item { padding: 6px 10px; }
+            .card-actions { flex-direction: row; gap: 6px; padding: 8px; flex-wrap: wrap; }
+            .desktop-only-accinfo { display: block !important; }
+        }
+        /* Partial range fill bar */
+        .range-btn { position: relative; overflow: hidden; }
+        .range-partial-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, rgba(24,119,242,0.18), rgba(24,119,242,0.08)); pointer-events: none; z-index: 0; border-radius: inherit; }
+        .range-btn > * { position: relative; z-index: 1; }
+        .range-btn.partial .range-label { color: #1877F2 !important; }
+        .range-btn.partial { border: 1px solid rgba(24,119,242,0.3) !important; }
+        /* Done via range lebih besar — tampil hijau sedikit lebih redup */
+        .range-btn.covered-by-bigger { opacity: 0.88; }
+        .range-btn.covered-by-bigger .range-label::before { content: "✓ "; }
 
         /* === TRANSFER TO MOBILE === */
         .btn-transfer-mobile { background: linear-gradient(135deg, #1877F2, #0a5dc2); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 8px 12px; transition: 0.2s; width: 100%; justify-content: center; margin: 0 10px 10px; box-shadow: 0 2px 6px rgba(24,119,242,0.3); }
@@ -698,6 +739,7 @@
     window._moveTabTarget = null;
     window.deletedAccounts = {}; // { safeKey: true } — disimpan di DB2
     window.androidAccounts = {}; // { safeKey: { device, browser, accName } } — disimpan di DB2
+    window.accountRangeSizes = {}; // { safeKey: 5|10|15|20 } — per-akun range size preference
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
     window.homeCardOrder    = [];
     window.fanpageCardOrder = [];
@@ -896,6 +938,7 @@
         window.tabPlacements = d.tabPlacements || {};
         window.deletedAccounts = d.deletedAccounts || {};
         window.androidAccounts = d.androidAccounts || {};
+        window.accountRangeSizes = d.accountRangeSizes || {};
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -968,6 +1011,12 @@
             db2.ref('androidAccounts').on('value', snapAnd => {
                 window.androidAccounts = snapAnd.val() || {};
                 refreshAllTabs('androidAccounts');
+            });
+            // ✅ Real-time listener accountRangeSizes dari DB2
+            db2.ref('accountRangeSizes').on('value', snapRS => {
+                window.accountRangeSizes = snapRS.val() || {};
+                // Re-render tanpa full refresh (hanya visual tombol)
+                if (window.db2Ready) refreshAllTabs('accountRangeSizes');
             });
         })
         .catch(err => {
@@ -1106,6 +1155,38 @@
         const container = document.getElementById(containerId);
         container.innerHTML = `<div class="empty-state">Data Kosong. Silahkan Tambah Akun Baru.</div>`;
     }
+
+    // ============================================================
+    // RANGE SIZE PER AKUN (5 / 10 / 15 / 20 grup per range)
+    // Disimpan di DB2 → accountRangeSizes/<safeKey>
+    // ============================================================
+    window.getAccountRangeSize = function(accName) {
+        const sk = getSafeKey(accName);
+        return window.accountRangeSizes[sk] || 20;
+    };
+
+    window.setAccountRangeSize = function(accName, size) {
+        const sk = getSafeKey(accName);
+        window.accountRangeSizes[sk] = size;
+        db2.ref('accountRangeSizes/' + sk).set(size)
+            .catch(e => console.warn('Gagal simpan range size:', e.message));
+        // Re-render cards supaya tombol aktif langsung update
+        refreshAllTabs('rangeSizeChange');
+        // Jika modal range sedang terbuka untuk akun ini, refresh modal
+        if (window.currentOpenModalParams && window.currentOpenModalParams.acc === accName) {
+            const p = window.currentOpenModalParams;
+            openRangeModal(p.city, p.val, p.acc, p.status, p.db);
+        }
+    };
+
+    // --- HELPERS RENDER RANGE SIZE BUTTONS ---
+    window.renderRangeSizeBtns = function(accName) {
+        const curSize = window.getAccountRangeSize(accName);
+        const safeEsc = accName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        return [5,10,15,20].map(s =>
+            `<button class="btn-range-size${s===curSize?' rs-active':''}" onclick="event.stopPropagation();setAccountRangeSize('${safeEsc}',${s})">${s}</button>`
+        ).join('');
+    };
 
     // --- 6. FIREBASE UPDATE (WRITE) ---
     window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
@@ -1809,11 +1890,20 @@
                     <span class="drag-handle" title="Geser untuk memindahkan"><i class="fas fa-grip-vertical"></i></span>
                     <div class="browser-icon-circle">${browserIcon}</div>
                     <div class="acc-info">
-                        <div class="acc-name">${akun.name}</div>
-                        <div class="status-badge ${statusClass}">${statusLabel}</div>
-                        ${scanBadge}
-                        ${lastPostBadge}
-                        <span style="font-size:9px;color:#999;display:block;margin-top:1px;">${akun.sourceLabel}</span>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <div class="acc-name">${akun.name}</div>
+                            <div class="status-badge ${statusClass}">${statusLabel}</div>
+                        </div>
+                        <div class="acc-header-scanpost">
+                            <span class="desktop-only-accinfo">${scanBadge}</span>
+                            <span class="desktop-only-accinfo">${lastPostBadge}</span>
+                            <span class="desktop-only-accinfo" style="font-size:9px;color:#999;display:block;margin-top:1px;">${akun.sourceLabel}</span>
+                            <span class="mobile-only-scanpost">${scanBadge}</span>
+                            <span class="mobile-only-scanpost">${lastPostBadge}</span>
+                        </div>
+                        <div class="range-size-wrap acc-header-range-size">
+                            ${renderRangeSizeBtns(akun.name)}
+                        </div>
                     </div>
                     <i class="fas fa-chevron-down arrow-icon"></i>
                 </div>
@@ -1838,6 +1928,10 @@
                             <i class="fas fa-mobile-alt"></i> Transfer ke Mobile
                             ${(window.androidAccounts && window.androidAccounts[getSafeKey(akun.name)]) ? `<span class="transfer-already-badge">✓ ${window.androidAccounts[getSafeKey(akun.name)].device}</span>` : ''}
                         </button>
+                    </div>
+                    <div class="range-size-desktop-wrap">
+                        <div style="font-size:9px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">RANGE PER POSTING:</div>
+                        <div class="range-size-wrap">${renderRangeSizeBtns(akun.name)}</div>
                     </div>
                 </div>
             `;
@@ -2160,7 +2254,19 @@
                 <div class="account-header">
                     <span class="drag-handle" title="Geser untuk memindahkan"><i class="fas fa-grip-vertical"></i></span>
                     <div class="browser-icon-circle">${browserIcon}</div>
-                    <div class="acc-info"><div class="acc-name">${akun.name}</div><div class="status-badge ${statusClass}">${statusLabel}</div>${scanBadge}</div>
+                    <div class="acc-info">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <div class="acc-name">${akun.name}</div>
+                            <div class="status-badge ${statusClass}">${statusLabel}</div>
+                        </div>
+                        <div class="acc-header-scanpost">
+                            <span class="desktop-only-accinfo">${scanBadge}</span>
+                            <span class="mobile-only-scanpost">${scanBadge}</span>
+                        </div>
+                        <div class="range-size-wrap acc-header-range-size">
+                            ${renderRangeSizeBtns(akun.name)}
+                        </div>
+                    </div>
                     <i class="fas fa-chevron-down arrow-icon"></i>
                 </div>
                 <div class="account-data-container">
@@ -2170,6 +2276,10 @@
                         <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit Angka</button>
                         <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Tambah Kota</button>
                         <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                    <div class="range-size-desktop-wrap">
+                        <div style="font-size:9px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">RANGE PER POSTING:</div>
+                        <div class="range-size-wrap">${renderRangeSizeBtns(akun.name)}</div>
                     </div>
                 </div>
             `;
@@ -2339,16 +2449,67 @@
     }
 
     // --- 10. HISTORY & DELETE LOGIC ---
-    window.getHistory = function(accName, city, rangeIndex) { 
+    window.getHistory = function(accName, city, rangeIndex, rangeSize) { 
+        if (rangeSize) {
+            // Cari dengan rangeSize matching (akurat)
+            const found = window.dbHistory.find(item =>
+                item.acc === accName && item.city === city && item.range == rangeIndex &&
+                (item.rangeSize === rangeSize || (!item.rangeSize && rangeSize === 20))
+            );
+            if (found) return `${found.date} ${found.time}`;
+            // Fallback: cek format lama tanpa rangeSize
+            const fallback = window.dbHistory.find(item => item.id === `${accName}|${city}|${rangeIndex}` && !item.rangeSize);
+            return fallback ? `${fallback.date} ${fallback.time}` : null;
+        }
         const idToCheck = `${accName}|${city}|${rangeIndex}`;
         const found = window.dbHistory.find(item => item.id === idToCheck);
         return found ? `${found.date} ${found.time}` : null; 
     }
 
+    // Hitung persentase partial completion untuk range [min, max] berdasarkan history range kecil
+    window.getRangePartialPercent = function(accName, city, min, max, curSize) {
+        let coveredGroups = 0;
+        const total = max - min + 1;
+        window.dbHistory.forEach(h => {
+            if (h.acc !== accName || h.city !== city) return;
+            if (h.range === 'all') return; // skip "posting semua"
+            const hSize = h.rangeSize || 20;
+            if (hSize >= curSize) return; // hanya hitung yang lebih kecil dari ukuran sekarang
+            const hMin = (h.range - 1) * hSize + 1;
+            const hMax = h.range * hSize;
+            const overMin = Math.max(hMin, min);
+            const overMax = Math.min(hMax, max);
+            if (overMin <= overMax) coveredGroups += overMax - overMin + 1;
+        });
+        return Math.min(100, Math.round((coveredGroups / total) * 100));
+    };
+
+    // Cek apakah range [min, max] sudah fully ter-cover oleh range yang LEBIH BESAR yang sudah done
+    // Contoh: range 1-20 sudah done → pindah ke size 5, range 1-5, 6-10, 11-15, 16-20 semua done
+    window.getCoveringEntry = function(accName, city, min, max, curSize) {
+        // Cek "posting semua"
+        const allEntry = window.dbHistory.find(h =>
+            h.acc === accName && h.city === city && h.range === 'all'
+        );
+        if (allEntry) return allEntry;
+
+        // Cek range yang lebih besar yang mencakup [min, max] sepenuhnya
+        return window.dbHistory.find(h => {
+            if (h.acc !== accName || h.city !== city) return false;
+            if (h.range === 'all') return false;
+            const hSize = h.rangeSize || 20;
+            if (hSize <= curSize) return false; // hanya cek yang lebih besar
+            const hMin = (h.range - 1) * hSize + 1;
+            const hMax = h.range * hSize;
+            return hMin <= min && hMax >= max; // fully mencakup range saat ini
+        }) || null;
+    };
+
     window.saveHistory = function(accName, city, rangeIndex, actualCount) { 
         const now = new Date(); 
         const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`; 
         const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; 
+        const rangeSize = window.getAccountRangeSize(accName);
         
         const newEntry = {
             id: `${accName}|${city}|${rangeIndex}`, 
@@ -2356,6 +2517,7 @@
             city: city, 
             count: actualCount, 
             range: rangeIndex, 
+            rangeSize: rangeSize,
             date: dateStr, 
             time: timeStr,
             timestamp: firebase.database.ServerValue.TIMESTAMP 
@@ -2444,19 +2606,8 @@
     window.openRangeModal = function(cityName, cityVal, accountName, status, dbRefName) { 
         window.currentOpenModalParams = { city: cityName, val: cityVal, acc: accountName, status: status, db: dbRefName };
         
-        // ✅ Tentukan rangeLimit berdasarkan browser akun
-        // Chromium selain AMIRA, LIORA, YUMI → per 5 grup
-        const CHROMIUM_EXCEPTIONS = ['AMIRA', 'LIORA', 'YUMI'];
-        const allDbs = ['dbUtama1', 'dbSecondary1', 'dbUtama5'];
-        let accObj = null;
-        for (const dbKey of allDbs) {
-            const found = (window[dbKey] || []).find(a => a && a.name === accountName);
-            if (found) { accObj = found; break; }
-        }
-        const browserType = accObj ? getBrowserType(accObj)
-            : (() => { const n = accountName.toUpperCase(); if(browserMap.chromium.includes(n)) return 'chromium'; return 'other'; })();
-        const isChromiumException = CHROMIUM_EXCEPTIONS.includes(accountName.toUpperCase());
-        let rangeLimit = (browserType === 'chromium' && !isChromiumException) ? 5 : 20;
+        // ✅ Gunakan range size per akun (tersimpan di DB2)
+        const rangeLimit = window.getAccountRangeSize(accountName);
 
         const rangesCount = Math.ceil(cityVal / rangeLimit); 
         
@@ -2478,12 +2629,31 @@
             let min = (i-1)*rangeLimit + 1; 
             let max = (i === rangesCount) ? cityVal : i*rangeLimit; 
             let rangeCount = max - min + 1; 
-            const history = getHistory(accountName, cityName, i); 
-            const isDone = history !== null; 
+            const history = getHistory(accountName, cityName, i, rangeLimit); 
             
-            const btn = document.createElement('div'); 
-            btn.className = isDone ? 'range-btn done' : 'range-btn'; 
-            btn.innerHTML = `<span class="range-label">Range ${i}</span><span class="range-desc">${min} - ${max}</span>${isDone ? `<div class="history-info">${history}</div>` : ''}`; 
+            // Cek apakah ter-cover oleh range lebih besar yg sudah done
+            const coveringEntry = !history ? getCoveringEntry(accountName, cityName, min, max, rangeLimit) : null;
+            const isDone = history !== null || coveringEntry !== null;
+            const historyLabel = history || (coveringEntry ? `${coveringEntry.date} ${coveringEntry.time}` : null);
+            const isCoveredByBigger = !history && coveringEntry !== null;
+
+            // Cek partial fill (jika belum fully done sama sekali)
+            let partialPct = 0;
+            if (!isDone) {
+                partialPct = getRangePartialPercent(accountName, cityName, min, max, rangeLimit);
+            }
+            
+            const btn = document.createElement('div');
+            const partialClass = (!isDone && partialPct > 0) ? ' partial' : '';
+            const coveredClass = isCoveredByBigger ? ' covered-by-bigger' : '';
+            btn.className = (isDone ? 'range-btn done' : 'range-btn') + partialClass + coveredClass;
+            btn.innerHTML = `
+                ${(!isDone && partialPct > 0) ? `<div class="range-partial-fill" style="width:${partialPct}%"></div>` : ''}
+                <span class="range-label">Range ${i}</span>
+                <span class="range-desc">${min} - ${max}</span>
+                ${isDone ? `<div class="history-info">${historyLabel}${isCoveredByBigger ? ' <span style="font-size:9px;opacity:0.75">(range besar)</span>' : ''}</div>` : ''}
+                ${(!isDone && partialPct > 0) ? `<div class="history-info" style="color:#1877F2;">${partialPct}% selesai</div>` : ''}
+            `; 
             btn.onclick = () => askConfirmation(accountName, cityName, i, rangeCount, status); 
             modalGrid.appendChild(btn); 
         } 
