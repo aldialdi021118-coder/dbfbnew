@@ -126,6 +126,17 @@
         .recovery-bar-fill { background: #36a420; height: 100%; border-radius: 6px; transition: width 0.4s; }
         .recovery-label { font-size: 9px; color: #36a420; font-weight: 700; margin-top: 2px; }
 
+        /* === RECOVERY CARD BARU === */
+        .recovery-card { display: flex; flex-direction: column; gap: 0; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s; }
+        .recovery-card.ready { border-color: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.15); }
+        .recovery-card-top { display: flex; align-items: center; gap: 8px; padding: 11px 13px; }
+        .recovery-action-row { display: flex; gap: 8px; padding: 8px 12px 10px; border-top: 1px solid #f0f2f5; }
+        .btn-rec-pulih { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
+        .btn-rec-pulih:active { transform: scale(0.97); }
+        .btn-rec-lanjut { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: #fff3cd; color: #b98900; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; border: 1px solid #f7b928; }
+        .btn-rec-lanjut:active { transform: scale(0.97); }
+        .btn-rec-tunggu { flex: 1; padding: 9px 10px; border-radius: 8px; background: #f0f2f5; color: #bbb; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
         /* === TIMER CARD REDESIGN === */
         .timer-card { background: white; border-radius: 16px; padding: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 12px; display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); transition: all 0.3s; }
         .timer-card.ready { border-color: #36a420; box-shadow: 0 4px 16px rgba(54,164,32,0.15); }
@@ -460,11 +471,7 @@
             <div id="history-container" class="history-list"></div><div style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;" id="no-history-msg">Belum ada riwayat postingan.</div>
         </section>
         
-        <section id="tab-4" class="tab-content">
-            <div class="section-header-wrap"><span class="section-title" style="color: var(--danger-color);">ZONA DISBAN (SAMPAH)</span></div>
-            <div id="list-disban" class="grid-container"></div>
-        </section>
-
+        <!-- Tab Disban dihapus — akun disban otomatis masuk Recovery (tab-7) -->
         <section id="tab-5" class="tab-content">
             <div class="section-header-wrap"><span class="section-title">Jadwal Masuk Grup (50 Jam)</span></div>
             <div class="empty-state" style="padding-bottom:10px; font-size:11px;">Timer 50 jam otomatis dimulai dari tanggal akun di-Disban.<br>Akun siap masuk grup setelah waktu habis.</div>
@@ -491,7 +498,7 @@
         </section>
 
         <section id="tab-7" class="tab-content">
-            <div class="section-header-wrap"><span class="section-title" style="color:#059669;">🌿 INKUBASI RECOVERY</span></div>
+            <div class="section-header-wrap"><span class="section-title" style="color:#059669;">🌿 INKUBASI RECOVERY</span><span id="recovery-disban-count" style="font-size:10px;font-weight:700;color:#fa3e3e;background:#fee2e2;padding:3px 8px;border-radius:10px;display:none;"></span></div>
             <div class="recovery-sub-nav">
                 <div class="recovery-sub-btn active" onclick="switchRecoveryPhase(3)" id="btn-rec-3">3 Hari</div>
                 <div class="recovery-sub-btn" onclick="switchRecoveryPhase(7)" id="btn-rec-7">7 Hari</div>
@@ -668,7 +675,7 @@
         <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
         <div class="nav-item" onclick="switchTab(9)" style="color:#1877F2;"><i class="fas fa-layer-group"></i></div>
         <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
-        <div class="nav-item" onclick="switchTab(4)" style="color: var(--danger-color);"><i class="fas fa-ban"></i></div>
+
         <div class="nav-item" onclick="switchTab(7)" style="color:#059669;"><i class="fas fa-seedling"></i></div>
         <div class="nav-item" onclick="switchTab(8)" style="color:#7c3aed;"><i class="fas fa-shield-virus"></i></div>
         <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
@@ -859,6 +866,8 @@
                 }
                 window[dbObj.var] = normalized;
                 refreshAllTabs(dbObj.key);
+                // ✅ Coba migrasi akun disban lama ke recovery setiap kali data akun berubah
+                if (window.db2Ready && window.disbanTimersLoaded) _runDisbanMigration();
                 // ✅ Sync ke DB2
                 syncToDb2(dbObj.key, data);
             });
@@ -915,10 +924,9 @@
         // Listener disban timers
         db.ref('disbanTimers').on('value', (snapshot) => {
             window.disbanTimers = snapshot.val() || {};
-            window.disbanTimersLoaded = true; // ✅ FIX: tandai sudah dimuat dari Firebase
-            if(document.getElementById('tab-4').classList.contains('active')) {
-                window.refreshDisbanTab();
-            }
+            window.disbanTimersLoaded = true;
+            // Setelah disbanTimers siap → coba migrasi akun disban lama ke recovery
+            if (window.db2Ready) _runDisbanMigration();
         });
 
         // Listener account recovery (peringatan → gacor)
@@ -939,6 +947,7 @@
         window.deletedAccounts = d.deletedAccounts || {};
         window.androidAccounts = d.androidAccounts || {};
         window.accountRangeSizes = d.accountRangeSizes || {};
+        window.recoveryQueue = d.recoveryQueue || {}; // ✅ Load recoveryQueue dari DB2
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -1018,6 +1027,9 @@
                 // Re-render tanpa full refresh (hanya visual tombol)
                 if (window.db2Ready) refreshAllTabs('accountRangeSizes');
             });
+
+            // ✅ MIGRASI DISBAN LAMA: jalankan setelah semua data siap (retry sampai berhasil)
+            _scheduleMigrateDisban();
         })
         .catch(err => {
             console.warn('DB2 gagal dimuat, lanjut tanpa override:', err);
@@ -1215,124 +1227,69 @@
             });
     }
 
-    // --- 7. RENDER DISBAN TAB (Tab 4) — SIMPLIFIED + TIMER ---
-    window.refreshDisbanTab = function() {
-        const container = document.getElementById('list-disban');
-        container.innerHTML = '';
-        let allDisban = collectAllDisban();
+    // --- 7. MIGRASI DISBAN LAMA → RECOVERY INKUBASI 3 HARI ---
+    // Memastikan semua akun berstatus disban (lama maupun baru) otomatis
+    // masuk recoveryQueue inkubasi 3 hari. Berjalan dengan retry sampai
+    // semua data (DB1 + DB2 + disbanTimers) sudah siap.
+    // =====================================================================
 
-        if(allDisban.length === 0) {
-            container.innerHTML = '<div class="empty-state">Aman! Tidak ada akun yang kena ban.</div>';
-            return;
-        }
+    let _migrationDone = false; // flag agar tidak double-migrate
 
-        const now = Date.now();
-        const PHASE_DURATION = [0, 3 * 86400000, 7 * 86400000, 14 * 86400000]; // phase 1=3hr, 2=7hr, 3+=14hr
-
-        // === BANNER NOTIFIKASI AKUN YANG WAKTUNYA HABIS ===
-        const expired = allDisban.filter(akun => {
-            const key = getSafeKey(akun.name);
-            const timer = window.disbanTimers[key];
-            if (!timer) return false;
-            const dur = PHASE_DURATION[timer.phase] || PHASE_DURATION[3];
-            return (now - timer.startTime) >= dur;
-        });
-
-        if (expired.length > 0) {
-            let bannerHTML = `<div class="disban-notif-banner">
-                <div class="disban-notif-title"><i class="fas fa-bell"></i> Cek Akun — Timer Selesai!</div>`;
-            expired.forEach(akun => {
-                const key = getSafeKey(akun.name);
-                const timer = window.disbanTimers[key];
-                const nextPhase = (timer.phase || 1) + 1;
-                const nextDays = nextPhase === 2 ? 7 : 14;
-                bannerHTML += `
-                <div class="disban-notif-item">
-                    <div>
-                        <div class="disban-notif-name">${akun.name}</div>
-                        <div class="disban-notif-phase">Fase ${timer.phase} selesai • Perlu dicek</div>
-                    </div>
-                    <div class="disban-notif-actions">
-                        <button class="btn-disban-ok" onclick="markDisbanPulih('${akun.name}', '${akun.originalDb}', ${akun.originalIdx})">✅ Pulih</button>
-                        <button class="btn-disban-lanjut" onclick="markStillDisban('${akun.name}', ${nextDays})">🔒 +${nextDays} hari</button>
-                    </div>
-                </div>`;
-            });
-            bannerHTML += `</div>`;
-            container.innerHTML = bannerHTML;
-        }
-
-        // === LIST COMPACT AKUN DISBAN ===
-        const listWrap = document.createElement('div');
-        listWrap.className = 'disban-list-wrap';
-        listWrap.innerHTML = `<div class="disban-list-header"><i class="fas fa-ban"></i> ${allDisban.length} Akun Dibanned</div>`;
-
-        const fragment = document.createDocumentFragment();
-        allDisban.forEach((akun, rowIdx) => {
-            const key = getSafeKey(akun.name);
-            const timer = window.disbanTimers[key];
-            const browserIcon = getBrowserIcon(akun);
-
-            // Hitung timer info
-            let timerStr = '<span style="color:#aaa;font-size:9px;">No timer</span>';
-            let phaseStr = '';
-            let isExpiredRow = false;
-            if (timer) {
-                const dur = PHASE_DURATION[timer.phase] || PHASE_DURATION[3];
-                const remaining = dur - (now - timer.startTime);
-                isExpiredRow = remaining <= 0;
-                if (isExpiredRow) {
-                    timerStr = `⚠ Habis`;
-                } else {
-                    const totalSec = Math.floor(remaining / 1000);
-                    const det = totalSec % 60;
-                    const totalMin = Math.floor(totalSec / 60);
-                    const menit = totalMin % 60;
-                    const totalJam = Math.floor(totalMin / 60);
-                    const jam = totalJam % 24;
-                    const totalHari = Math.floor(totalJam / 24);
-                    const bulan = Math.floor(totalHari / 30);
-                    const hari = totalHari % 30;
-                    let parts = [];
-                    if (bulan > 0) parts.push(`${bulan}bl`);
-                    if (hari > 0 || bulan > 0) parts.push(`${hari}h`);
-                    parts.push(`${jam}j`);
-                    parts.push(`${String(menit).padStart(2,'0')}m`);
-                    parts.push(`${String(det).padStart(2,'0')}d`);
-                    timerStr = `⏳ ${parts.join(' ')}`;
-                }
-                const phaseDays = [3, 7, 14][timer.phase - 1] || 14;
-                phaseStr = `F${timer.phase}·${phaseDays}hr`;
+    window._scheduleMigrateDisban = function() {
+        // Coba jalankan sekarang, jika belum siap → retry tiap 500ms (maks 20x = 10 detik)
+        let attempts = 0;
+        function tryMigrate() {
+            attempts++;
+            if (window.db2Ready && window.disbanTimersLoaded) {
+                _runDisbanMigration();
+            } else if (attempts < 20) {
+                setTimeout(tryMigrate, 500);
+            } else {
+                console.warn('⚠️ Migrasi disban timeout — DB belum siap setelah 10 detik.');
             }
+        }
+        setTimeout(tryMigrate, 300); // beri jeda awal 300ms
+    };
 
-            const row = document.createElement('div');
-            row.className = `disban-list-row${isExpiredRow ? ' row-expired' : ''}`;
-            row.innerHTML = `
-                <span class="disban-row-num">${rowIdx + 1}</span>
-                <span class="disban-row-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:13px;">${browserIcon}</span>
-                <span class="disban-row-name-btn" title="Klik untuk ubah status" onclick="openDisbanStatusModal('${akun.name.replace(/'/g,"\\'")}','${akun.originalDb}',${akun.originalIdx})">${akun.name}</span>
-                ${phaseStr ? `<span class="disban-row-phase">${phaseStr}</span>` : ''}
-                <span class="disban-row-timer${isExpiredRow ? ' expired' : ''}">${timerStr}</span>
-            `;
-            listWrap.appendChild(row);
+    function _runDisbanMigration() {
+        const allDisban = collectAllDisban();
+        if (allDisban.length === 0) return; // tidak ada yang perlu dimigrasikan
+
+        let migratedCount = 0;
+        allDisban.forEach(akun => {
+            const key = getSafeKey(akun.name);
+            // Hanya migrate jika belum ada di recoveryQueue
+            if (!window.recoveryQueue[key]) {
+                // Pakai startTime dari disban timer lama jika ada, agar hitungan tidak reset
+                const existingTimer = window.disbanTimers[key];
+                const startTime = existingTimer ? existingTimer.startTime : Date.now();
+                const recEntry = {
+                    name: akun.name,
+                    phase: 3,
+                    startTime: startTime,
+                    originalDb: akun.originalDb,
+                    originalIdx: akun.originalIdx
+                };
+                window.recoveryQueue[key] = recEntry;
+                db2.ref('recoveryQueue/' + key).set(recEntry);
+                migratedCount++;
+                console.log(`✅ Migrasi disban → inkubasi: ${akun.name}`);
+            }
         });
-        container.appendChild(listWrap);
 
-        // Auto-start timer untuk akun yang belum punya timer
-        // ✅ FIX: hanya jalankan SETELAH disbanTimers dimuat dari Firebase
-        // agar tidak membuat timer baru yang menimpa data lama saat refresh
-        if (window.disbanTimersLoaded) {
-            allDisban.forEach(akun => {
-                const key = getSafeKey(akun.name);
-                if (!window.disbanTimers[key]) {
-                    // Auto-start fase 1 tanpa prompt
-                    const timerData = { startTime: Date.now(), phase: 1, accName: akun.name, dbKey: akun.originalDb };
-                    window.disbanTimers[key] = timerData;
-                    db.ref('disbanTimers/' + key).set(timerData);
-                }
-            });
+        if (migratedCount > 0) {
+            console.log(`✅ Total ${migratedCount} akun disban dimigrasikan ke Inkubasi 3 Hari.`);
+            refreshAllTabs('disban_migration');
         }
     }
+
+    window.refreshDisbanTab = function() {
+        // refreshDisbanTab sekarang hanya sebagai trigger migrasi
+        // (Tab Disban sudah dihapus — lihat Recovery tab untuk inkubasi)
+        if (window.db2Ready && window.disbanTimersLoaded) {
+            _runDisbanMigration();
+        }
+    };
     
     function collectAllDisban() {
         let allDisban = [];
@@ -1430,7 +1387,7 @@
         const safeKey = getSafeKey(t.name);
 
         if (result === 'lolos') {
-            // Lolos → pindah ke disban
+            // Lolos → pindah ke disban + otomatis masuk inkubasi 3 hari
             if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
             window.accountOverrides[safeKey].status = 'disban';
             db2.ref('accountOverrides/' + safeKey + '/status').set('disban')
@@ -1439,8 +1396,12 @@
             const timerData = { startTime: Date.now(), phase: 1, accName: t.name, dbKey: t.originalDb };
             window.disbanTimers[safeKey] = timerData;
             db.ref('disbanTimers/' + safeKey).set(timerData);
+            // Langsung masukkan ke inkubasi recovery 3 hari
+            const recEntry = { name: t.name, phase: 3, startTime: Date.now(), originalDb: t.originalDb, originalIdx: t.originalIdx };
+            window.recoveryQueue[safeKey] = recEntry;
+            db2.ref('recoveryQueue/' + safeKey).set(recEntry);
             refreshAllTabs('blocking_lolos');
-            alert(`✅ ${t.name} LOLOS — Masuk tab DISBAN.`);
+            alert(`✅ ${t.name} LOLOS — Masuk INKUBASI 3 Hari di tab Recovery.`);
         } else {
             // Tidak lolos → hapus akun dari database
             if (!confirm(`Yakin hapus akun ${t.name} secara permanen?`)) return;
@@ -1535,7 +1496,7 @@
         // Hapus timer disban
         delete window.disbanTimers[key];
         db.ref('disbanTimers/' + key).remove();
-        // Ubah status ke SEMBUH (bukan warn langsung)
+        // Ubah status ke SEMBUH sementara, masuk inkubasi 3 hari
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'sembuh';
         db2.ref('accountOverrides/' + key + '/status').set('sembuh');
@@ -1572,11 +1533,8 @@
         });
     }
 
-    // Auto-refresh countdown timer setiap detik saat tab-4 aktif
+    // Auto-refresh countdown timer setiap detik saat tab-7 atau tab-8 aktif
     setInterval(() => {
-        if (document.getElementById('tab-4').classList.contains('active')) {
-            window.refreshDisbanTab();
-        }
         if (document.getElementById('tab-7').classList.contains('active')) {
             renderRecoveryTab();
         }
@@ -1605,7 +1563,9 @@
         if (!container) return;
 
         const phase = window.currentRecoveryPhase;
+        // Durasi TOTAL kumulatif per fase (bukan tambahan)
         const PHASE_MS = { 3: 3*86400000, 7: 7*86400000, 14: 14*86400000, 30: 30*86400000 };
+        const PHASE_NEXT = { 3: 7, 7: 14, 14: 30, 30: null };
         const now = Date.now();
         const durationMs = PHASE_MS[phase];
 
@@ -1618,7 +1578,7 @@
             container.innerHTML = `<div class="recovery-empty">
                 <i class="fas fa-seedling" style="font-size:28px;color:#10b981;display:block;margin-bottom:8px;"></i>
                 Tidak ada akun di fase inkubasi ${phase} hari.<br>
-                <span style="font-size:11px;">Akun yang sembuh dari disban akan muncul di sini.</span>
+                <span style="font-size:11px;">Akun yang kena disban akan muncul di sini secara otomatis.</span>
             </div>`;
             return;
         }
@@ -1631,10 +1591,11 @@
             const elapsed = now - entry.startTime;
             const remaining = durationMs - elapsed;
             const isDone = remaining <= 0;
+            const nextPhase = PHASE_NEXT[phase];
 
             let timerTxt, timerClass;
             if (isDone) {
-                timerTxt = '✅ Siap Tes';
+                timerTxt = '✅ Waktu Selesai!';
                 timerClass = 'done';
             } else {
                 const totalSec = Math.floor(remaining / 1000);
@@ -1654,90 +1615,136 @@
             }
 
             const browserIcon = getBrowserIcon({ name: entry.name });
-            const disbanDate = new Date(entry.startTime).toLocaleDateString('id-ID',{ day:'2-digit', month:'short' });
+            const masukDate = new Date(entry.startTime).toLocaleDateString('id-ID',{ day:'2-digit', month:'short' });
 
             const card = document.createElement('div');
-            card.className = 'recovery-card';
+            card.className = 'recovery-card' + (isDone ? ' ready' : '');
+
+            let actionBtns = '';
+            if (isDone) {
+                actionBtns = `
+                    <div class="recovery-action-row">
+                        <button class="btn-rec-pulih" onclick="pulihFromRecovery('${entry.key}')">
+                            <i class="fas fa-heart"></i> Pulih → Peringatan
+                        </button>
+                        ${nextPhase ? `<button class="btn-rec-lanjut" onclick="lanjutRecovery('${entry.key}', ${nextPhase})">
+                            <i class="fas fa-forward"></i> Lanjut ${nextPhase} Hari
+                        </button>` : `<button class="btn-rec-lanjut" onclick="lanjutRecovery('${entry.key}', null)">
+                            <i class="fas fa-ban"></i> Kembali Disban
+                        </button>`}
+                    </div>`;
+            } else {
+                actionBtns = `<div class="recovery-action-row"><span class="btn-rec-tunggu"><i class="fas fa-lock"></i> Menunggu...</span></div>`;
+            }
+
             card.innerHTML = `
-                <span class="recovery-card-num">${idx + 1}</span>
-                <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${browserIcon}</span>
-                <div class="recovery-card-info">
-                    <div class="recovery-card-name">${entry.name}</div>
-                    <div class="recovery-card-sub">Masuk inkubasi: ${disbanDate}</div>
+                <div class="recovery-card-top">
+                    <span class="recovery-card-num">${idx + 1}</span>
+                    <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${browserIcon}</span>
+                    <div class="recovery-card-info">
+                        <div class="recovery-card-name">${entry.name}</div>
+                        <div class="recovery-card-sub">Masuk inkubasi: ${masukDate}</div>
+                    </div>
+                    <span class="recovery-timer-txt ${timerClass}">${timerTxt}</span>
                 </div>
-                <span class="recovery-timer-txt ${timerClass}">${timerTxt}</span>
-                <button class="btn-tes-akun${isDone ? '' : ' waiting'}" 
-                    onclick="${isDone ? `openTesModal('${entry.key}')` : 'void(0)'}">
-                    ${isDone ? '🧪 Tes' : '🔒 Tunggu'}
-                </button>
+                ${actionBtns}
             `;
             wrap.appendChild(card);
         });
         container.innerHTML = '';
         container.appendChild(wrap);
+
+        // Update badge count total akun inkubasi di header
+        _updateRecoveryBadge();
     };
 
-    window.openTesModal = function(key) {
+    // =====================================================================
+    // Update badge jumlah akun inkubasi di header Recovery tab
+    // =====================================================================
+    function _updateRecoveryBadge() {
+        const badge = document.getElementById('recovery-disban-count');
+        if (!badge) return;
+        const total = Object.keys(window.recoveryQueue || {}).length;
+        if (total > 0) {
+            badge.textContent = total + ' akun inkubasi';
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // =====================================================================
+    // PULIH: akun selesai inkubasi → status berubah ke PERINGATAN (warn)
+    // =====================================================================
+    window.pulihFromRecovery = function(key) {
         const entry = window.recoveryQueue[key];
         if (!entry) return;
-        const nextPhaseMap = { 3: 7, 7: 14, 14: 30, 30: null };
-        const nextPhase = nextPhaseMap[entry.phase];
-        window._tesAkunTarget = { key, ...entry };
-        document.getElementById('tesModalAccName').textContent = entry.name;
-        document.getElementById('tesModalInfo').innerHTML = `
-            <b>Fase:</b> Inkubasi ${entry.phase} Hari<br>
-            <b>Sukses</b> → Akun kembali ke Home (GACOR)<br>
-            <b>Gagal</b> → ${nextPhase ? `Lanjut inkubasi ${nextPhase} hari` : 'Kembali ke Disban'}
-        `;
-        document.getElementById('tesModal').classList.add('show');
+        if (!confirm(`✅ ${entry.name} dinyatakan PULIH?\nStatus akan berubah ke AKUN PERINGATAN.`)) return;
+
+        // Hapus dari recoveryQueue
+        delete window.recoveryQueue[key];
+        db2.ref('recoveryQueue/' + key).remove();
+
+        // Hapus timer disban
+        delete window.disbanTimers[key];
+        db.ref('disbanTimers/' + key).remove();
+
+        // Set status PERINGATAN (warn)
+        if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+        window.accountOverrides[key].status = 'warn';
+        db2.ref('accountOverrides/' + key + '/status').set('warn');
+
+        // Mulai recovery tracking untuk warn → gacor (7 sesi bersih)
+        const recovery = { cleanSessions: 0, accName: entry.name };
+        window.accountRecovery[key] = recovery;
+        db.ref('accountRecovery/' + key).set(recovery);
+
+        refreshAllTabs('recovery_pulih');
+        setTimeout(() => alert(`🎉 ${entry.name} PULIH!\nStatus sekarang: AKUN PERINGATAN.\nPosting bersih 7x untuk naik ke GACOR.`), 100);
     };
 
-    window.submitTesAkun = function(result) {
-        const t = window._tesAkunTarget;
-        if (!t) return;
-        const key = t.key;
-        const nextPhaseMap = { 3: 7, 7: 14, 14: 30, 30: null };
+    // =====================================================================
+    // LANJUT: akun gagal → pindah ke fase inkubasi berikutnya
+    // Timer KUMULATIF: waktu di fase sebelumnya dihitung ke fase baru
+    // Contoh: 3 hari → 7 hari: sisa 7-3=4 hari (startTime = now - 3 hari)
+    // =====================================================================
+    window.lanjutRecovery = function(key, nextPhase) {
+        const entry = window.recoveryQueue[key];
+        if (!entry) return;
 
-        closeModal(null, 'tesModal', true);
-
-        if (result === 'sukses') {
-            // Hapus dari recoveryQueue
+        if (nextPhase === null) {
+            // Tidak ada fase berikutnya → kembalikan ke disban
+            if (!confirm(`🚫 ${entry.name} gagal fase 30 hari.\nKembali ke DISBAN dan mulai ulang inkubasi 3 hari?`)) return;
             delete window.recoveryQueue[key];
             db2.ref('recoveryQueue/' + key).remove();
-            // Set status GACOR
             if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
-            window.accountOverrides[key].status = 'gacor';
-            db2.ref('accountOverrides/' + key + '/status').set('gacor');
-            refreshAllTabs('recovery_sukses');
-            setTimeout(() => alert(`🎉 ${t.name} SUKSES! Akun kembali ke Home sebagai GACOR.`), 100);
-        } else {
-            // Gagal → pindah ke fase berikutnya
-            const nextPhase = nextPhaseMap[t.phase];
-            if (nextPhase) {
-                const updEntry = { ...window.recoveryQueue[key], phase: nextPhase, startTime: Date.now() };
-                window.recoveryQueue[key] = updEntry;
-                db2.ref('recoveryQueue/' + key).set(updEntry);
-                // Status tetap sembuh
-                refreshAllTabs('recovery_gagal');
-                // Switch ke sub-tab berikutnya
-                switchRecoveryPhase(nextPhase);
-                setTimeout(() => alert(`⏳ ${t.name} GAGAL. Pindah ke inkubasi ${nextPhase} hari.`), 100);
-            } else {
-                // Fase 30 gagal → kembali disban
-                delete window.recoveryQueue[key];
-                db2.ref('recoveryQueue/' + key).remove();
-                if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
-                window.accountOverrides[key].status = 'disban';
-                db2.ref('accountOverrides/' + key + '/status').set('disban');
-                // Mulai timer disban lagi
-                const timerData = { startTime: Date.now(), phase: 1, accName: t.name, dbKey: t.originalDb || '' };
-                window.disbanTimers[key] = timerData;
-                db.ref('disbanTimers/' + key).set(timerData);
-                refreshAllTabs('recovery_disban');
-                setTimeout(() => alert(`🚫 ${t.name} gagal fase 30 hari. Kembali ke DISBAN.`), 100);
-            }
+            window.accountOverrides[key].status = 'disban';
+            db2.ref('accountOverrides/' + key + '/status').set('disban');
+            // Mulai ulang inkubasi 3 hari
+            const newEntry = { name: entry.name, phase: 3, startTime: Date.now(), originalDb: entry.originalDb, originalIdx: entry.originalIdx };
+            window.recoveryQueue[key] = newEntry;
+            db2.ref('recoveryQueue/' + key).set(newEntry);
+            refreshAllTabs('recovery_disban');
+            setTimeout(() => alert(`🚫 ${entry.name} kembali DISBAN.\nMulai inkubasi 3 hari dari awal.`), 100);
+            return;
         }
-        window._tesAkunTarget = null;
+
+        const prevPhase = entry.phase;
+        const nextLabel = nextPhase + ' Hari';
+        if (!confirm(`🔒 Lanjutkan ${entry.name} ke inkubasi ${nextLabel}?\nWaktu yang sudah berlalu (${prevPhase} hari) dihitung.`)) return;
+
+        // startTime mundur sebesar fase sebelumnya agar waktu kumulatif berlaku
+        // Contoh: 3 hari → 7 hari: startTime = now - 3*86400000 → sisa = 4 hari
+        const cumulativeOffset = prevPhase * 86400000;
+        const newStartTime = Date.now() - cumulativeOffset;
+
+        const updEntry = { ...entry, phase: nextPhase, startTime: newStartTime };
+        window.recoveryQueue[key] = updEntry;
+        db2.ref('recoveryQueue/' + key).set(updEntry);
+
+        refreshAllTabs('recovery_lanjut');
+        switchRecoveryPhase(nextPhase);
+        setTimeout(() => alert(`⏳ ${entry.name} → Inkubasi ${nextLabel}.\nSisa waktu: ${nextPhase - prevPhase} hari.`), 100);
     };
 
     // ✅ Helper: ambil tanggal posting terakhir per akun+kota
@@ -2393,11 +2400,16 @@
             db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
                 .catch(e => alert("Gagal simpan status: " + e.message));
 
-            // ✅ AUTO-START TIMER DISBAN
+            // ✅ AUTO-START RECOVERY INKUBASI 3 HARI SAAT DISBAN
             if (newStatus === 'disban' && oldStatus !== 'disban') {
                 const timerData = { startTime: Date.now(), phase: 1, accName: accName, dbKey: window.currentEditDb };
                 window.disbanTimers[safeKey] = timerData;
                 db.ref('disbanTimers/' + safeKey).set(timerData);
+                // Langsung masukkan ke inkubasi 3 hari
+                const recEntry = { name: accName, phase: 3, startTime: Date.now(), originalDb: window.currentEditDb, originalIdx: window.currentEditAccountIndex };
+                window.recoveryQueue[safeKey] = recEntry;
+                db2.ref('recoveryQueue/' + safeKey).set(recEntry);
+                setTimeout(() => alert(`🚫 ${accName} kena DISBAN → otomatis masuk Inkubasi 3 Hari di tab Recovery!`), 100);
             }
             // ✅ BERSIHKAN TIMER JIKA STATUS BERUBAH DARI DISBAN
             if (oldStatus === 'disban' && newStatus !== 'disban') {
@@ -3472,8 +3484,8 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-'+n).classList.add('active');
-        // Nav: Home=0, FS=1, History=2, Disban=3, Recovery=4, Blocking=5, Schedule=6, Jadwal=7
-        const navMap = { 1: 0, 9: 1, 3: 2, 4: 3, 7: 4, 8: 5, 5: 6, 6: 7 };
+        // Nav: Home=0, FS=1, History=2, Recovery=3, Blocking=4, Schedule=5, Jadwal=6
+        const navMap = { 1: 0, 9: 1, 3: 2, 7: 3, 8: 4, 5: 5, 6: 6 };
         const navIdx = navMap[n];
         if (navIdx !== undefined) {
             const navItems = document.querySelectorAll('.nav-item');
