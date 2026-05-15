@@ -136,6 +136,8 @@
         .btn-rec-lanjut { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: #fff3cd; color: #b98900; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; border: 1px solid #f7b928; }
         .btn-rec-lanjut:active { transform: scale(0.97); }
         .btn-rec-tunggu { flex: 1; padding: 9px 10px; border-radius: 8px; background: #f0f2f5; color: #bbb; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-pindah-paksa { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: linear-gradient(135deg, #ff6b35, #f7421e); color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
+        .btn-pindah-paksa:active { transform: scale(0.97); }
 
         /* === TIMER CARD REDESIGN === */
         .timer-card { background: white; border-radius: 16px; padding: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 12px; display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); transition: all 0.3s; }
@@ -1632,9 +1634,14 @@
                         </button>` : `<button class="btn-rec-lanjut" onclick="lanjutRecovery('${entry.key}', null)">
                             <i class="fas fa-ban"></i> Kembali Disban
                         </button>`}
+                    </div>
+                    <div class="recovery-action-row">
+                        <button class="btn-pindah-paksa" onclick="pindahPaksaHome('${entry.key}')">
+                            <i class="fas fa-home"></i> Pindah Paksa ke Home
+                        </button>
                     </div>`;
             } else {
-                actionBtns = `<div class="recovery-action-row"><span class="btn-rec-tunggu"><i class="fas fa-lock"></i> Menunggu...</span></div>`;
+                actionBtns = `<div class="recovery-action-row"><span class="btn-rec-tunggu"><i class="fas fa-lock"></i> Menunggu...</span><button class="btn-pindah-paksa" onclick="pindahPaksaHome('${entry.key}')"><i class="fas fa-home"></i> Pindah Paksa</button></div>`;
             }
 
             card.innerHTML = `
@@ -1745,6 +1752,41 @@
         refreshAllTabs('recovery_lanjut');
         switchRecoveryPhase(nextPhase);
         setTimeout(() => alert(`⏳ ${entry.name} → Inkubasi ${nextLabel}.\nSisa waktu: ${nextPhase - prevPhase} hari.`), 100);
+    };
+
+    // =====================================================================
+    // PINDAH PAKSA KE HOME: paksa akun keluar inkubasi → langsung ke Home
+    // Status berubah ke PERINGATAN (warn) tanpa menunggu timer selesai
+    // =====================================================================
+    window.pindahPaksaHome = function(key) {
+        const entry = window.recoveryQueue[key];
+        if (!entry) return;
+
+        const phaseTxt = entry.phase + ' Hari';
+        if (!confirm(`⚡ PINDAH PAKSA: ${entry.name}\n\nAkun ini masih dalam inkubasi ${phaseTxt}.\nPaksa pindah ke Home dengan status PERINGATAN?\n\n⚠️ Timer inkubasi akan dihapus!`)) return;
+
+        // Hapus dari recoveryQueue
+        delete window.recoveryQueue[key];
+        db2.ref('recoveryQueue/' + key).remove();
+
+        // Hapus timer disban jika ada
+        if (window.disbanTimers && window.disbanTimers[key]) {
+            delete window.disbanTimers[key];
+            db.ref('disbanTimers/' + key).remove();
+        }
+
+        // Set status ke PERINGATAN (warn)
+        if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
+        window.accountOverrides[key].status = 'warn';
+        db2.ref('accountOverrides/' + key + '/status').set('warn');
+
+        // Mulai recovery tracking warn → gacor
+        const recovery = { cleanSessions: 0, accName: entry.name };
+        window.accountRecovery[key] = recovery;
+        db.ref('accountRecovery/' + key).set(recovery);
+
+        refreshAllTabs('pindah_paksa_home');
+        setTimeout(() => alert(`🏠 ${entry.name} berhasil dipindah paksa ke Home!\nStatus: AKUN PERINGATAN.\nPosting bersih 7x untuk naik ke GACOR.`), 100);
     };
 
     // ✅ Helper: ambil tanggal posting terakhir per akun+kota
