@@ -77,6 +77,18 @@
         .btn-delete-city { background: #fee2e2; color: #fa3e3e; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
         .btn-delete-city:active { transform: scale(0.9); }
 
+        /* === TITLE BADGE (MANUAL / FEWFEED) === */
+        .acc-title-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; margin-top: 3px; transition: 0.2s; }
+        .acc-title-badge:active { transform: scale(0.95); }
+        .acc-title-badge.title-manual { background: #fff8e1; color: #b98900; border: 1px solid #f7d774; }
+        .acc-title-badge.title-fewfeed { background: #e7f3ff; color: #1877F2; border: 1px solid #a8c7fa; }
+        .title-modal-options { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-title-opt { flex: 1; padding: 12px 8px; border: 2px solid #e4e6eb; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; background: white; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-title-opt i { font-size: 18px; }
+        .btn-title-opt.selected { border-color: #1877F2; background: #e7f3ff; color: #1877F2; }
+        .btn-title-opt.sel-manual.selected { border-color: #f7b928; background: #fff8e1; color: #b98900; }
+        .btn-title-opt:active { transform: scale(0.97); }
+
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: #ffffff; border-top: 1px solid #e4e6eb; display: flex; flex-direction: row; justify-content: space-around; align-items: center; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #bcc0c4; position: relative; cursor: pointer; transition: color 0.2s; } .nav-item.active { color: var(--fb-blue); }
         .nav-item.active::after { content: ''; position: absolute; top: 0; width: 50%; height: 3px; background: var(--fb-blue); border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
@@ -599,6 +611,33 @@
     </div>
     <div class="modal-overlay" id="addCityModal" onclick="closeModal(event, 'addCityModal')"><div class="modal-content"><div class="modal-header"><div class="modal-title">Tambah Kota</div></div><div class="modal-body"><div class="form-group"><label class="form-label">Nama Kota</label><input type="text" id="newCityName" class="form-input" placeholder="Contoh: Surabaya"></div><div class="form-group"><label class="form-label">Jumlah Grup</label><input type="number" id="newCityVal" class="form-input" placeholder="0"></div><button class="btn-submit" onclick="submitNewCity()">Tambah</button></div></div></div>
 
+    <!-- Modal Ubah Title Akun (Manual / FewFeed) -->
+    <div class="modal-overlay" id="titleModal" onclick="closeModal(event,'titleModal')">
+        <div class="modal-content" style="max-width:280px;">
+            <div class="modal-header">
+                <div class="modal-title">🏷️ Ubah Title Akun</div>
+                <div class="modal-subtitle" id="titleModalAccName" style="font-weight:700;color:#1877F2;"></div>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:12px;color:#65676B;text-align:center;margin-bottom:5px;">Pilih jenis operasi akun ini:</p>
+                <div class="title-modal-options">
+                    <button class="btn-title-opt sel-manual" id="btn-title-manual" onclick="selectTitle('manual')">
+                        <i class="fas fa-hand-paper" style="color:#f7b928;"></i>
+                        Manual
+                        <span style="font-size:9px;color:#999;font-weight:500;">Posting manual</span>
+                    </button>
+                    <button class="btn-title-opt" id="btn-title-fewfeed" onclick="selectTitle('fewfeed')">
+                        <i class="fas fa-rss" style="color:#1877F2;"></i>
+                        FewFeed
+                        <span style="font-size:9px;color:#999;font-weight:500;">Auto scan</span>
+                    </button>
+                </div>
+                <button class="btn-submit" style="margin-top:12px;" onclick="submitTitleChange()">Simpan</button>
+                <button style="margin-top:6px;width:100%;background:#f0f2f5;color:#555;border:none;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;" onclick="closeModal(null,'titleModal',true)">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Pindah Browser -->
     <div class="modal-overlay" id="moveBrowserModal" onclick="closeModal(event,'moveBrowserModal')">
         <div class="modal-content" style="max-width:300px;">
@@ -749,6 +788,7 @@
     window.deletedAccounts = {}; // { safeKey: true } — disimpan di DB2
     window.androidAccounts = {}; // { safeKey: { device, browser, accName } } — disimpan di DB2
     window.accountRangeSizes = {}; // { safeKey: 5|10|15|20 } — per-akun range size preference
+    window.accountTitles = {}; // { safeKey: 'manual'|'fewfeed' } — disimpan di DB2
     // Cardorder dimuat dari DB2 saat init (bukan localStorage) — lihat applyDb2Snapshot
     window.homeCardOrder    = [];
     window.fanpageCardOrder = [];
@@ -950,6 +990,7 @@
         window.androidAccounts = d.androidAccounts || {};
         window.accountRangeSizes = d.accountRangeSizes || {};
         window.recoveryQueue = d.recoveryQueue || {}; // ✅ Load recoveryQueue dari DB2
+        window.accountTitles = d.accountTitles || {}; // ✅ Load accountTitles dari DB2
         const fbHome    = (d.cardOrder && d.cardOrder.home)    || [];
         const fbFanpage = (d.cardOrder && d.cardOrder.fanpage) || [];
         // DB2 selalu menang — tulis ke localStorage sebagai cache
@@ -1028,6 +1069,12 @@
                 window.accountRangeSizes = snapRS.val() || {};
                 // Re-render tanpa full refresh (hanya visual tombol)
                 if (window.db2Ready) refreshAllTabs('accountRangeSizes');
+            });
+
+            // ✅ Real-time listener accountTitles dari DB2
+            db2.ref('accountTitles').on('value', snapTitles => {
+                window.accountTitles = snapTitles.val() || {};
+                if (window.db2Ready) refreshAllTabs('accountTitles');
             });
 
             // ✅ MIGRASI DISBAN LAMA: jalankan setelah semua data siap (retry sampai berhasil)
@@ -1823,6 +1870,9 @@
                 // Akun di Fanpage/Secondary hanya muncul di tab-9, bukan Home
                 const tp = window.tabPlacements && window.tabPlacements[sk];
                 if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return;
+                // ✅ FIX: Akun di inkubasi recoveryQueue JANGAN tampil di Home
+                const rq = window.recoveryQueue && window.recoveryQueue[sk];
+                if (rq) return;
                 result.push({ ...acc, originalIdx: idx, originalDb: def.key, sourceLabel: def.label });
             });
         });
@@ -1933,6 +1983,12 @@
             }).join('');
 
             const browserIcon = getBrowserIcon(akun);
+            // ✅ Title badge (manual / fewfeed)
+            const accSafeKey = getSafeKey(akun.name);
+            const accTitleVal = (window.accountTitles && window.accountTitles[accSafeKey]) || 'manual';
+            const titleBadgeHTML = `<button class="acc-title-badge ${accTitleVal === 'fewfeed' ? 'title-fewfeed' : 'title-manual'}" onclick="event.stopPropagation();openTitleModal('${accSafeKey}','${akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><i class="fas ${accTitleVal === 'fewfeed' ? 'fa-rss' : 'fa-hand-paper'}"></i> ${accTitleVal === 'fewfeed' ? 'FewFeed' : 'Manual'}</button>`;
+            // ✅ Escape accName untuk onclick attribute
+            const safeAccNameEsc = akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 
             card.innerHTML = `
                 <div class="account-header">
@@ -1943,6 +1999,7 @@
                             <div class="acc-name">${akun.name}</div>
                             <div class="status-badge ${statusClass}">${statusLabel}</div>
                         </div>
+                        ${titleBadgeHTML}
                         <div class="acc-header-scanpost">
                             <span class="desktop-only-accinfo">${scanBadge}</span>
                             <span class="desktop-only-accinfo">${lastPostBadge}</span>
@@ -1962,18 +2019,18 @@
                         <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Status</button>
                         <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit</button>
                         <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Kota</button>
-                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}', '${safeAccNameEsc}')"><i class="fas fa-trash"></i> Hapus</button>
                     </div>
                     <div class="move-btn-wrap">
-                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${akun.name}')">
+                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${safeAccNameEsc}')">
                             <i class="fas fa-arrows-rotate"></i> Pindah Browser
                         </button>
-                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${akun.name}')">
+                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${safeAccNameEsc}')">
                             <i class="fas fa-layer-group"></i> Pindah Tab
                         </button>
                     </div>
                     <div class="transfer-mobile-wrap">
-                        <button class="btn-transfer-mobile" onclick="openTransferMobileModal('${akun.name.replace(/'/g,"\\'")}')">
+                        <button class="btn-transfer-mobile" onclick="openTransferMobileModal('${safeAccNameEsc}')">
                             <i class="fas fa-mobile-alt"></i> Transfer ke Mobile
                             ${(window.androidAccounts && window.androidAccounts[getSafeKey(akun.name)]) ? `<span class="transfer-already-badge">✓ ${window.androidAccounts[getSafeKey(akun.name)].device}</span>` : ''}
                         </button>
@@ -2308,6 +2365,7 @@
                             <div class="acc-name">${akun.name}</div>
                             <div class="status-badge ${statusClass}">${statusLabel}</div>
                         </div>
+                        <button class="acc-title-badge ${((window.accountTitles && window.accountTitles[getSafeKey(akun.name)]) || 'manual') === 'fewfeed' ? 'title-fewfeed' : 'title-manual'}" onclick="event.stopPropagation();openTitleModal('${getSafeKey(akun.name)}','${akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><i class="fas ${((window.accountTitles && window.accountTitles[getSafeKey(akun.name)]) || 'manual') === 'fewfeed' ? 'fa-rss' : 'fa-hand-paper'}"></i> ${((window.accountTitles && window.accountTitles[getSafeKey(akun.name)]) || 'manual') === 'fewfeed' ? 'FewFeed' : 'Manual'}</button>
                         <div class="acc-header-scanpost">
                             <span class="desktop-only-accinfo">${scanBadge}</span>
                             <span class="mobile-only-scanpost">${scanBadge}</span>
@@ -2324,7 +2382,7 @@
                         <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Ubah Status</button>
                         <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit Angka</button>
                         <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Tambah Kota</button>
-                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}', '${akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i> Hapus</button>
                     </div>
                     <div class="range-size-desktop-wrap">
                         <div style="font-size:9px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">RANGE PER POSTING:</div>
@@ -2642,14 +2700,15 @@
         db.ref('history').remove().then(() => { closeModal(null, 'confirmModal', true); }).catch(e => alert("Gagal hapus: " + e.message));
     }
 
-    window.askDeleteAccount = function(index, dbRefName) {
-        // Ambil nama akun dari array langsung (lebih aman dari index)
+    window.askDeleteAccount = function(index, dbRefName, accNameDirect) {
+        // ✅ FIX: Gunakan accNameDirect (dari tombol) agar tidak basi saat Firebase update array
         const acc = (window[dbRefName] || [])[index];
-        const accName = acc ? acc.name : null;
+        const accName = accNameDirect || (acc ? acc.name : null);
+        if (!accName) { alert('Gagal: nama akun tidak ditemukan.'); return; }
         window.pendingAction = { index, dbRefName, accName };
         window.pendingActionType = 'delete_account';
         document.getElementById('confirmTitle').innerText = "Hapus Akun?";
-        document.getElementById('confirmDesc').innerText = `Yakin ingin menghapus akun "${accName || 'ini'}" secara permanen?`;
+        document.getElementById('confirmDesc').innerText = `Yakin ingin menghapus akun "${accName}" secara permanen?`;
         const btnYes = document.getElementById('btnConfirmYes'); btnYes.innerText = "Ya, Hapus"; btnYes.className = "btn-action btn-yes danger";
         document.getElementById('confirmModal').classList.add('show');
     }
@@ -2812,6 +2871,47 @@
             if(modalId === 'rangeModal') window.currentOpenModalParams = null;
         }
     }
+
+    // ============================================================
+    // TITLE AKUN (MANUAL / FEWFEED) — disimpan di DB2
+    // ============================================================
+    window._titleTarget = null;
+    window._selectedTitle = 'manual';
+
+    window.getAccountTitle = function(accName) {
+        const sk = getSafeKey(accName);
+        return (window.accountTitles && window.accountTitles[sk]) || 'manual';
+    };
+
+    window.openTitleModal = function(safeKey, accName) {
+        window._titleTarget = safeKey;
+        window._selectedTitle = (window.accountTitles && window.accountTitles[safeKey]) || 'manual';
+        document.getElementById('titleModalAccName').textContent = accName;
+        // Update visual selected state
+        const cur = window._selectedTitle;
+        document.getElementById('btn-title-manual').className = 'btn-title-opt sel-manual' + (cur === 'manual' ? ' selected' : '');
+        document.getElementById('btn-title-fewfeed').className = 'btn-title-opt' + (cur === 'fewfeed' ? ' selected' : '');
+        document.getElementById('titleModal').classList.add('show');
+    };
+
+    window.selectTitle = function(val) {
+        window._selectedTitle = val;
+        document.getElementById('btn-title-manual').className = 'btn-title-opt sel-manual' + (val === 'manual' ? ' selected' : '');
+        document.getElementById('btn-title-fewfeed').className = 'btn-title-opt' + (val === 'fewfeed' ? ' selected' : '');
+    };
+
+    window.submitTitleChange = function() {
+        const key = window._titleTarget;
+        const val = window._selectedTitle;
+        if (!key || !val) return;
+        window.accountTitles = window.accountTitles || {};
+        window.accountTitles[key] = val;
+        db2.ref('accountTitles/' + key).set(val)
+            .catch(e => alert('Gagal simpan title: ' + e.message));
+        refreshAllTabs('accountTitles');
+        closeModal(null, 'titleModal', true);
+        window._titleTarget = null;
+    };
 
     // --- SCHEDULE TAB ---
     window.renderScheduleTab = function() {
@@ -3299,6 +3399,12 @@
             const parentLabel = akun.parentAcc
                 ? `<span class="acc-parent-label">↳ from ${akun.parentAcc}</span>`
                 : '';
+            // ✅ Title badge
+            const fsSafeKey = getSafeKey(akun.name);
+            const fsTitleVal = (window.accountTitles && window.accountTitles[fsSafeKey]) || 'manual';
+            const fsTitleBadge = `<button class="acc-title-badge ${fsTitleVal === 'fewfeed' ? 'title-fewfeed' : 'title-manual'}" onclick="event.stopPropagation();openTitleModal('${fsSafeKey}','${akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><i class="fas ${fsTitleVal === 'fewfeed' ? 'fa-rss' : 'fa-hand-paper'}"></i> ${fsTitleVal === 'fewfeed' ? 'FewFeed' : 'Manual'}</button>`;
+            // ✅ Escape accName untuk onclick
+            const fsSafeNameEsc = akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 
             let listHTML = items.map(item => {
                 const lastDate = getLastPostDate(akun.name, item.city);
@@ -3315,6 +3421,7 @@
                         <div class="acc-name">${akun.name}</div>
                         ${parentLabel}
                         <div class="status-badge ${statusClass}">${statusLabel}</div>
+                        ${fsTitleBadge}
                         ${scanBadge}
                         ${lastPostBadge}
                     </div>
@@ -3326,13 +3433,13 @@
                         <button class="btn-card-action btn-status" onclick="openStatusModal(${index}, '${dbRefName}')"><i class="fas fa-edit"></i> Status</button>
                         <button class="btn-card-action btn-edit" onclick="openEditValueModal(${index}, '${dbRefName}')"><i class="fas fa-pen"></i> Edit</button>
                         <button class="btn-card-action btn-add" onclick="openAddCityModal(${index}, '${dbRefName}')"><i class="fas fa-plus-circle"></i> Kota</button>
-                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}')"><i class="fas fa-trash"></i> Hapus</button>
+                        <button class="btn-card-action btn-delete" onclick="askDeleteAccount(${index}, '${dbRefName}', '${fsSafeNameEsc}')"><i class="fas fa-trash"></i> Hapus</button>
                     </div>
                     <div class="move-btn-wrap">
-                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${akun.name}')">
+                        <button class="btn-move-browser" onclick="openMoveBrowserModal(${index}, '${dbRefName}', '${fsSafeNameEsc}')">
                             <i class="fas fa-arrows-rotate"></i> Pindah Browser
                         </button>
-                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${akun.name}')">
+                        <button class="btn-move-tab" onclick="openMoveTabModal(${index}, '${dbRefName}', '${fsSafeNameEsc}')">
                             <i class="fas fa-layer-group"></i> Pindah Tab
                         </button>
                     </div>
