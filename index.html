@@ -426,6 +426,22 @@
         .range-btn.covered-by-bigger { opacity: 0.88; }
         .range-btn.covered-by-bigger .range-label::before { content: "✓ "; }
 
+        /* === BACKUP & RESTORE BAR === */
+        .backup-bar { display: flex; gap: 8px; background: rgba(255,255,255,0.92); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); align-items: center; }
+        .backup-bar-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); flex: 1; display: flex; align-items: center; gap: 5px; }
+        .btn-backup { background: linear-gradient(135deg, #1877F2, #0a5dc2); color: white; border: none; padding: 7px 13px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 6px rgba(24,119,242,0.3); }
+        .btn-backup:active { transform: scale(0.95); }
+        .btn-restore { background: linear-gradient(135deg, #36a420, #2d8a1a); color: white; border: none; padding: 7px 13px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 6px rgba(54,164,32,0.3); }
+        .btn-restore:active { transform: scale(0.95); }
+        .btn-backup:disabled, .btn-restore:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* === BACKUP MODAL === */
+        .backup-modal-progress { background: #f0f2f5; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
+        .backup-modal-progress .prog-item { display: flex; align-items: center; gap: 8px; }
+        .backup-modal-progress .prog-item i { width: 14px; text-align: center; }
+        .backup-info-box { background: #e7f3ff; border-radius: 8px; padding: 10px 13px; font-size: 11px; color: #1877F2; line-height: 1.7; margin-bottom: 10px; border: 1px solid #a8c7fa; }
+        .restore-warning-box { background: #fff3cd; border-radius: 8px; padding: 10px 13px; font-size: 11px; color: #b98900; line-height: 1.7; margin-bottom: 10px; border: 1px solid #f7d774; }
+
         /* === TRANSFER TO MOBILE === */
         .btn-transfer-mobile { background: linear-gradient(135deg, #1877F2, #0a5dc2); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 8px 12px; transition: 0.2s; width: 100%; justify-content: center; margin: 0 10px 10px; box-shadow: 0 2px 6px rgba(24,119,242,0.3); }
         .btn-transfer-mobile:active { transform: scale(0.97); }
@@ -449,6 +465,18 @@
             <i class="fab fa-facebook app-logo"></i>
             <h2>Database Grup</h2>
         </div>
+
+        <!-- BACKUP & RESTORE BAR -->
+        <div class="backup-bar">
+            <span class="backup-bar-label"><i class="fas fa-database" style="color:#1877F2;"></i> Data Akun</span>
+            <button class="btn-backup" id="btn-backup" onclick="doBackup()">
+                <i class="fas fa-download"></i> Backup
+            </button>
+            <button class="btn-restore" id="btn-restore" onclick="doRestore()">
+                <i class="fas fa-upload"></i> Restore
+            </button>
+        </div>
+        <input type="file" id="restore-file-input" accept=".json" style="display:none;" onchange="handleRestoreFile(event)">
 
         <section id="tab-1" class="tab-content active">
             <div class="section-header-wrap"><span class="section-title">Home – Akun FB Aktif</span></div>
@@ -709,6 +737,67 @@
                 <button style="margin-top:8px;width:100%;background:#fee2e2;color:#fa3e3e;border:none;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;display:none;" id="btn-remove-android" onclick="removeFromAndroid()">🗑️ Hapus dari Mobile</button>
             </div>
             <button class="btn-close" onclick="closeModal(null,'transferMobileModal',true)">Batal</button>
+        </div>
+    </div>
+
+    <!-- Modal Backup & Restore -->
+    <div class="modal-overlay" id="backupModal" onclick="closeModal(event,'backupModal')">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">
+                <div class="modal-title" id="backupModalTitle">📦 Backup Data</div>
+                <div class="modal-subtitle" id="backupModalSubtitle">Mengambil semua data dari Firebase...</div>
+            </div>
+            <div class="modal-body">
+                <div class="backup-modal-progress" id="backupProgressBox">
+                    <div class="prog-item" id="prog-db1"><i class="fas fa-circle-notch fa-spin" style="color:#1877F2;"></i> DB1: Akun & Riwayat...</div>
+                    <div class="prog-item" id="prog-db2"><i class="fas fa-circle" style="color:#ccc;"></i> DB2: Status & State...</div>
+                    <div class="prog-item" id="prog-save"><i class="fas fa-circle" style="color:#ccc;"></i> Menyimpan file...</div>
+                </div>
+                <div id="backupDoneBox" style="display:none; text-align:center; padding:10px 0;">
+                    <div style="font-size:36px; color:#36a420; margin-bottom:8px;">✅</div>
+                    <div style="font-weight:700; font-size:14px; color:#36a420; margin-bottom:4px;">Backup Berhasil!</div>
+                    <div style="font-size:11px; color:#999;" id="backupDoneInfo"></div>
+                </div>
+                <div id="backupErrorBox" style="display:none; background:#fee2e2; border-radius:8px; padding:10px; color:#fa3e3e; font-size:11px;"></div>
+            </div>
+            <button class="btn-close" onclick="closeModal(null,'backupModal',true)" id="btnCloseBackupModal" style="display:none;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Restore -->
+    <div class="modal-overlay" id="restoreModal" onclick="closeModal(event,'restoreModal')">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">
+                <div class="modal-title" id="restoreModalTitle">📤 Restore Data</div>
+                <div class="modal-subtitle" id="restoreModalSubtitle"></div>
+            </div>
+            <div class="modal-body">
+                <div class="restore-warning-box">
+                    ⚠️ <strong>Perhatian:</strong> Restore akan menimpa semua data state (status akun, timer, urutan, dll) dengan data dari file backup. Data terbaru dari Firebase akan hilang jika tidak di-backup dulu.
+                </div>
+                <div class="backup-modal-progress" id="restoreProgressBox" style="display:none;">
+                    <div class="prog-item" id="rprog-db2"><i class="fas fa-circle-notch fa-spin" style="color:#36a420;"></i> Menulis state ke DB2...</div>
+                    <div class="prog-item" id="rprog-db1"><i class="fas fa-circle" style="color:#ccc;"></i> Menulis data ke DB1...</div>
+                    <div class="prog-item" id="rprog-sync"><i class="fas fa-circle" style="color:#ccc;"></i> Sinkronisasi Firebase...</div>
+                    <div class="prog-item" id="rprog-render"><i class="fas fa-circle" style="color:#ccc;"></i> Memperbarui tampilan...</div>
+                </div>
+                <div id="restoreFileInfo" style="background:#f0f2f5;border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text-secondary);margin-bottom:10px;display:none;">
+                    <div><strong>File:</strong> <span id="restoreFileName"></span></div>
+                    <div><strong>Tanggal Backup:</strong> <span id="restoreBackupDate"></span></div>
+                    <div><strong>Versi:</strong> <span id="restoreBackupVer"></span></div>
+                </div>
+                <div id="restoreDoneBox" style="display:none; text-align:center; padding:10px 0;">
+                    <div style="font-size:36px; color:#36a420; margin-bottom:8px;">✅</div>
+                    <div style="font-weight:700; font-size:14px; color:#36a420; margin-bottom:4px;">Restore Berhasil!</div>
+                    <div style="font-size:11px; color:#999;">Data sudah disinkronkan dengan Firebase terbaru.</div>
+                </div>
+                <div id="restoreErrorBox" style="display:none; background:#fee2e2; border-radius:8px; padding:10px; color:#fa3e3e; font-size:11px;"></div>
+                <div id="restoreConfirmBtns" style="display:flex; gap:10px; margin-top:5px;">
+                    <button style="flex:1;padding:10px;border:none;border-radius:8px;background:#f0f2f5;color:#555;font-weight:700;cursor:pointer;font-size:12px;" onclick="closeModal(null,'restoreModal',true)">Batal</button>
+                    <button style="flex:1;padding:10px;border:none;border-radius:8px;background:linear-gradient(135deg,#36a420,#2d8a1a);color:white;font-weight:700;cursor:pointer;font-size:12px;" onclick="submitRestore()" id="btnSubmitRestore"><i class="fas fa-upload"></i> Restore Sekarang</button>
+                </div>
+            </div>
+            <button class="btn-close" onclick="closeModal(null,'restoreModal',true)" id="btnCloseRestoreModal" style="display:none;">Tutup</button>
         </div>
     </div>
 
@@ -1452,16 +1541,30 @@
             refreshAllTabs('blocking_lolos');
             alert(`✅ ${t.name} LOLOS — Masuk INKUBASI 3 Hari di tab Recovery.`);
         } else {
-            // Tidak lolos → hapus akun dari database
+            // Tidak lolos → hapus akun secara permanen
             if (!confirm(`Yakin hapus akun ${t.name} secara permanen?`)) return;
-            let targetDb = JSON.parse(JSON.stringify(window[t.originalDb] || []));
-            if (targetDb && targetDb[t.originalIdx]) {
-                targetDb.splice(t.originalIdx, 1);
-                saveToFirebase(t.originalDb, targetDb);
-            }
-            // Bersihkan overrides
-            delete window.accountOverrides[safeKey];
+
+            // ✅ FIX: Gunakan mekanisme deletedAccounts (sama seperti delete biasa)
+            // agar akun benar-benar hilang permanen setelah refresh / reload halaman.
+            // Sebelumnya hanya splice by index (DB1) tanpa tandai deletedAccounts,
+            // sehingga akun kembali muncul di Home setelah refresh.
+            window.deletedAccounts[safeKey] = true;
+            db2.ref('deletedAccounts/' + safeKey).set(true)
+                .catch(e => alert('Gagal hapus permanen: ' + e.message));
+
+            // Bersihkan semua data terkait
             db2.ref('accountOverrides/' + safeKey).remove();
+            db.ref('disbanTimers/' + safeKey).remove();
+            db.ref('accountRecovery/' + safeKey).remove();
+            db2.ref('recoveryQueue/' + safeKey).remove();
+            db2.ref('tabPlacements/' + safeKey).remove();
+            delete window.accountOverrides[safeKey];
+            delete window.disbanTimers[safeKey];
+            delete window.accountRecovery[safeKey];
+            delete window.recoveryQueue[safeKey];
+            delete window.tabPlacements[safeKey];
+
+            refreshAllTabs('delete');
             alert(`🗑️ ${t.name} dihapus permanen.`);
         }
 
@@ -3627,6 +3730,220 @@
             .catch(e => alert('Gagal hapus: ' + e.message));
         closeModal(null, 'transferMobileModal', true);
         window._transferMobileTarget = null;
+    };
+
+    // ============================================================
+    // BACKUP & RESTORE — Semua data Firebase (DB1 + DB2)
+    // ============================================================
+
+    window.doBackup = async function() {
+        const btn = document.getElementById('btn-backup');
+        btn.disabled = true;
+
+        // Reset modal
+        document.getElementById('backupDoneBox').style.display = 'none';
+        document.getElementById('backupErrorBox').style.display = 'none';
+        document.getElementById('btnCloseBackupModal').style.display = 'none';
+        document.getElementById('backupProgressBox').style.display = 'block';
+        document.getElementById('backupModalTitle').textContent = '📦 Backup Data';
+        document.getElementById('backupModalSubtitle').textContent = 'Mengambil semua data dari Firebase...';
+
+        function setProgIcon(id, icon, color) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.querySelector('i').className = icon;
+            el.querySelector('i').style.color = color;
+        }
+
+        document.getElementById('prog-db1').querySelector('i').className = 'fas fa-circle-notch fa-spin';
+        document.getElementById('prog-db1').querySelector('i').style.color = '#1877F2';
+        document.getElementById('prog-db2').querySelector('i').className = 'fas fa-circle';
+        document.getElementById('prog-db2').querySelector('i').style.color = '#ccc';
+        document.getElementById('prog-save').querySelector('i').className = 'fas fa-circle';
+        document.getElementById('prog-save').querySelector('i').style.color = '#ccc';
+
+        document.getElementById('backupModal').classList.add('show');
+
+        try {
+            // 1. Ambil data DB1 dari memory (sudah dimuat saat app init — tidak perlu re-fetch)
+            const db1Data = {
+                dbUtama1:       window.dbUtama1       || [],
+                dbSecondary1:   window.dbSecondary1   || [],
+                dbUtama5:       window.dbUtama5        || [],
+                history:        window.dbHistory       ? window.dbHistory.reduce((acc, h) => { if(h.fbKey) acc[h.fbKey]=h; return acc; }, {}) : {},
+                joinTimers:     window.joinTimers      || {},
+                disbanTimers:   window.disbanTimers    || {},
+                accountRecovery:window.accountRecovery || {},
+                postingSchedule:window.postingScheduleData || null
+            };
+            setProgIcon('prog-db1', 'fas fa-check-circle', '#36a420');
+
+            // 2. Ambil semua data dari DB2
+            setProgIcon('prog-db2', 'fas fa-circle-notch fa-spin', '#1877F2');
+            const db2Snap = await db2.ref('/').once('value');
+            const db2Data = db2Snap.val() || {};
+            setProgIcon('prog-db2', 'fas fa-check-circle', '#36a420');
+
+            // 3. Buat file JSON dan download
+            setProgIcon('prog-save', 'fas fa-circle-notch fa-spin', '#1877F2');
+            const backup = {
+                version: 2,
+                appName: 'FB Database Manager',
+                createdAt: new Date().toISOString(),
+                db1: db1Data,
+                db2: db2Data
+            };
+
+            const jsonStr = JSON.stringify(backup, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const dateStr = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+            a.href = url;
+            a.download = 'backup-fbdb-' + dateStr + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setProgIcon('prog-save', 'fas fa-check-circle', '#36a420');
+
+            // Hitung jumlah akun
+            const totalAkun = (window.dbUtama1 || []).filter(Boolean).length
+                + (window.dbUtama5 || []).filter(Boolean).length
+                + (window.dbSecondary1 || []).filter(Boolean).length;
+
+            document.getElementById('backupProgressBox').style.display = 'none';
+            document.getElementById('backupDoneBox').style.display = 'block';
+            document.getElementById('backupDoneInfo').textContent =
+                totalAkun + ' akun · ' + Math.round(jsonStr.length / 1024) + ' KB · ' + new Date().toLocaleString('id-ID');
+            document.getElementById('backupModalSubtitle').textContent = 'Selesai!';
+            document.getElementById('btnCloseBackupModal').style.display = 'block';
+
+        } catch(e) {
+            document.getElementById('backupProgressBox').style.display = 'none';
+            document.getElementById('backupErrorBox').style.display = 'block';
+            document.getElementById('backupErrorBox').textContent = '❌ Backup gagal: ' + e.message;
+            document.getElementById('btnCloseBackupModal').style.display = 'block';
+        }
+
+        btn.disabled = false;
+    };
+
+    // Tombol Restore → buka file picker
+    window.doRestore = function() {
+        document.getElementById('restore-file-input').click();
+    };
+
+    // Setelah file dipilih → baca & tampilkan modal konfirmasi
+    window._pendingRestoreData = null;
+    window.handleRestoreFile = async function(e) {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const backup = JSON.parse(text);
+            if (!backup.db2 && !backup.db1) throw new Error('File backup tidak valid atau corrupt!');
+
+            window._pendingRestoreData = { backup, file };
+
+            // Reset modal restore
+            document.getElementById('restoreProgressBox').style.display = 'none';
+            document.getElementById('restoreDoneBox').style.display = 'none';
+            document.getElementById('restoreErrorBox').style.display = 'none';
+            document.getElementById('restoreConfirmBtns').style.display = 'flex';
+            document.getElementById('btnCloseRestoreModal').style.display = 'none';
+            document.getElementById('btnSubmitRestore').disabled = false;
+            document.getElementById('restoreModalTitle').textContent = '📤 Restore Data';
+            document.getElementById('restoreModalSubtitle').textContent = 'Periksa detail sebelum restore';
+
+            document.getElementById('restoreFileInfo').style.display = 'block';
+            document.getElementById('restoreFileName').textContent = file.name;
+            document.getElementById('restoreBackupDate').textContent =
+                backup.createdAt ? new Date(backup.createdAt).toLocaleString('id-ID') : '—';
+            document.getElementById('restoreBackupVer').textContent = backup.version || '1';
+
+            document.getElementById('restoreModal').classList.add('show');
+        } catch(e) {
+            alert('❌ File tidak valid: ' + e.message);
+        }
+    };
+
+    // Eksekusi restore setelah konfirmasi
+    window.submitRestore = async function() {
+        if (!window._pendingRestoreData) return;
+        const { backup } = window._pendingRestoreData;
+
+        document.getElementById('restoreConfirmBtns').style.display = 'none';
+        document.getElementById('restoreFileInfo').style.display = 'none';
+        document.getElementById('restoreProgressBox').style.display = 'block';
+        document.getElementById('restoreModalSubtitle').textContent = 'Sedang restore data...';
+        document.getElementById('btnSubmitRestore').disabled = true;
+        document.getElementById('btn-restore').disabled = true;
+
+        function setRProgIcon(id, icon, color) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.querySelector('i').className = icon;
+            el.querySelector('i').style.color = color;
+        }
+        setRProgIcon('rprog-db2', 'fas fa-circle-notch fa-spin', '#36a420');
+        setRProgIcon('rprog-db1', 'fas fa-circle', '#ccc');
+        setRProgIcon('rprog-sync', 'fas fa-circle', '#ccc');
+        setRProgIcon('rprog-render', 'fas fa-circle', '#ccc');
+
+        try {
+            // 1. Restore DB2 (state/override)
+            if (backup.db2) {
+                await db2.ref('/').set(backup.db2);
+            }
+            setRProgIcon('rprog-db2', 'fas fa-check-circle', '#36a420');
+
+            // 2. Restore DB1 (data akun & timer — path yang bisa ditulis)
+            setRProgIcon('rprog-db1', 'fas fa-circle-notch fa-spin', '#36a420');
+            if (backup.db1) {
+                const writablePaths = ['history','joinTimers','disbanTimers','accountRecovery','postingSchedule'];
+                for (const path of writablePaths) {
+                    if (backup.db1[path] !== undefined && backup.db1[path] !== null) {
+                        try { await db.ref(path).set(backup.db1[path]); } catch(e2) { /* skip jika gagal */ }
+                    }
+                }
+            }
+            setRProgIcon('rprog-db1', 'fas fa-check-circle', '#36a420');
+
+            // 3. Sinkronisasi: baca ulang DB2 & apply snapshot
+            setRProgIcon('rprog-sync', 'fas fa-circle-notch fa-spin', '#36a420');
+            const newSnap = await db2.ref('/').once('value');
+            applyDb2Snapshot(newSnap.val());
+            setRProgIcon('rprog-sync', 'fas fa-check-circle', '#36a420');
+
+            // 4. Render ulang semua tab
+            setRProgIcon('rprog-render', 'fas fa-circle-notch fa-spin', '#36a420');
+            window.db2Ready = true;
+            refreshAllTabs('restore');
+            renderHomeTab();
+            renderHistoryTab();
+            if (document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
+            if (document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
+            if (document.getElementById('tab-8').classList.contains('active')) renderBlockingTab();
+            setRProgIcon('rprog-render', 'fas fa-check-circle', '#36a420');
+
+            document.getElementById('restoreProgressBox').style.display = 'none';
+            document.getElementById('restoreDoneBox').style.display = 'block';
+            document.getElementById('restoreModalSubtitle').textContent = 'Selesai!';
+            document.getElementById('btnCloseRestoreModal').style.display = 'block';
+
+        } catch(e) {
+            document.getElementById('restoreProgressBox').style.display = 'none';
+            document.getElementById('restoreErrorBox').style.display = 'block';
+            document.getElementById('restoreErrorBox').textContent = '❌ Restore gagal: ' + e.message;
+            document.getElementById('restoreConfirmBtns').style.display = 'flex';
+            document.getElementById('btnCloseRestoreModal').style.display = 'none';
+        }
+
+        document.getElementById('btn-restore').disabled = false;
+        window._pendingRestoreData = null;
     };
 
     window.switchTab = function(n) {
