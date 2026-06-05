@@ -454,6 +454,46 @@
         .android-browser-btn:hover, .android-browser-btn.selected { border-color: #1877F2; background: #e7f3ff; color: #1877F2; }
         .transfer-acc-name-badge { background: #e7f3ff; color: #1877F2; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 12px; }
         .transfer-already-badge { font-size: 10px; color: #36a420; font-weight: 700; background: #e7f9e7; padding: 3px 8px; border-radius: 10px; margin-left: 6px; }
+
+        /* === BIODATA TAB === */
+        .biodata-search-wrap { position: relative; margin-bottom: 12px; }
+        .biodata-search-input { width: 100%; padding: 10px 36px 10px 12px; border: 1px solid #e4e6eb; border-radius: 10px; font-size: 13px; font-family: 'Inter', sans-serif; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.06); outline: none; }
+        .biodata-search-input:focus { border-color: var(--fb-blue); box-shadow: 0 0 0 3px rgba(24,119,242,0.1); }
+        .biodata-search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #bcc0c4; font-size: 14px; pointer-events: none; }
+        .biodata-card { background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 10px; overflow: hidden; transition: all 0.3s var(--ease-ios); }
+        .biodata-card.bio-expanded { box-shadow: 0 8px 24px rgba(24,119,242,0.12); border-color: rgba(24,119,242,0.25); }
+        .biodata-card-header { padding: 11px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; background: white; }
+        .biodata-card.bio-expanded .biodata-card-header { border-bottom: 1px solid #f0f2f5; background: #fafcff; }
+        .biodata-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #e7f3ff, #cfe2ff); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--fb-blue); flex-shrink: 0; }
+        .biodata-card-info { flex: 1; }
+        .biodata-card-name { font-size: 13px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; }
+        .biodata-card-sub { font-size: 10px; color: var(--text-secondary); margin-top: 1px; display: flex; align-items: center; gap: 5px; }
+        .biodata-filled-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; display: inline-block; flex-shrink: 0; }
+        .biodata-filled-dot.filled { background: #36a420; }
+        .biodata-filled-count { font-size: 9px; font-weight: 700; }
+        .biodata-arrow { color: var(--text-secondary); font-size: 11px; transition: 0.3s; }
+        .biodata-card.bio-expanded .biodata-arrow { transform: rotate(180deg); }
+        .biodata-body { max-height: 0; overflow: hidden; background: white; transition: max-height 0.4s var(--ease-ios); }
+        .biodata-card.bio-expanded .biodata-body { max-height: 800px; }
+        .biodata-form { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+        .biodata-field-group { display: flex; flex-direction: column; gap: 4px; }
+        .biodata-field-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+        .biodata-field-label i { color: var(--fb-blue); font-size: 11px; }
+        .biodata-field-input { width: 100%; padding: 9px 11px; border: 1px solid #e4e6eb; border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-primary); background: #fafafa; outline: none; transition: 0.2s; }
+        .biodata-field-input:focus { border-color: var(--fb-blue); background: white; box-shadow: 0 0 0 3px rgba(24,119,242,0.08); }
+        .biodata-field-input.filled { background: #f0fff4; border-color: #a7f3d0; }
+        .biodata-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .biodata-save-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; background: linear-gradient(135deg, #1877F2, #0a5dc2); color: white; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; box-shadow: 0 2px 6px rgba(24,119,242,0.25); margin-top: 4px; }
+        .biodata-save-btn:active { transform: scale(0.97); }
+        .biodata-save-btn.saving { background: #ccc; cursor: not-allowed; }
+        .biodata-save-btn.saved { background: linear-gradient(135deg, #36a420, #2d8a1a); box-shadow: 0 2px 6px rgba(54,164,32,0.25); }
+        .biodata-stats-bar { background: white; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); display: flex; align-items: center; gap: 10px; }
+        .biodata-stat-item { flex: 1; text-align: center; }
+        .biodata-stat-num { font-size: 18px; font-weight: 700; color: var(--fb-blue); }
+        .biodata-stat-label { font-size: 9px; color: var(--text-secondary); font-weight: 600; margin-top: 1px; }
+        .biodata-stat-divider { width: 1px; height: 28px; background: #e4e6eb; }
+        .biodata-empty { text-align: center; padding: 30px 10px; color: #aaa; font-size: 12px; line-height: 1.7; }
+        .biodata-section-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 0 6px; border-bottom: 1px solid #f0f2f5; margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -562,6 +602,43 @@
                 <div class="fs-sub-btn" onclick="switchFSTab('secondary')" id="btn-fs-secondary">👤 Secondary</div>
             </div>
             <div id="list-fs" class="grid-container"></div>
+        </section>
+
+        <!-- TAB 10: BIODATA -->
+        <section id="tab-10" class="tab-content">
+            <div class="section-header-wrap">
+                <span class="section-title">📋 Biodata Akun</span>
+                <button class="btn-create-acc" onclick="syncAllBiodata()" id="btn-sync-all-biodata">
+                    <i class="fas fa-cloud-upload-alt"></i> Simpan Semua
+                </button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="biodata-stats-bar" id="biodata-stats-bar">
+                <div class="biodata-stat-item">
+                    <div class="biodata-stat-num" id="bio-stat-total">0</div>
+                    <div class="biodata-stat-label">Total Akun</div>
+                </div>
+                <div class="biodata-stat-divider"></div>
+                <div class="biodata-stat-item">
+                    <div class="biodata-stat-num" id="bio-stat-filled" style="color:#36a420;">0</div>
+                    <div class="biodata-stat-label">Terisi</div>
+                </div>
+                <div class="biodata-stat-divider"></div>
+                <div class="biodata-stat-item">
+                    <div class="biodata-stat-num" id="bio-stat-empty" style="color:#fa3e3e;">0</div>
+                    <div class="biodata-stat-label">Kosong</div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="biodata-search-wrap">
+                <input type="text" class="biodata-search-input" id="biodata-search" placeholder="Cari nama akun..." oninput="filterBiodataCards()" />
+                <i class="fas fa-search biodata-search-icon"></i>
+            </div>
+
+            <!-- Cards -->
+            <div id="biodata-list"></div>
         </section>
     </div>
 
@@ -805,11 +882,11 @@
         <div class="nav-item active" onclick="switchTab(1)"><i class="fas fa-home"></i></div>
         <div class="nav-item" onclick="switchTab(9)" style="color:#1877F2;"><i class="fas fa-layer-group"></i></div>
         <div class="nav-item" onclick="switchTab(3)"><i class="fas fa-history"></i></div>
-
         <div class="nav-item" onclick="switchTab(7)" style="color:#059669;"><i class="fas fa-seedling"></i></div>
         <div class="nav-item" onclick="switchTab(8)" style="color:#7c3aed;"><i class="fas fa-shield-virus"></i></div>
         <div class="nav-item" onclick="switchTab(5)" style="color: #65676B;"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="switchTab(6)"><i class="fas fa-calendar-check"></i></div>
+        <div class="nav-item" onclick="switchTab(10)" style="color:#e05c00;"><i class="fas fa-id-card"></i></div>
     </nav>
 
     <!-- ✅ Loading overlay: tampil saat DB2 belum siap, hilang otomatis -->
@@ -3950,8 +4027,8 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-'+n).classList.add('active');
-        // Nav: Home=0, FS=1, History=2, Recovery=3, Blocking=4, Schedule=5, Jadwal=6
-        const navMap = { 1: 0, 9: 1, 3: 2, 7: 3, 8: 4, 5: 5, 6: 6 };
+        // Nav: Home=0, FS=1, History=2, Recovery=3, Blocking=4, Schedule=5, Jadwal=6, Biodata=7
+        const navMap = { 1: 0, 9: 1, 3: 2, 7: 3, 8: 4, 5: 5, 6: 6, 10: 7 };
         const navIdx = navMap[n];
         if (navIdx !== undefined) {
             const navItems = document.querySelectorAll('.nav-item');
@@ -3967,7 +4044,242 @@
         if(n === 7) renderRecoveryTab();
         if(n === 8) renderBlockingTab();
         if(n === 9) renderFSTab();
+        if(n === 10) renderBiodataTab();
     };
+
+    // ============================================================
+    // TAB BIODATA — Data pribadi akun (tempat/tanggal lahir, dll)
+    // Disimpan di DB2 path: biodata/<safeKey>
+    // ============================================================
+    window.biodataCache = {}; // { safeKey: { namaLengkap, tempatLahir, tanggalLahir, email, noHp, alamat, catatan } }
+
+    // Load biodata dari DB2 saat init
+    db2.ref('biodata').on('value', (snap) => {
+        window.biodataCache = snap.val() || {};
+        if (document.getElementById('tab-10') && document.getElementById('tab-10').classList.contains('active')) {
+            renderBiodataTab();
+        }
+    });
+
+    function getAllBiodataAccounts() {
+        // Gabungkan semua akun dari dbUtama1 + dbSecondary1 + dbUtama5, hilangkan null/deleted
+        const all = [];
+        const seen = new Set();
+        const lists = [window.dbUtama1, window.dbSecondary1, window.dbUtama5];
+        lists.forEach(list => {
+            (list || []).forEach(acc => {
+                if (!acc || !acc.name) return;
+                const sk = getSafeKey(acc.name);
+                if (seen.has(sk)) return;
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
+                seen.add(sk);
+                all.push({ name: acc.name, safeKey: sk });
+            });
+        });
+        return all.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function getBiodataFilledCount(safeKey) {
+        const b = window.biodataCache[safeKey] || {};
+        const fields = ['namaLengkap','tempatLahir','tanggalLahir','email','noHp','alamat','catatan'];
+        return fields.filter(f => b[f] && b[f].trim() !== '').length;
+    }
+
+    function renderBiodataTab() {
+        const accs = getAllBiodataAccounts();
+        const container = document.getElementById('biodata-list');
+        const searchVal = (document.getElementById('biodata-search') || {}).value || '';
+        const q = searchVal.toLowerCase().trim();
+        const filtered = q ? accs.filter(a => a.name.toLowerCase().includes(q)) : accs;
+
+        // Update stats
+        const totalFilled = accs.filter(a => getBiodataFilledCount(a.safeKey) > 0).length;
+        document.getElementById('bio-stat-total').textContent = accs.length;
+        document.getElementById('bio-stat-filled').textContent = totalFilled;
+        document.getElementById('bio-stat-empty').textContent = accs.length - totalFilled;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="biodata-empty"><i class="fas fa-id-card" style="font-size:28px;color:#ddd;margin-bottom:8px;display:block;"></i>${q ? 'Tidak ada akun yang cocok.' : 'Belum ada akun tersedia.'}</div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(acc => {
+            const b = window.biodataCache[acc.safeKey] || {};
+            const filled = getBiodataFilledCount(acc.safeKey);
+            const total = 7;
+            const initials = acc.name.slice(0,2).toUpperCase();
+            const subText = filled > 0 ? `${filled}/${total} data terisi` : 'Belum ada data';
+            return `
+            <div class="biodata-card" id="biocard-${acc.safeKey}">
+                <div class="biodata-card-header" onclick="toggleBiodataCard('${acc.safeKey}')">
+                    <div class="biodata-avatar">${initials}</div>
+                    <div class="biodata-card-info">
+                        <div class="biodata-card-name">${acc.name}</div>
+                        <div class="biodata-card-sub">
+                            <span class="biodata-filled-dot ${filled > 0 ? 'filled' : ''}"></span>
+                            <span class="biodata-filled-count" style="color:${filled > 0 ? '#36a420' : '#aaa'};">${subText}</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down biodata-arrow"></i>
+                </div>
+                <div class="biodata-body">
+                    <div class="biodata-form">
+                        <div class="biodata-section-title"><i class="fas fa-user" style="color:#1877F2;"></i> Data Diri</div>
+                        <div class="biodata-field-group">
+                            <label class="biodata-field-label"><i class="fas fa-signature"></i> Nama Lengkap</label>
+                            <input type="text" class="biodata-field-input ${b.namaLengkap ? 'filled' : ''}" id="bio-namaLengkap-${acc.safeKey}" value="${b.namaLengkap || ''}" placeholder="Nama lengkap sesuai KTP" oninput="onBiodataInput(this)">
+                        </div>
+                        <div class="biodata-two-col">
+                            <div class="biodata-field-group">
+                                <label class="biodata-field-label"><i class="fas fa-map-marker-alt"></i> Tempat Lahir</label>
+                                <input type="text" class="biodata-field-input ${b.tempatLahir ? 'filled' : ''}" id="bio-tempatLahir-${acc.safeKey}" value="${b.tempatLahir || ''}" placeholder="Kota lahir" oninput="onBiodataInput(this)">
+                            </div>
+                            <div class="biodata-field-group">
+                                <label class="biodata-field-label"><i class="fas fa-calendar-day"></i> Tanggal Lahir</label>
+                                <input type="date" class="biodata-field-input ${b.tanggalLahir ? 'filled' : ''}" id="bio-tanggalLahir-${acc.safeKey}" value="${b.tanggalLahir || ''}" oninput="onBiodataInput(this)">
+                            </div>
+                        </div>
+                        <div class="biodata-section-title" style="margin-top:4px;"><i class="fas fa-address-book" style="color:#1877F2;"></i> Kontak</div>
+                        <div class="biodata-two-col">
+                            <div class="biodata-field-group">
+                                <label class="biodata-field-label"><i class="fas fa-envelope"></i> Email</label>
+                                <input type="email" class="biodata-field-input ${b.email ? 'filled' : ''}" id="bio-email-${acc.safeKey}" value="${b.email || ''}" placeholder="contoh@gmail.com" oninput="onBiodataInput(this)">
+                            </div>
+                            <div class="biodata-field-group">
+                                <label class="biodata-field-label"><i class="fas fa-phone"></i> No. HP</label>
+                                <input type="tel" class="biodata-field-input ${b.noHp ? 'filled' : ''}" id="bio-noHp-${acc.safeKey}" value="${b.noHp || ''}" placeholder="08xx..." oninput="onBiodataInput(this)">
+                            </div>
+                        </div>
+                        <div class="biodata-field-group">
+                            <label class="biodata-field-label"><i class="fas fa-home"></i> Alamat</label>
+                            <input type="text" class="biodata-field-input ${b.alamat ? 'filled' : ''}" id="bio-alamat-${acc.safeKey}" value="${b.alamat || ''}" placeholder="Alamat lengkap" oninput="onBiodataInput(this)">
+                        </div>
+                        <div class="biodata-field-group">
+                            <label class="biodata-field-label"><i class="fas fa-sticky-note"></i> Catatan</label>
+                            <input type="text" class="biodata-field-input ${b.catatan ? 'filled' : ''}" id="bio-catatan-${acc.safeKey}" value="${b.catatan || ''}" placeholder="Catatan tambahan..." oninput="onBiodataInput(this)">
+                        </div>
+                        <button class="biodata-save-btn" id="bio-save-btn-${acc.safeKey}" onclick="saveBiodata('${acc.safeKey}')">
+                            <i class="fas fa-cloud-upload-alt"></i> Simpan ke Firebase
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleBiodataCard(safeKey) {
+        const card = document.getElementById('biocard-' + safeKey);
+        if (!card) return;
+        card.classList.toggle('bio-expanded');
+    }
+
+    function onBiodataInput(input) {
+        // Tandai filled jika ada isi
+        if (input.value.trim()) {
+            input.classList.add('filled');
+        } else {
+            input.classList.remove('filled');
+        }
+    }
+
+    function saveBiodata(safeKey) {
+        const btn = document.getElementById('bio-save-btn-' + safeKey);
+        if (!btn) return;
+
+        const fields = ['namaLengkap','tempatLahir','tanggalLahir','email','noHp','alamat','catatan'];
+        const data = {};
+        fields.forEach(f => {
+            const el = document.getElementById('bio-' + f + '-' + safeKey);
+            data[f] = el ? el.value.trim() : '';
+        });
+        data.updatedAt = Date.now();
+
+        btn.classList.add('saving');
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        db2.ref('biodata/' + safeKey).set(data)
+            .then(() => {
+                window.biodataCache[safeKey] = data;
+                btn.classList.remove('saving');
+                btn.classList.add('saved');
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Tersimpan!';
+                btn.disabled = false;
+                // Update sub info
+                const filled = getBiodataFilledCount(safeKey);
+                const cardEl = document.getElementById('biocard-' + safeKey);
+                if (cardEl) {
+                    const dot = cardEl.querySelector('.biodata-filled-dot');
+                    const cnt = cardEl.querySelector('.biodata-filled-count');
+                    if (dot) dot.classList.toggle('filled', filled > 0);
+                    if (cnt) { cnt.textContent = filled > 0 ? `${filled}/7 data terisi` : 'Belum ada data'; cnt.style.color = filled > 0 ? '#36a420' : '#aaa'; }
+                }
+                // Update stats
+                const accs = getAllBiodataAccounts();
+                const totalFilled = accs.filter(a => getBiodataFilledCount(a.safeKey) > 0).length;
+                document.getElementById('bio-stat-filled').textContent = totalFilled;
+                document.getElementById('bio-stat-empty').textContent = accs.length - totalFilled;
+                // Kembalikan tombol setelah 2 detik
+                setTimeout(() => {
+                    btn.classList.remove('saved');
+                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Simpan ke Firebase';
+                }, 2000);
+            })
+            .catch(err => {
+                btn.classList.remove('saving');
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal!';
+                btn.disabled = false;
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Coba Lagi';
+                }, 2000);
+                console.error('Biodata save error:', err);
+            });
+    }
+
+    function syncAllBiodata() {
+        const btn = document.getElementById('btn-sync-all-biodata');
+        const accs = getAllBiodataAccounts();
+        if (!accs.length) return;
+
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyimpan...';
+        btn.disabled = true;
+
+        const allData = {};
+        accs.forEach(acc => {
+            const fields = ['namaLengkap','tempatLahir','tanggalLahir','email','noHp','alamat','catatan'];
+            const data = {};
+            let hasAny = false;
+            fields.forEach(f => {
+                const el = document.getElementById('bio-' + f + '-' + acc.safeKey);
+                if (el) { data[f] = el.value.trim(); if (data[f]) hasAny = true; }
+                else data[f] = (window.biodataCache[acc.safeKey] || {})[f] || '';
+            });
+            if (hasAny || window.biodataCache[acc.safeKey]) {
+                data.updatedAt = Date.now();
+                allData[acc.safeKey] = data;
+            }
+        });
+
+        db2.ref('biodata').update(allData)
+            .then(() => {
+                Object.assign(window.biodataCache, allData);
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Tersimpan!';
+                btn.disabled = false;
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Simpan Semua';
+                }, 2000);
+            })
+            .catch(err => {
+                btn.innerHTML = '<i class="fas fa-times"></i> Gagal';
+                btn.disabled = false;
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Simpan Semua'; }, 2000);
+            });
+    }
+
+    function filterBiodataCards() {
+        renderBiodataTab();
+        // Pertahankan card yang sedang expand
+    }
 </script>
 </body>
 </html>
