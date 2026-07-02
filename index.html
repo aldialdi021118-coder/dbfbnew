@@ -515,11 +515,43 @@
             <button class="btn-restore" id="btn-restore" onclick="doRestore()">
                 <i class="fas fa-upload"></i> Restore
             </button>
+            <button id="btn-grupid-sync" onclick="manualGrupIdSync()" style="background:linear-gradient(135deg,#7c3aed,#4f7cff);color:white;border:none;padding:7px 13px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:0.2s;box-shadow:0 2px 6px rgba(124,58,237,0.3);" title="Sinkron akun & data grup dari Database Grup">
+                <i class="fas fa-sync-alt"></i> Sync DB Grup
+            </button>
         </div>
+        <div id="grupid-sync-status" style="display:none;font-size:11px;padding:6px 10px;border-radius:7px;margin-bottom:8px;font-weight:600;"></div>
         <input type="file" id="restore-file-input" accept=".json" style="display:none;" onchange="handleRestoreFile(event)">
 
         <section id="tab-1" class="tab-content active">
             <div class="section-header-wrap"><span class="section-title">Home – Akun FB Aktif</span></div>
+            <!-- ── MINI STAT BAR ── -->
+            <div id="mini-stat-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:0 2px;">
+                <div style="display:flex;align-items:center;gap:4px;background:#e7f9e7;border:1px solid #a7e8c0;border-radius:20px;padding:3px 10px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#36a420;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:10px;font-weight:700;color:#1a7a3a;">Aktif</span>
+                    <span id="ms-aktif" style="font-size:11px;font-weight:800;color:#059669;">0</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;background:#e7f3ff;border:1px solid #a8c7fa;border-radius:20px;padding:3px 10px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#1877F2;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:10px;font-weight:700;color:#1877F2;">FP</span>
+                    <span id="ms-fanpage" style="font-size:11px;font-weight:800;color:#1877F2;">0</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;background:#f3e8ff;border:1px solid #d8b4fe;border-radius:20px;padding:3px 10px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#7c3aed;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:10px;font-weight:700;color:#7c3aed;">2nd</span>
+                    <span id="ms-secondary" style="font-size:11px;font-weight:800;color:#7c3aed;">0</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;background:#fee2e2;border:1px solid #fca5a5;border-radius:20px;padding:3px 10px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#fa3e3e;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:10px;font-weight:700;color:#fa3e3e;">Disban</span>
+                    <span id="ms-disban" style="font-size:11px;font-weight:800;color:#fa3e3e;">0</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:20px;padding:3px 10px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#7c3aed;display:inline-block;flex-shrink:0;"></span>
+                    <span style="font-size:10px;font-weight:700;color:#7c3aed;">Blocking</span>
+                    <span id="ms-blocking" style="font-size:11px;font-weight:800;color:#7c3aed;">0</span>
+                </div>
+            </div>
             <div class="sub-nav-container" style="gap:2px;">
                 <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all" style="font-size:9px;white-space:nowrap;">FB Aktif</div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chrome')" id="btn-home-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
@@ -1189,6 +1221,7 @@
             // DB1 baru diaktifkan SETELAH DB2 siap → tidak ada flash
             startFirebaseListeners();
             startFewfeedScanListener();
+            startGrupIdSyncListener(); // ✅ Sync dari Database Grup (index 31)
 
             // ✅ Real-time listener DB2 untuk sinkron perubahan state
             db2.ref('accountOverrides').on('value', snap2 => {
@@ -1245,6 +1278,8 @@
 
             // ✅ MIGRASI DISBAN LAMA: jalankan setelah semua data siap (retry sampai berhasil)
             _scheduleMigrateDisban();
+            // ✅ Sync status semua akun ke grupid-default-rtdb agar index 31 bisa baca
+            setTimeout(_syncAllStatusToGrupId, 2000);
         })
         .catch(err => {
             console.warn('DB2 gagal dimuat, lanjut tanpa override:', err);
@@ -1252,6 +1287,7 @@
             document.getElementById('db2-loading').style.display = 'none';
             startFirebaseListeners();
             startFewfeedScanListener();
+            startGrupIdSyncListener(); // ✅ Sync dari Database Grup (index 31)
         });
 
     // --- 5b. LISTENER REAL-TIME FIREBASE CONTENT.JS (fewfeed_scan) ---
@@ -1301,6 +1337,244 @@
         console.log('✅ FewFeed Scan Listener aktif →', sseUrl);
     }
     // startFewfeedScanListener() dipanggil di dalam DB2 init sequence (di atas)
+
+    // ============================================================
+    // 5b-2. SYNC DARI DATABASE GRUP (index 31 / grupid-default-rtdb)
+    // Membaca fewfeed_groups dari Firebase Database Grup dan sinkron ke sini:
+    // - Data kota & jumlah grup → fewfeedScanData (sumber data real-time)
+    // - Akun fanpage  → tabPlacements[key].tab = 'fanpage'
+    // - Akun secondary → tabPlacements[key].tab = 'secondary'
+    // - Akun baru → auto-register ke dbUtama1/dbSecondary1/dbUtama5
+    // Menggunakan SSE agar real-time tanpa polling
+    // ============================================================
+    window.grupidSyncData = {}; // cache data dari Database Grup
+
+    function _getGrupIdAkunTab(namaAkun) {
+        const n = (namaAkun || '').trim().toLowerCase();
+        if (n.endsWith('fanpage'))   return 'fanpage';
+        if (n.endsWith('secondary')) return 'secondary';
+        return 'utama';
+    }
+
+    function _processGrupIdData(rawData) {
+        if (!rawData || typeof rawData !== 'object') return;
+        window.grupidSyncData = rawData;
+
+        // --- 1. Populate fewfeedScanData dari data grup (kota & jumlah) ---
+        Object.entries(rawData).forEach(([akunKey, akunData]) => {
+            if (!akunData || !akunData.namaAkun) return;
+            const namaAkun = (akunData.namaAkun || akunKey).trim().toUpperCase();
+            const scanKey  = namaAkun.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const cities   = akunData.cities || {};
+
+            // Hitung total grup per kota dan konversi ke format fewfeedScanData
+            const cityArr = [];
+            Object.entries(cities).forEach(([kotaNama, grupList]) => {
+                if (!Array.isArray(grupList)) return;
+                const validGrups = grupList.filter(g => g && g.name);
+                if (validGrups.length === 0) return;
+                const kotaLabel = kotaNama.charAt(0).toUpperCase() + kotaNama.slice(1);
+                cityArr.push({ label: kotaLabel, count: validGrups.length });
+            });
+
+            if (!window.fewfeedScanData) window.fewfeedScanData = {};
+            // Merge dengan scanData yang sudah ada — Database Grup adalah sumber utama
+            if (!window.fewfeedScanData[scanKey]) window.fewfeedScanData[scanKey] = {};
+            window.fewfeedScanData[scanKey].namaAkun  = namaAkun;
+            window.fewfeedScanData[scanKey].subAkun   = akunData.subAkun || '';
+            window.fewfeedScanData[scanKey].lastScan  = Date.now();
+            if (cityArr.length > 0) {
+                window.fewfeedScanData[scanKey].cities = cityArr;
+            }
+        });
+
+        // --- 2. Auto-register akun baru & set tabPlacements ---
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        const existingNames = new Set();
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (acc && acc.name) existingNames.add(acc.name.toUpperCase().trim());
+            });
+        });
+
+        let saveUtama1 = false, saveSecondary1 = false, saveUtama5 = false;
+        const tabPlacementsToWrite = {}; // key → tab
+
+        Object.entries(rawData).forEach(([akunKey, akunData]) => {
+            if (!akunData || !akunData.namaAkun) return;
+            const namaAkun = (akunData.namaAkun || akunKey).trim().toUpperCase();
+            const akunTab  = _getGrupIdAkunTab(namaAkun);
+            const safeKey  = getSafeKey(namaAkun);
+
+            // Konversi cities → items untuk simpan ke DB1
+            const cities = akunData.cities || {};
+            const items  = [];
+            Object.entries(cities).forEach(([kotaNama, grupList]) => {
+                if (!Array.isArray(grupList)) return;
+                const jumlah = grupList.filter(g => g && g.name).length;
+                if (jumlah === 0) return;
+                const kotaLabel = kotaNama.charAt(0).toUpperCase() + kotaNama.slice(1);
+                items.push({ city: kotaLabel, val: jumlah });
+            });
+
+            if (existingNames.has(namaAkun)) {
+                // Akun sudah ada → update items di semua DB (timpa data kota)
+                allDbKeys.forEach(dbKey => {
+                    const arr = window[dbKey] || [];
+                    const idx = arr.findIndex(a => a && a.name && a.name.toUpperCase().trim() === namaAkun);
+                    if (idx !== -1 && items.length > 0) {
+                        arr[idx].items = items;
+                        if (dbKey === 'dbUtama1')     saveUtama1     = true;
+                        if (dbKey === 'dbSecondary1') saveSecondary1 = true;
+                        if (dbKey === 'dbUtama5')     saveUtama5     = true;
+                    }
+                });
+            } else {
+                // Akun baru → daftarkan
+                const newAcc = { name: namaAkun, status: 'gacor', items: items };
+                if (akunTab === 'fanpage') {
+                    window.dbUtama5 = window.dbUtama5 || [];
+                    window.dbUtama5.push(newAcc);
+                    saveUtama5 = true;
+                } else if (akunTab === 'secondary') {
+                    window.dbSecondary1 = window.dbSecondary1 || [];
+                    window.dbSecondary1.push(newAcc);
+                    saveSecondary1 = true;
+                } else {
+                    window.dbUtama1 = window.dbUtama1 || [];
+                    window.dbUtama1.push(newAcc);
+                    saveUtama1 = true;
+                }
+                existingNames.add(namaAkun);
+                console.log('✅ GrupId Sync: akun baru didaftarkan →', namaAkun, '(', akunTab, ')');
+            }
+
+            // Set tabPlacements untuk fanpage/secondary dari Database Grup
+            if (akunTab === 'fanpage' || akunTab === 'secondary') {
+                const existing = window.tabPlacements[safeKey];
+                // Hanya tulis jika belum ada atau berbeda tab
+                if (!existing || existing.tab !== akunTab) {
+                    tabPlacementsToWrite[safeKey] = { tab: akunTab, parentAcc: namaAkun };
+                }
+            }
+        });
+
+        // Simpan ke Firebase jika ada perubahan
+        if (saveUtama1)     saveToFirebase('dbUtama1',     window.dbUtama1);
+        if (saveSecondary1) saveToFirebase('dbSecondary1', window.dbSecondary1);
+        if (saveUtama5)     saveToFirebase('dbUtama5',     window.dbUtama5);
+
+        // Simpan tabPlacements baru ke DB2
+        if (Object.keys(tabPlacementsToWrite).length > 0) {
+            Object.entries(tabPlacementsToWrite).forEach(([sk, placement]) => {
+                window.tabPlacements[sk] = placement;
+                db2.ref('tabPlacements/' + sk).set(placement)
+                    .catch(e => console.warn('GrupId Sync: gagal set tabPlacement', sk, e.message));
+            });
+        }
+
+        refreshAllTabs('grupid_sync');
+        console.log('✅ GrupId Sync selesai. Total akun:', Object.keys(rawData).length);
+    }
+
+    function startGrupIdSyncListener() {
+        const GRUPID_URL = 'https://grupid-default-rtdb.firebaseio.com';
+        // Gunakan token yang sama dengan fewfeed jika tersedia, atau kosong
+        const AUTH_TOK  = localStorage.getItem("fewfeed_firebase_token") || '';
+        const authParam = AUTH_TOK ? '?auth=' + AUTH_TOK : '';
+        const sseUrl    = GRUPID_URL + '/fewfeed_groups.json' + authParam;
+
+        // Juga coba baca sekali dengan REST (fallback jika SSE tidak support)
+        fetch(GRUPID_URL + '/fewfeed_groups.json' + authParam)
+            .then(r => r.json())
+            .then(data => { if (data) _processGrupIdData(data); })
+            .catch(e => console.warn('GrupId REST fetch gagal:', e.message));
+
+        // SSE real-time listener
+        try {
+            const es = new EventSource(sseUrl);
+            es.addEventListener('put', function(e) {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (!msg) return;
+                    let data = null;
+                    if (msg.path === '/' || msg.path === '') {
+                        data = msg.data;
+                    } else if (msg.data !== null) {
+                        // Partial update — merge ke cache
+                        const key = msg.path.replace(/^\//, '').split('/')[0];
+                        if (key) {
+                            window.grupidSyncData[key] = Object.assign(
+                                window.grupidSyncData[key] || {}, msg.data
+                            );
+                        }
+                        data = window.grupidSyncData;
+                    } else {
+                        const key = msg.path.replace(/^\//, '').split('/')[0];
+                        if (key) delete window.grupidSyncData[key];
+                        data = window.grupidSyncData;
+                    }
+                    if (data) _processGrupIdData(data);
+                } catch(err) { console.error('GrupId SSE parse error:', err); }
+            });
+            es.addEventListener('patch', function(e) {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg && msg.data) {
+                        Object.assign(window.grupidSyncData, msg.data);
+                        _processGrupIdData(window.grupidSyncData);
+                    }
+                } catch(err) {}
+            });
+            es.onerror = function() {
+                console.warn('⚠️ GrupId Sync: SSE terputus, mencoba sambung ulang...');
+            };
+            console.log('✅ GrupId Sync Listener aktif →', sseUrl);
+        } catch(e) {
+            console.warn('GrupId Sync SSE tidak tersedia:', e.message);
+        }
+    }
+    // startGrupIdSyncListener() dipanggil setelah DB2 siap (lihat di bawah)
+
+    // Tombol manual sync dari Database Grup
+    window.manualGrupIdSync = function() {
+        const btn    = document.getElementById('btn-grupid-sync');
+        const status = document.getElementById('grupid-sync-status');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...'; }
+        if (status) { status.style.display = 'none'; }
+
+        const GRUPID_URL = 'https://grupid-default-rtdb.firebaseio.com';
+        const AUTH_TOK   = localStorage.getItem("fewfeed_firebase_token") || '';
+        const authParam  = AUTH_TOK ? '?auth=' + AUTH_TOK : '';
+
+        fetch(GRUPID_URL + '/fewfeed_groups.json' + authParam)
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(data => {
+                if (!data || Object.keys(data).length === 0) {
+                    throw new Error('Data kosong — pastikan index 31 sudah mempunyai data grup.');
+                }
+                _processGrupIdData(data);
+                const total = Object.keys(data).length;
+                if (status) {
+                    status.style.cssText = 'display:block;background:#e7f9e7;color:#059669;border:1px solid #a7e8c0;padding:6px 10px;border-radius:7px;margin-bottom:8px;font-weight:600;font-size:11px;';
+                    status.textContent   = '✅ Sinkron berhasil! ' + total + ' akun dimuat dari Database Grup.';
+                    setTimeout(() => { if (status) status.style.display = 'none'; }, 4000);
+                }
+            })
+            .catch(err => {
+                if (status) {
+                    status.style.cssText = 'display:block;background:#fee2e2;color:#fa3e3e;border:1px solid #fca5a5;padding:6px 10px;border-radius:7px;margin-bottom:8px;font-weight:600;font-size:11px;';
+                    status.textContent   = '❌ Gagal sync: ' + err.message;
+                    setTimeout(() => { if (status) status.style.display = 'none'; }, 5000);
+                }
+            })
+            .finally(() => {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync DB Grup'; }
+            });
+    };
 
     // --- 5c. AUTO-REGISTER AKUN BARU DARI SCAN KE HOME ---
     // Jika ada akun di fewfeed_scan yang belum terdaftar di manapun,
@@ -1354,13 +1628,13 @@
         if (_refreshTimer) clearTimeout(_refreshTimer);
         _refreshTimer = setTimeout(() => {
             if (window.isDragging) {
-                // Jika masih drag, tunda lagi sampai drag selesai
                 _refreshTimer = setTimeout(() => {
                     renderHomeTab();
                     window.refreshFanpageTab();
                     window.refreshDisbanTab();
                     renderBlockingTab();
                     renderFSTab();
+                    updateMiniStats();
                     if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
                     if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
                     if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
@@ -1372,10 +1646,46 @@
             window.refreshDisbanTab();
             renderBlockingTab();
             renderFSTab();
+            updateMiniStats();
             if(document.getElementById('tab-5').classList.contains('active')) renderScheduleTab();
             if(document.getElementById('tab-6').classList.contains('active')) renderPostingScheduleTab();
             if(document.getElementById('tab-7').classList.contains('active')) renderRecoveryTab();
-        }, 250); // debounce 250ms
+        }, 250);
+    }
+
+    // ── MINI STAT BAR: hitung semua akun dari semua DB ──
+    function updateMiniStats() {
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        let aktif = 0, fanpage = 0, secondary = 0, disban = 0, blocking = 0;
+
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (!acc || !acc.name) return;
+                const sk = getSafeKey(acc.name);
+                if (window.deletedAccounts && window.deletedAccounts[sk]) return;
+                // Jangan hitung yang di recovery queue (inkubasi)
+                if (window.recoveryQueue && window.recoveryQueue[sk]) return;
+
+                const st  = getEffectiveStatus(acc);
+                const tp  = window.tabPlacements && window.tabPlacements[sk];
+                const tab = tp ? tp.tab : 'home';
+
+                if (st === 'disban' || st === 'sembuh') { disban++; return; }
+                if (st === 'blocking')                  { blocking++; return; }
+
+                // Akun aktif (gacor / warn)
+                if (tab === 'fanpage')   fanpage++;
+                else if (tab === 'secondary') secondary++;
+                else aktif++;
+            });
+        });
+
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        set('ms-aktif',     aktif);
+        set('ms-fanpage',   fanpage);
+        set('ms-secondary', secondary);
+        set('ms-disban',    disban);
+        set('ms-blocking',  blocking);
     }
     
     function showMigrationButton(containerId, dbKey) {
@@ -1418,28 +1728,46 @@
     // --- 6. FIREBASE UPDATE (WRITE) ---
     window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
         if(showLoading) { alert("Sedang mengupload... Jangan tutup halaman."); }
-        
-        // Bersihkan null/undefined slot — Firebase akan strip null dan geser index
-        // sehingga menyebabkan data kembali setelah reload. Filter null dulu.
         const cleaned = (dataArray || []).filter(item => item !== null && item !== undefined);
-
-        // Deep clone supaya tidak ada reference conflict dengan Firebase listener
         const cloned = JSON.parse(JSON.stringify(cleaned));
-        
-        // Update window variable LANGSUNG dengan data terbaru
         window[dbKey] = cloned;
-        
-        // Refresh UI segera tanpa tunggu server
         refreshAllTabs(dbKey);
-
-        // Kirim ke Firebase server
         db.ref(dbKey).set(cloned)
-            .then(() => {
-                if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase.");
-            })
-            .catch((error) => {
-                alert("GAGAL simpan ke Firebase: " + error.message);
+            .then(() => { if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase."); })
+            .catch((error) => { alert("GAGAL simpan ke Firebase: " + error.message); });
+    }
+
+    // ============================================================
+    // SYNC STATUS AKUN → GRUPID Firebase (index 31 baca dari sini)
+    // Setiap kali status akun berubah di index 30, langsung tulis
+    // ke grupid-default-rtdb/fewfeed_akun_status/<safeKey>
+    // ============================================================
+    const _GRUPID_DB_URL = 'https://grupid-default-rtdb.firebaseio.com';
+
+    window.syncStatusToGrupId = function(safeKey, status, accName) {
+        if (!safeKey) return;
+        const payload = JSON.stringify({ status: status, name: accName || safeKey, updatedAt: Date.now() });
+        fetch(_GRUPID_DB_URL + '/fewfeed_akun_status/' + safeKey + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+        }).catch(e => console.warn('syncStatusToGrupId gagal:', e.message));
+    };
+
+    // Panggil sync awal — kirim semua status akun saat ini ke grupid
+    function _syncAllStatusToGrupId() {
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        const written = new Set();
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (!acc || !acc.name) return;
+                const sk = getSafeKey(acc.name);
+                if (written.has(sk)) return;
+                written.add(sk);
+                const st = getEffectiveStatus(acc);
+                window.syncStatusToGrupId(sk, st, acc.name);
             });
+        });
     }
 
     // --- 7. MIGRASI DISBAN LAMA → RECOVERY INKUBASI 3 HARI ---
@@ -1666,7 +1994,8 @@
 
         if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
         window.accountOverrides[safeKey].status = newStatus;
-        db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
+        db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus);
+            window.syncStatusToGrupId(safeKey, newStatus, null)
             .catch(e => alert('Gagal simpan status: ' + e.message));
 
         // Bersihkan timer disban jika pindah dari disban
@@ -1729,6 +2058,7 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'sembuh';
         db2.ref('accountOverrides/' + key + '/status').set('sembuh');
+        window.syncStatusToGrupId(key, 'sembuh', null);
         // Masukkan ke recovery queue fase 3 hari
         const recEntry = { name: accName, phase: 3, startTime: Date.now(), originalDb: dbKey, originalIdx: idx };
         window.recoveryQueue[key] = recEntry;
@@ -1752,6 +2082,7 @@
                 if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
                 window.accountOverrides[key].status = 'gacor';
                 db2.ref('accountOverrides/' + key + '/status').set('gacor');
+                window.syncStatusToGrupId(key, 'gacor', null);
                 db.ref('accountRecovery/' + key).remove();
                 delete window.accountRecovery[key];
                 setTimeout(() => {
@@ -1927,6 +2258,7 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'warn';
         db2.ref('accountOverrides/' + key + '/status').set('warn');
+        window.syncStatusToGrupId(key, 'warn', null);
 
         // Mulai recovery tracking untuk warn → gacor (7 sesi bersih)
         const recovery = { cleanSessions: 0, accName: entry.name };
@@ -1954,6 +2286,7 @@
             if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
             window.accountOverrides[key].status = 'disban';
             db2.ref('accountOverrides/' + key + '/status').set('disban');
+                window.syncStatusToGrupId(key, 'disban', null);
             // Mulai ulang inkubasi 3 hari
             const newEntry = { name: entry.name, phase: 3, startTime: Date.now(), originalDb: entry.originalDb, originalIdx: entry.originalIdx };
             window.recoveryQueue[key] = newEntry;
@@ -2006,6 +2339,7 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'warn';
         db2.ref('accountOverrides/' + key + '/status').set('warn');
+        window.syncStatusToGrupId(key, 'warn', null);
 
         // Mulai recovery tracking warn → gacor
         const recovery = { cleanSessions: 0, accName: entry.name };
@@ -2677,7 +3011,8 @@
             // ✅ Simpan HANYA ke DB2 — tidak menyentuh DB1 sama sekali
             if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
             window.accountOverrides[safeKey].status = newStatus;
-            db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
+            db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus);
+            window.syncStatusToGrupId(safeKey, newStatus, null)
                 .catch(e => alert("Gagal simpan status: " + e.message));
 
             // ✅ AUTO-START RECOVERY INKUBASI 3 HARI SAAT DISBAN
