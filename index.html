@@ -1278,8 +1278,6 @@
 
             // ✅ MIGRASI DISBAN LAMA: jalankan setelah semua data siap (retry sampai berhasil)
             _scheduleMigrateDisban();
-            // ✅ Sync status semua akun ke grupid-default-rtdb agar index 31 bisa baca
-            setTimeout(_syncAllStatusToGrupId, 2000);
         })
         .catch(err => {
             console.warn('DB2 gagal dimuat, lanjut tanpa override:', err);
@@ -1658,12 +1656,15 @@
         const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
         let aktif = 0, fanpage = 0, secondary = 0, disban = 0, blocking = 0;
 
+        // Hitung dari recoveryQueue dulu (inkubasi = disban)
+        disban += Object.keys(window.recoveryQueue || {}).length;
+
         allDbKeys.forEach(dbKey => {
             (window[dbKey] || []).forEach(acc => {
                 if (!acc || !acc.name) return;
                 const sk = getSafeKey(acc.name);
                 if (window.deletedAccounts && window.deletedAccounts[sk]) return;
-                // Jangan hitung yang di recovery queue (inkubasi)
+                // Akun inkubasi sudah dihitung di atas, skip di sini
                 if (window.recoveryQueue && window.recoveryQueue[sk]) return;
 
                 const st  = getEffectiveStatus(acc);
@@ -1674,9 +1675,9 @@
                 if (st === 'blocking')                  { blocking++; return; }
 
                 // Akun aktif (gacor / warn)
-                if (tab === 'fanpage')   fanpage++;
+                if (tab === 'fanpage')        fanpage++;
                 else if (tab === 'secondary') secondary++;
-                else aktif++;
+                else                          aktif++;
             });
         });
 
@@ -1728,46 +1729,28 @@
     // --- 6. FIREBASE UPDATE (WRITE) ---
     window.saveToFirebase = function(dbKey, dataArray, showLoading = false) {
         if(showLoading) { alert("Sedang mengupload... Jangan tutup halaman."); }
+        
+        // Bersihkan null/undefined slot — Firebase akan strip null dan geser index
+        // sehingga menyebabkan data kembali setelah reload. Filter null dulu.
         const cleaned = (dataArray || []).filter(item => item !== null && item !== undefined);
+
+        // Deep clone supaya tidak ada reference conflict dengan Firebase listener
         const cloned = JSON.parse(JSON.stringify(cleaned));
+        
+        // Update window variable LANGSUNG dengan data terbaru
         window[dbKey] = cloned;
+        
+        // Refresh UI segera tanpa tunggu server
         refreshAllTabs(dbKey);
+
+        // Kirim ke Firebase server
         db.ref(dbKey).set(cloned)
-            .then(() => { if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase."); })
-            .catch((error) => { alert("GAGAL simpan ke Firebase: " + error.message); });
-    }
-
-    // ============================================================
-    // SYNC STATUS AKUN → GRUPID Firebase (index 31 baca dari sini)
-    // Setiap kali status akun berubah di index 30, langsung tulis
-    // ke grupid-default-rtdb/fewfeed_akun_status/<safeKey>
-    // ============================================================
-    const _GRUPID_DB_URL = 'https://grupid-default-rtdb.firebaseio.com';
-
-    window.syncStatusToGrupId = function(safeKey, status, accName) {
-        if (!safeKey) return;
-        const payload = JSON.stringify({ status: status, name: accName || safeKey, updatedAt: Date.now() });
-        fetch(_GRUPID_DB_URL + '/fewfeed_akun_status/' + safeKey + '.json', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload
-        }).catch(e => console.warn('syncStatusToGrupId gagal:', e.message));
-    };
-
-    // Panggil sync awal — kirim semua status akun saat ini ke grupid
-    function _syncAllStatusToGrupId() {
-        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
-        const written = new Set();
-        allDbKeys.forEach(dbKey => {
-            (window[dbKey] || []).forEach(acc => {
-                if (!acc || !acc.name) return;
-                const sk = getSafeKey(acc.name);
-                if (written.has(sk)) return;
-                written.add(sk);
-                const st = getEffectiveStatus(acc);
-                window.syncStatusToGrupId(sk, st, acc.name);
+            .then(() => {
+                if(showLoading) alert("SUKSES! Data berhasil diupload ke Firebase.");
+            })
+            .catch((error) => {
+                alert("GAGAL simpan ke Firebase: " + error.message);
             });
-        });
     }
 
     // --- 7. MIGRASI DISBAN LAMA → RECOVERY INKUBASI 3 HARI ---
@@ -1994,8 +1977,7 @@
 
         if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
         window.accountOverrides[safeKey].status = newStatus;
-        db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus);
-            window.syncStatusToGrupId(safeKey, newStatus, null)
+        db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
             .catch(e => alert('Gagal simpan status: ' + e.message));
 
         // Bersihkan timer disban jika pindah dari disban
@@ -2058,7 +2040,6 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'sembuh';
         db2.ref('accountOverrides/' + key + '/status').set('sembuh');
-        window.syncStatusToGrupId(key, 'sembuh', null);
         // Masukkan ke recovery queue fase 3 hari
         const recEntry = { name: accName, phase: 3, startTime: Date.now(), originalDb: dbKey, originalIdx: idx };
         window.recoveryQueue[key] = recEntry;
@@ -2082,7 +2063,6 @@
                 if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
                 window.accountOverrides[key].status = 'gacor';
                 db2.ref('accountOverrides/' + key + '/status').set('gacor');
-                window.syncStatusToGrupId(key, 'gacor', null);
                 db.ref('accountRecovery/' + key).remove();
                 delete window.accountRecovery[key];
                 setTimeout(() => {
@@ -2258,7 +2238,6 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'warn';
         db2.ref('accountOverrides/' + key + '/status').set('warn');
-        window.syncStatusToGrupId(key, 'warn', null);
 
         // Mulai recovery tracking untuk warn → gacor (7 sesi bersih)
         const recovery = { cleanSessions: 0, accName: entry.name };
@@ -2286,7 +2265,6 @@
             if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
             window.accountOverrides[key].status = 'disban';
             db2.ref('accountOverrides/' + key + '/status').set('disban');
-                window.syncStatusToGrupId(key, 'disban', null);
             // Mulai ulang inkubasi 3 hari
             const newEntry = { name: entry.name, phase: 3, startTime: Date.now(), originalDb: entry.originalDb, originalIdx: entry.originalIdx };
             window.recoveryQueue[key] = newEntry;
@@ -2339,7 +2317,6 @@
         if (!window.accountOverrides[key]) window.accountOverrides[key] = {};
         window.accountOverrides[key].status = 'warn';
         db2.ref('accountOverrides/' + key + '/status').set('warn');
-        window.syncStatusToGrupId(key, 'warn', null);
 
         // Mulai recovery tracking warn → gacor
         const recovery = { cleanSessions: 0, accName: entry.name };
@@ -3011,8 +2988,7 @@
             // ✅ Simpan HANYA ke DB2 — tidak menyentuh DB1 sama sekali
             if (!window.accountOverrides[safeKey]) window.accountOverrides[safeKey] = {};
             window.accountOverrides[safeKey].status = newStatus;
-            db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus);
-            window.syncStatusToGrupId(safeKey, newStatus, null)
+            db2.ref('accountOverrides/' + safeKey + '/status').set(newStatus)
                 .catch(e => alert("Gagal simpan status: " + e.message));
 
             // ✅ AUTO-START RECOVERY INKUBASI 3 HARI SAAT DISBAN
