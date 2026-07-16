@@ -215,9 +215,7 @@
         #btn-home-all  { font-size: 10px; }
         #btn-home-chrome.active  i { color: #4285F4; }
         #btn-home-brave.active   i { color: #FF5722; }
-        #btn-home-vivaldi.active i { color: #EF3939; }
-        #btn-home-chromium.active i { color: #607D8B; }
-        #btn-home-ecosia.active  i { color: #2D7A4F; }
+        #btn-home-edge.active  i { color: #0078D7; }
         #btn-home-lainnya.active i { color: #9C27B0; }
 
         /* --- BROWSER FANPAGE SUB-TABS --- */
@@ -227,9 +225,7 @@
         #btn-fp-all { font-size: 10px; }
         #btn-fp-chrome.active  i { color: #4285F4; }
         #btn-fp-brave.active   i { color: #FF5722; }
-        #btn-fp-vivaldi.active i { color: #EF3939; }
-        #btn-fp-chromium.active i { color: #607D8B; }
-        #btn-fp-ecosia.active  i { color: #2D7A4F; }
+        #btn-fp-edge.active  i { color: #0078D7; }
         #btn-fp-lainnya.active i { color: #9C27B0; }
 
         /* --- MOVE BROWSER BTN --- */
@@ -556,9 +552,7 @@
                 <div class="sub-nav-btn active" onclick="switchHomeTab('all')" id="btn-home-all" style="font-size:9px;white-space:nowrap;">FB Aktif</div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('chrome')" id="btn-home-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('brave')" id="btn-home-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
-                <div class="sub-nav-btn" onclick="switchHomeTab('vivaldi')" id="btn-home-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
-                <div class="sub-nav-btn" onclick="switchHomeTab('chromium')" id="btn-home-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
-                <div class="sub-nav-btn" onclick="switchHomeTab('ecosia')" id="btn-home-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
+                <div class="sub-nav-btn" onclick="switchHomeTab('edge')" id="btn-home-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
                 <div class="sub-nav-btn" onclick="switchHomeTab('lainnya')" id="btn-home-lainnya"><i class="fas fa-ellipsis"></i><span>Lainnya</span></div>
             </div>
             <div id="list-1" class="grid-container"></div>
@@ -571,9 +565,7 @@
                 <div class="sub-nav-btn active" onclick="switchFanpageTab('all')" id="btn-fp-all">Semua</div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('chrome')" id="btn-fp-chrome"><i class="fab fa-chrome"></i><span>Chrome</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('brave')" id="btn-fp-brave"><i class="fas fa-shield-halved"></i><span>Brave</span></div>
-                <div class="sub-nav-btn" onclick="switchFanpageTab('vivaldi')" id="btn-fp-vivaldi"><i class="fas fa-record-vinyl"></i><span>Vivaldi</span></div>
-                <div class="sub-nav-btn" onclick="switchFanpageTab('chromium')" id="btn-fp-chromium"><i class="fas fa-circle-dot"></i><span>Chromium</span></div>
-                <div class="sub-nav-btn" onclick="switchFanpageTab('ecosia')" id="btn-fp-ecosia"><i class="fas fa-leaf"></i><span>Ecosia</span></div>
+                <div class="sub-nav-btn" onclick="switchFanpageTab('edge')" id="btn-fp-edge"><i class="fab fa-edge"></i><span>Edge</span></div>
                 <div class="sub-nav-btn" onclick="switchFanpageTab('lainnya')" id="btn-fp-lainnya"><i class="fas fa-ellipsis"></i><span>Lainnya</span></div>
             </div>
             <div id="list-2" class="grid-container"></div>
@@ -783,9 +775,7 @@
                 <div style="display:flex;flex-direction:column;gap:8px;">
                     <button class="btn-action btn-yes" style="background:#4285F4;" onclick="submitMoveBrowser('chrome')"><i class="fab fa-chrome"></i> Chrome</button>
                     <button class="btn-action btn-yes" style="background:#FF5722;" onclick="submitMoveBrowser('brave')"><i class="fas fa-shield-halved"></i> Brave</button>
-                    <button class="btn-action btn-yes" style="background:#EF3939;" onclick="submitMoveBrowser('vivaldi')"><i class="fas fa-record-vinyl"></i> Vivaldi</button>
-                    <button class="btn-action btn-yes" style="background:#555;" onclick="submitMoveBrowser('chromium')"><i class="fas fa-circle-dot"></i> Chromium</button>
-                    <button class="btn-action btn-yes" style="background:#2D7A4F;" onclick="submitMoveBrowser('ecosia')"><i class="fas fa-leaf"></i> Ecosia</button>
+                    <button class="btn-action btn-yes" style="background:#0078D7;" onclick="submitMoveBrowser('edge')"><i class="fab fa-edge"></i> Edge</button>
                     <button class="btn-action btn-yes" style="background:#9C27B0;" onclick="submitMoveBrowser('lainnya')"><i class="fas fa-ellipsis"></i> Lainnya</button>
                 </div>
             </div>
@@ -817,6 +807,25 @@
                     </select>
                 </div>
                 <button class="btn-submit" onclick="submitMoveTab()">Pindahkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ganti Akun Utama (Parent) untuk Fanpage/Secondary -->
+    <div class="modal-overlay" id="changeParentModal" onclick="closeModal(event,'changeParentModal')">
+        <div class="modal-content" style="max-width:320px;">
+            <div class="modal-header">
+                <div class="modal-title">Ganti Akun Utama</div>
+                <div class="modal-subtitle" id="changeParentAccName" style="font-weight:700;color:var(--fb-blue);"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Akun Utama (Parent) Baru</label>
+                    <select id="changeParentSelect" class="form-select">
+                        <option value="">— Pilih Akun Utama —</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="submitChangeParent()">Simpan</button>
             </div>
         </div>
     </div>
@@ -975,6 +984,8 @@
     window.disbanTimers = {};
     window.accountRecovery = {};
     window.recoveryQueue = {};   // ✅ NEW: inkubasi recovery queue
+    window._skipMigration = {};  // ✅ FIX: cegah akun yang baru saja dipindah paksa/dipulihkan
+                                  // ter-migrasi ulang ke Disban akibat snapshot Firebase yang belum sinkron
     window.currentRecoveryPhase = 3; // ✅ NEW: active sub-tab phase
     window.fewfeedScanData = {};
     window.isDragging = false;  // ✅ Guard: blok render saat drag aktif
@@ -1024,9 +1035,7 @@
     const browserMap = {
         'chrome':   ['REBECCA', 'NIA', 'ELON', 'ASAFA', 'SILVI', 'ELAINA', 'NAURA', 'RALIA', 'ALDI'], 
         'brave':    ['ADELIA', 'ADRIANA', 'ALENA', 'MELI', 'TEDY', 'SARAH', 'SUKI', 'ALEX'],
-        'chromium': ['IVY', 'AZKA', 'ERIKA', 'LAVIANA', 'NOEVRA', 'IZNA', 'MEYSA', 'PARAMITA', 'NASYA', 'FEBRIANA FANPAGE', 'AFKA'],
-        'vivaldi':  ['VERA SISILA', 'JANE', 'VERA'],
-        'ecosia':   [],
+        'edge':     ['IVY', 'AZKA', 'ERIKA', 'LAVIANA', 'NOEVRA', 'IZNA', 'MEYSA', 'PARAMITA', 'NASYA', 'FEBRIANA FANPAGE', 'AFKA', 'VERA SISILA', 'JANE', 'VERA'],
         'lainnya':  []
     };
 
@@ -1038,22 +1047,18 @@
         const n = (acc && acc.name) ? acc.name.toUpperCase() : '';
         if (browserMap.chrome.includes(n))   return 'chrome';
         if (browserMap.brave.includes(n))    return 'brave';
-        if (browserMap.chromium.includes(n)) return 'chromium';
-        if (browserMap.vivaldi.includes(n))  return 'vivaldi';
-        if (browserMap.ecosia.includes(n))   return 'ecosia';
+        if (browserMap.edge.includes(n))     return 'edge';
         if (browserMap.lainnya.includes(n))  return 'lainnya';
         return 'lainnya';
     }
 
     function getBrowserIcon(accOrName) {
         const type = typeof accOrName === 'string'
-            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.chromium.includes(n)) return 'chromium'; if(browserMap.vivaldi.includes(n)) return 'vivaldi'; if(browserMap.ecosia.includes(n)) return 'ecosia'; if(browserMap.lainnya.includes(n)) return 'lainnya'; return 'lainnya'; })()
+            ? (() => { const n=accOrName.toUpperCase(); if(browserMap.chrome.includes(n)) return 'chrome'; if(browserMap.brave.includes(n)) return 'brave'; if(browserMap.edge.includes(n)) return 'edge'; if(browserMap.lainnya.includes(n)) return 'lainnya'; return 'lainnya'; })()
             : getBrowserType(accOrName);
         if (type === 'chrome')   return '<i class="fab fa-chrome" style="color:#4285F4;font-size:18px;"></i>';
         if (type === 'brave')    return '<i class="fas fa-shield-halved" style="color:#FF5722;font-size:16px;"></i>';
-        if (type === 'chromium') return '<i class="fas fa-circle-dot" style="color:#607D8B;font-size:16px;"></i>';
-        if (type === 'vivaldi')  return '<i class="fas fa-record-vinyl" style="color:#EF3939;font-size:16px;"></i>';
-        if (type === 'ecosia')   return '<i class="fas fa-leaf" style="color:#2D7A4F;font-size:16px;"></i>';
+        if (type === 'edge')     return '<i class="fab fa-edge" style="color:#0078D7;font-size:16px;"></i>';
         if (type === 'lainnya')  return '<i class="fas fa-ellipsis" style="color:#9C27B0;font-size:16px;"></i>';
         return '<i class="fas fa-globe" style="color:#65676B;font-size:16px;"></i>';
     }
@@ -1828,6 +1833,9 @@
                 // Akun di Fanpage/Secondary punya status mandiri — jangan masuk Disban tab
                 const tp = window.tabPlacements && window.tabPlacements[sk];
                 if (tp && (tp.tab === 'fanpage' || tp.tab === 'secondary')) return;
+                // ✅ FIX: lewati akun yang baru saja dipindah paksa/dipulihkan dari recovery,
+                // agar tidak langsung ter-migrasi balik ke Disban akibat snapshot lama
+                if (window._skipMigration && window._skipMigration[sk]) return;
                 if(getEffectiveStatus(acc) === 'disban') {
                     allDisban.push({ ...acc, status: getEffectiveStatus(acc), originalIdx: idx, originalDb: dbRefName, sourceLabel: label });
                 }
@@ -2226,6 +2234,11 @@
         if (!entry) return;
         if (!confirm(`✅ ${entry.name} dinyatakan PULIH?\nStatus akan berubah ke AKUN PERINGATAN.`)) return;
 
+        // ✅ FIX: tandai akun ini agar tidak ter-migrasi ulang ke Disban
+        // selama proses sinkronisasi Firebase berlangsung
+        window._skipMigration[key] = true;
+        setTimeout(() => { delete window._skipMigration[key]; }, 8000);
+
         // Hapus dari recoveryQueue
         delete window.recoveryQueue[key];
         db2.ref('recoveryQueue/' + key).remove();
@@ -2303,6 +2316,11 @@
         const phaseTxt = entry.phase + ' Hari';
         if (!confirm(`⚡ PINDAH PAKSA: ${entry.name}\n\nAkun ini masih dalam inkubasi ${phaseTxt}.\nPaksa pindah ke Home dengan status PERINGATAN?\n\n⚠️ Timer inkubasi akan dihapus!`)) return;
 
+        // ✅ FIX: tandai akun ini agar tidak ter-migrasi ulang ke Disban
+        // selama proses sinkronisasi Firebase berlangsung
+        window._skipMigration[key] = true;
+        setTimeout(() => { delete window._skipMigration[key]; }, 8000);
+
         // Hapus dari recoveryQueue
         delete window.recoveryQueue[key];
         db2.ref('recoveryQueue/' + key).remove();
@@ -2372,7 +2390,7 @@
 
     window.switchHomeTab = function(type) {
         window.currentHomeSubTab = type;
-        ['all','chrome','brave','vivaldi','chromium','ecosia','lainnya'].forEach(t => {
+        ['all','chrome','brave','edge','lainnya'].forEach(t => {
             const el = document.getElementById('btn-home-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
@@ -2463,6 +2481,7 @@
             } else {
                 items = akun.items || [];
             }
+            items = [...items].sort((a, b) => (b.val || 0) - (a.val || 0));
 
             let listHTML = items.map(item => {
                 const lastDate = getLastPostDate(akun.name, item.city);
@@ -2753,7 +2772,7 @@
 
     window.switchFanpageTab = function(type) {
         window.currentFanpageSubTab = type;
-        ['all','chrome','brave','vivaldi','chromium','ecosia','lainnya'].forEach(t => {
+        ['all','chrome','brave','edge','lainnya'].forEach(t => {
             const el = document.getElementById('btn-fp-' + t);
             if (el) el.className = 'sub-nav-btn' + (t === type ? ' active' : '');
         });
@@ -2835,6 +2854,7 @@
             } else {
                 items = akun.items || [];
             }
+            items = [...items].sort((a, b) => (b.val || 0) - (a.val || 0));
 
             let listHTML = items.map(item => {
                 const lastDate = getLastPostDate(akun.name, item.city);
@@ -3885,10 +3905,11 @@
             } else {
                 items = akun.items || [];
             }
+            items = [...items].sort((a, b) => (b.val || 0) - (a.val || 0));
 
             const browserIcon = getBrowserIcon(akun);
             const parentLabel = akun.parentAcc
-                ? `<span class="acc-parent-label">↳ from ${akun.parentAcc}</span>`
+                ? `<span class="acc-parent-label" style="cursor:pointer;text-decoration:underline dotted #aaa;" title="Ketuk untuk ganti akun utama" onclick="event.stopPropagation();openChangeParentModal('${akun.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">↳ from ${akun.parentAcc} <i class="fas fa-pen" style="font-size:8px;opacity:0.6;"></i></span>`
                 : '';
             // ✅ Title badge
             const fsSafeKey = getSafeKey(akun.name);
@@ -4015,6 +4036,61 @@
 
         refreshAllTabs('moveTab');
         closeModal(null, 'moveTabModal', true);
+    };
+
+    // =====================================================================
+    // GANTI AKUN UTAMA (PARENT) — untuk akun di tab Fanpage/Secondary
+    // Contoh: "Liza Fanpage from Aldi" → Aldi bisa diganti akun lain
+    // =====================================================================
+    window.openChangeParentModal = function(accName) {
+        window._changeParentTarget = accName;
+        document.getElementById('changeParentAccName').textContent = accName;
+
+        const sel = document.getElementById('changeParentSelect');
+        sel.innerHTML = '<option value="">— Pilih Akun Utama —</option>';
+
+        const safeKeySelf = getSafeKey(accName);
+        const currentParent = (window.tabPlacements[safeKeySelf] || {}).parentAcc || '';
+
+        const allDbKeys = ['dbUtama1','dbSecondary1','dbUtama5'];
+        const added = new Set();
+        allDbKeys.forEach(dbKey => {
+            (window[dbKey] || []).forEach(acc => {
+                if (!acc || !acc.name) return;
+                if (acc.name.toUpperCase() === accName.toUpperCase()) return; // skip diri sendiri
+                if (added.has(acc.name)) return;
+                const sk = getSafeKey(acc.name);
+                const tp = window.tabPlacements[sk];
+                if (!tp || tp.tab === 'home' || !tp.tab) {
+                    // hanya akun yang ada di Home yang bisa jadi akun utama
+                    const opt = document.createElement('option');
+                    opt.value = acc.name;
+                    opt.textContent = acc.name;
+                    if (acc.name === currentParent) opt.selected = true;
+                    sel.appendChild(opt);
+                    added.add(acc.name);
+                }
+            });
+        });
+        document.getElementById('changeParentModal').classList.add('show');
+    };
+
+    window.submitChangeParent = function() {
+        const accName = window._changeParentTarget;
+        if (!accName) return;
+        const newParent = document.getElementById('changeParentSelect').value;
+        if (!newParent) { alert('Pilih akun utama (parent) terlebih dahulu.'); return; }
+
+        const safeKey = getSafeKey(accName);
+        const existing = window.tabPlacements[safeKey] || {};
+        const placement = { tab: existing.tab, parentAcc: newParent };
+        window.tabPlacements[safeKey] = placement;
+        db2.ref('tabPlacements/' + safeKey).set(placement)
+            .catch(e => alert('Gagal simpan akun utama: ' + e.message));
+
+        refreshAllTabs('changeParent');
+        closeModal(null, 'changeParentModal', true);
+        setTimeout(() => alert(`✅ Akun utama untuk ${accName} diganti menjadi ${newParent}.`), 100);
         window._moveTabTarget = null;
     };
 
